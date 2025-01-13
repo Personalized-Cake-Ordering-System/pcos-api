@@ -1,0 +1,6 @@
+@CusCake.WebApi_HostAddress = http://localhost:5032
+
+GET {{CusCake.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
