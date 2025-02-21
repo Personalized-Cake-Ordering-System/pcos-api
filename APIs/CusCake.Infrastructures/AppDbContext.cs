@@ -6,13 +6,15 @@ using System.Reflection;
 
 namespace CusCake.Infrastructures
 {
-    public class AppDbContext:DbContext
+    public class AppDbContext : DbContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
 
         #region  DB-Sets
         public DbSet<Customer> Customers { get; set; }
+        public DbSet<Storage> Storages { get; set; }
+        public DbSet<Bakery> Bakeries { get; set; }
 
         #endregion
 

@@ -32,6 +32,7 @@ public class CustomerController : BaseController
     [HttpGet]
     public async Task<IActionResult> GetAllAsync(int pageIndex = 0, int pageSize = 10)
     {
+        await _customerService.DemoAsync();
         return Ok(await _customerService.GetAllAsync(pageIndex, pageSize));
     }
 }
