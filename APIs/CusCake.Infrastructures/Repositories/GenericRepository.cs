@@ -26,21 +26,21 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
         _claimsService = claimsService;
     }
 
-    public async Task<List<TEntity>> GetAllAsync(params Expression<Func<TEntity, object>>[] includes) =>
+    public async Task<List<TEntity>> GetAllAsync(bool withDeleted = true, params Expression<Func<TEntity, object>>[] includes) =>
           await includes
          .Aggregate(_dbSet.AsQueryable(),
              (entity, property) => entity.Include(property).IgnoreAutoIncludes())
-         .Where(x => x.IsDeleted == false)
-          .OrderByDescending(x => x.CreatedAt)
+         .Where(x => withDeleted || !x.IsDeleted)
+         .OrderByDescending(x => x.CreatedAt)
          .ToListAsync();
 
-    public async Task<TEntity?> GetByIdAsync(Guid id, params Expression<Func<TEntity, object>>[] includes)
+    public async Task<TEntity?> GetByIdAsync(Guid id, bool withDeleted = true, params Expression<Func<TEntity, object>>[] includes)
     {
         return await includes
-           .Aggregate(_dbSet.AsQueryable(),
+            .Aggregate(_dbSet.AsQueryable(),
                (entity, property) => entity.Include(property))
-           .AsNoTracking()
-           .FirstOrDefaultAsync(x => x.Id.Equals(id) && x.IsDeleted == false);
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id.Equals(id) && (withDeleted || !x.IsDeleted));
     }
 
     public async Task<TEntity> AddAsync(TEntity entity)
@@ -106,21 +106,22 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
         _dbSet.UpdateRange(entities);
     }
 
-    public async Task<List<TEntity>> WhereAsync(Expression<Func<TEntity, bool>> expression, params Expression<Func<TEntity, object>>[] includes)
+    public async Task<List<TEntity>> WhereAsync(Expression<Func<TEntity, bool>> expression, bool withDeleted = true, params Expression<Func<TEntity, object>>[] includes)
           => await includes
-         .Aggregate(_dbSet!.AsQueryable(),
-             (entity, property) => entity.Include(property)).AsNoTracking()
-         .Where(expression!)
-         .Where(x => x.IsDeleted == false)
-          .OrderByDescending(x => x.CreatedAt)
-          .ToListAsync();
+            .Aggregate(_dbSet!.AsQueryable(),
+                (entity, property) => entity.Include(property)).AsNoTracking()
+            .Where(expression!)
+            .Where(x => withDeleted || !x.IsDeleted)
+            .OrderByDescending(x => x.CreatedAt)
+            .ToListAsync();
 
-    public async Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> expression, params Expression<Func<TEntity, object>>[] includes)
+    public async Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> expression, bool withDeleted = true, params Expression<Func<TEntity, object>>[] includes)
          => await includes
         .Aggregate(_dbSet!.AsQueryable(),
             (entity, property) => entity!.Include(property)).AsNoTracking()
         .Where(expression!)
-         .FirstOrDefaultAsync(x => x.IsDeleted == false);
+        .FirstOrDefaultAsync(x => withDeleted || !x.IsDeleted);
+
 
     public async Task AddRangeAsync(List<TEntity> entities)
     {

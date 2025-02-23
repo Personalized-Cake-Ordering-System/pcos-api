@@ -10,14 +10,21 @@ namespace CusCake.Infrastructures
 
         public UnitOfWork(
             AppDbContext appDbContext,
-            ICustomerRepository customerRepository)
+            ICustomerRepository customerRepository,
+            IBakeryRepository bakeryRepository,
+            IStorageRepository storageRepository)
         {
             _appDbContext = appDbContext;
-            CustomerRepository= customerRepository;
-            
+            CustomerRepository = customerRepository;
+            BakeryRepository = bakeryRepository;
+            StorageRepository = storageRepository;
         }
 
         public ICustomerRepository CustomerRepository { get; }
+
+        public IBakeryRepository BakeryRepository { get; }
+
+        public IStorageRepository StorageRepository { get; }
 
         public async Task<bool> SaveChangesAsync() => (await _appDbContext.SaveChangesAsync()) > 0;
     }
