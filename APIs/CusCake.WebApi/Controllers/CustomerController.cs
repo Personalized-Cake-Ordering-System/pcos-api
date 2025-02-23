@@ -1,5 +1,7 @@
 ﻿using CusCake.Application.Services;
+using CusCake.Application.ViewModels;
 using CusCake.Application.ViewModels.CustomerModels;
+using CusCake.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CusCake.WebApi.Controllers;
@@ -18,7 +20,8 @@ public class CustomerController : BaseController
     [HttpGet("{id}")]
     public async Task<IActionResult> GetByIdAsync(Guid id)
     {
-        return Ok(await _customerService.GetByIdAsync(id));
+        var customer = await _customerService.GetByIdAsync(id);
+        return Ok(ResponseModel<object, CustomerViewModel>.Success(customer));
     }
 
 
@@ -28,11 +31,11 @@ public class CustomerController : BaseController
         await _customerService.CreateAsync(model);
         return StatusCode(201);
     }
-
     [HttpGet]
     public async Task<IActionResult> GetAllAsync(int pageIndex = 0, int pageSize = 10)
     {
-        await _customerService.DemoAsync();
-        return Ok(await _customerService.GetAllAsync(pageIndex, pageSize));
+        var customers = await _customerService.GetAllAsync(pageIndex, pageSize);
+        var metaData = new { TotalItemsCount = customers.TotalItemsCount };
+        return Ok(ResponseModel<object, ICollection<Customer>>.Success(customers!.Items!, metaData));
     }
 }

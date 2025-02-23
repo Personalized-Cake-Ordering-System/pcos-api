@@ -1,4 +1,5 @@
 ﻿using CusCake.Application.GlobalExceptionHandling.Exceptions;
+using CusCake.Application.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Net;
@@ -60,11 +61,13 @@ namespace CusCake.Application.GlobalExceptionHandling
                 message = exception.Message;
                 stackTrace = exception.StackTrace;
             }
-            var exceptionResult = JsonSerializer.Serialize(new
-            {
-                error = message,
-                stackTrace
-            });
+            var exceptionResult = JsonSerializer.Serialize(
+                ResponseModel<object, object>.Fail(
+                    (int)status,
+                    [message],
+                    new List<string> { stackTrace! }
+                )
+            );
 
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int)status;

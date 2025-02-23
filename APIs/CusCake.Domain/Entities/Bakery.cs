@@ -17,10 +17,10 @@ namespace CusCake.Domain.Entities
         public string Address { get; set; } = default!;
         [Column("identity_card_number")]
         public string IdentityCardNumber { get; set; } = default!;
-        [Column("font_id_card_file")]
-        public Guid FrontIdCardFile { get; set; } = default!;
-        [Column("back_id_card_file")]
-        public Guid BackIdCardFile { get; set; } = default!;
+        [Column("font_id_card_file_id")]
+        public Guid FrontIdCardFileId { get; set; } = default!;
+        [Column("back_id_card_file_id")]
+        public Guid BackIdCardFileId { get; set; } = default!;
         [Column("tax_code")]
         public string TaxCode { get; set; } = default!;
         [Column("shop_image_files")]

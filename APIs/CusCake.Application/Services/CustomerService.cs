@@ -1,5 +1,6 @@
 ﻿
 using AutoMapper;
+using CusCake.Application.GlobalExceptionHandling.Exceptions;
 using CusCake.Application.Utils;
 using CusCake.Application.ViewModels.CustomerModels;
 using CusCake.Domain.Entities;
@@ -63,8 +64,10 @@ public class CustomerService : ICustomerService
 
     public async Task<Pagination<Customer>> GetAllAsync(int pageIndex = 0, int pageSize = 10)
     {
-        var result = await _unitOfWork.CustomerRepository.ToPagination(pageIndex, pageSize);
-        return result;
+        // var result = await _unitOfWork.CustomerRepository.ToPagination(pageIndex, pageSize);
+        throw new BadRequestException("Error");
+
+        // return result;
     }
 
     public async Task<CustomerViewModel> GetByIdAsync(Guid id)
