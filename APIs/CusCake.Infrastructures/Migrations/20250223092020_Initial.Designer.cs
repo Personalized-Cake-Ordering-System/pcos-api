@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CusCake.Infrastructures.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250214185757_create_bakeries_table")]
-    partial class create_bakeries_table
+    [Migration("20250223092020_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -37,9 +37,13 @@ namespace CusCake.Infrastructures.Migrations
                         .HasColumnType("longtext")
                         .HasColumnName("address");
 
-                    b.Property<Guid>("BackIdCardFile")
+                    b.Property<Guid>("AvatarFileId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("back_id_card_file");
+                        .HasColumnName("avatar_file_id");
+
+                    b.Property<Guid>("BackCardFileId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("back_card_file_id");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)")
@@ -51,16 +55,16 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("longtext")
+                        .HasColumnType("varchar(255)")
                         .HasColumnName("email");
 
-                    b.Property<Guid>("FrontIdCardFile")
+                    b.Property<Guid>("FrontCardFileId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("font_id_card_file");
+                        .HasColumnName("font_card_file_id");
 
                     b.Property<string>("IdentityCardNumber")
                         .IsRequired()
-                        .HasColumnType("longtext")
+                        .HasColumnType("varchar(255)")
                         .HasColumnName("identity_card_number");
 
                     b.Property<bool>("IsDeleted")
@@ -74,7 +78,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.Property<string>("Phone")
                         .IsRequired()
-                        .HasColumnType("longtext")
+                        .HasColumnType("varchar(255)")
                         .HasColumnName("phone");
 
                     b.Property<string>("ShopImageFiles")
@@ -84,12 +88,12 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.Property<string>("ShopName")
                         .IsRequired()
-                        .HasColumnType("longtext")
+                        .HasColumnType("varchar(255)")
                         .HasColumnName("shop_name");
 
                     b.Property<string>("TaxCode")
                         .IsRequired()
-                        .HasColumnType("longtext")
+                        .HasColumnType("varchar(255)")
                         .HasColumnName("tax_code");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -101,6 +105,21 @@ namespace CusCake.Infrastructures.Migrations
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("IdentityCardNumber")
+                        .IsUnique();
+
+                    b.HasIndex("Phone")
+                        .IsUnique();
+
+                    b.HasIndex("ShopName")
+                        .IsUnique();
+
+                    b.HasIndex("TaxCode")
+                        .IsUnique();
 
                     b.ToTable("bakeries");
                 });

@@ -53,8 +53,8 @@ public class CustomerService : ICustomerService
             Phone = "1234567890",
             Address = "123 Bakery Street, Sweet Town",
             IdentityCardNumber = "123456789",
-            FrontIdCardFile = Guid.NewGuid(),
-            BackIdCardFile = Guid.NewGuid(),
+            FrontCardFileId = Guid.NewGuid(),
+            BackCardFileId = Guid.NewGuid(),
             TaxCode = "TAX123456",
             ShopImageFiles = shopImageFiles // Gán danh sách GUID
         };

@@ -9,6 +9,11 @@ public class BakeryConfiguration : IEntityTypeConfiguration<Bakery>
 {
     public void Configure(EntityTypeBuilder<Bakery> builder)
     {
+        builder.HasIndex(x => x.ShopName).IsUnique();
+        builder.HasIndex(x => x.Phone).IsUnique();
+        builder.HasIndex(x => x.Email).IsUnique();
+        builder.HasIndex(x => x.TaxCode).IsUnique();
+        builder.HasIndex(x => x.IdentityCardNumber).IsUnique();
         builder.Property(b => b.ShopImageFiles)
                 .HasConversion(
                     v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null), // Serialize to JSON
