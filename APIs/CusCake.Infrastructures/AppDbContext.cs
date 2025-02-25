@@ -1,6 +1,4 @@
-﻿
-using CusCake.Domain.Entities;
-using Firebase.Auth;
+﻿using CusCake.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
@@ -15,6 +13,24 @@ namespace CusCake.Infrastructures
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Storage> Storages { get; set; }
         public DbSet<Bakery> Bakeries { get; set; }
+        public DbSet<AvailableCake> AvailableCakes { get; set; }
+        public DbSet<BankEvent> BankEvents { get; set; }
+        public DbSet<CakeDecoration> CakeDecorations { get; set; }
+        public DbSet<CakeDecorationDetail> CakeDecorationDetails { get; set; }
+        public DbSet<CakeExtra> CakeExtras { get; set; }
+        public DbSet<CakeExtraDetail> CakeExtraDetails { get; set; }
+        public DbSet<CakeMessage> CakeMessages { get; set; }
+        public DbSet<CakePart> CakeParts { get; set; }
+        public DbSet<CakePartDetail> CakePartDetails { get; set; }
+        public DbSet<CakeReview> CakeReviews { get; set; }
+        public DbSet<CustomCake> CustomCakes { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderDetail> OrderDetails { get; set; }
+        public DbSet<OrderSupport> OrderSupports { get; set; }
+        public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<Voucher> Vouchers { get; set; }
+        public DbSet<CustomerVoucher> CustomerVouchers { get; set; }
 
         #endregion
 
