@@ -25,7 +25,22 @@ namespace CusCake.Domain.Entities
         public Guid BackCardFileId { get; set; } = default!;
         [Column("tax_code")]
         public string TaxCode { get; set; } = default!;
+
+        [Column("status")]
+        public string Status { get; set; } = default!;
+
+        [Column("confirmed_at")]
+        public string ConfirmAt { get; set; } = default!;
         [Column("shop_image_files")]
         public List<Guid> ShopImageFiles { get; set; } = default!;
+        public ICollection<Notification>? Notifications { get; set; }
+        public ICollection<CustomCake>? CustomCakes { get; set; }
+        public ICollection<AvailableCake>? AvailableCakes { get; set; }
+        public ICollection<Order>? Orders { get; set; }
+        public ICollection<CakeReview>? CakeReviews { get; set; }
+
+        public ICollection<OrderSupport>? OrderSupports { get; set; }
+        public ICollection<Voucher>? Vouchers { get; set; }
+
     }
 }

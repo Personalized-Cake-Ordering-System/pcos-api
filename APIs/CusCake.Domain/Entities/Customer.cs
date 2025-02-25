@@ -14,5 +14,12 @@ namespace CusCake.Domain.Entities
         public string Phone { get; set; } = default!;
         [Column("address")]
         public string Address { get; set; } = default!;
+        public ICollection<Notification>? Notifications { get; set; }
+        public ICollection<CustomCake>? CustomCakes { get; set; }
+        public ICollection<Order>? Orders { get; set; }
+        public ICollection<CakeReview>? CakeReviews { get; set; }
+        public ICollection<OrderSupport>? OrderSupports { get; set; }
+        public ICollection<CustomerVoucher>? CustomerVouchers { get; set; }
+
     }
 }
