@@ -1,8 +1,4 @@
-﻿
-using System.Linq.Expressions;
-using AutoMapper;
-using CusCake.Application.Extensions;
-using CusCake.Application.GlobalExceptionHandling.Exceptions;
+﻿using AutoMapper;
 using CusCake.Application.Utils;
 using CusCake.Application.ViewModels.CustomerModels;
 using CusCake.Domain.Entities;
@@ -16,7 +12,6 @@ public interface ICustomerService
 
     Task<Pagination<Customer>> GetAllAsync(int pageIndex = 0, int pageSize = 10);
 
-    Task DemoAsync();
 }
 
 public class CustomerService : ICustomerService
@@ -37,32 +32,6 @@ public class CustomerService : ICustomerService
         return await _unitOfWork.SaveChangesAsync();
     }
 
-    public async Task DemoAsync()
-    {
-        List<Guid> shopImageFiles = new List<Guid>
-            {
-                Guid.NewGuid(),
-                Guid.NewGuid(),
-                Guid.NewGuid()
-            };
-
-        // Tạo đối tượng Bakery
-        var bakery = new Bakery
-        {
-            ShopName = "Delicious Bakery",
-            OwnerName = "John Doe",
-            Email = "john.doe@example.com",
-            Phone = "1234567890",
-            Address = "123 Bakery Street, Sweet Town",
-            IdentityCardNumber = "123456789",
-            FrontCardFileId = Guid.NewGuid(),
-            BackCardFileId = Guid.NewGuid(),
-            TaxCode = "TAX123456",
-            ShopImageFiles = shopImageFiles // Gán danh sách GUID
-        };
-        await _unitOfWork.BakeryRepository.AddAsync(bakery);
-        await _unitOfWork.SaveChangesAsync();
-    }
 
     public async Task<Pagination<Customer>> GetAllAsync(int pageIndex = 0, int pageSize = 10)
     {
