@@ -26,7 +26,7 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
         _claimsService = claimsService;
     }
 
-    public async Task<List<TEntity>> GetAllAsync(bool withDeleted = true, params Expression<Func<TEntity, object>>[] includes) =>
+    public async Task<List<TEntity>> GetAllAsync(bool withDeleted = false, params Expression<Func<TEntity, object>>[] includes) =>
           await includes
          .Aggregate(_dbSet.AsQueryable(),
              (entity, property) => entity.Include(property).IgnoreAutoIncludes())
@@ -34,7 +34,7 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
          .OrderByDescending(x => x.CreatedAt)
          .ToListAsync();
 
-    public async Task<TEntity?> GetByIdAsync(Guid id, bool withDeleted = true, params Expression<Func<TEntity, object>>[] includes)
+    public async Task<TEntity?> GetByIdAsync(Guid id, bool withDeleted = false, params Expression<Func<TEntity, object>>[] includes)
     {
         return await includes
             .Aggregate(_dbSet.AsQueryable(),
@@ -77,20 +77,16 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
         _dbSet.UpdateRange(entities);
     }
 
-    public async Task<Pagination<TEntity>> ToPagination(int pageIndex = 0, int pageSize = 10)
+    public async Task<Pagination<TEntity>> ToPagination(int pageIndex = 0, int pageSize = 10, bool withDeleted = false, params Expression<Func<TEntity, object>>[] includes)
     {
-        var itemCount = await _dbSet.CountAsync();
-        var items = await _dbSet.Skip(pageIndex * pageSize)
-                                .Take(pageSize)
-                                .AsNoTracking()
-                                .ToListAsync();
-
+        var items = await GetAllAsync(withDeleted, includes);
         var result = new Pagination<TEntity>()
         {
             PageIndex = pageIndex,
             PageSize = pageSize,
-            TotalItemsCount = itemCount,
-            Items = items,
+            TotalItemsCount = items.Count,
+            Items = (ICollection<TEntity>)items.Skip(pageIndex * pageSize)
+                                .Take(pageSize),
         };
 
         return result;
@@ -106,7 +102,7 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
         _dbSet.UpdateRange(entities);
     }
 
-    public async Task<List<TEntity>> WhereAsync(Expression<Func<TEntity, bool>> expression, bool withDeleted = true, params Expression<Func<TEntity, object>>[] includes)
+    public async Task<List<TEntity>> WhereAsync(Expression<Func<TEntity, bool>> expression, bool withDeleted = false, params Expression<Func<TEntity, object>>[] includes)
           => await includes
             .Aggregate(_dbSet!.AsQueryable(),
                 (entity, property) => entity.Include(property)).AsNoTracking()
@@ -115,7 +111,7 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
             .OrderByDescending(x => x.CreatedAt)
             .ToListAsync();
 
-    public async Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> expression, bool withDeleted = true, params Expression<Func<TEntity, object>>[] includes)
+    public async Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> expression, bool withDeleted = false, params Expression<Func<TEntity, object>>[] includes)
          => await includes
         .Aggregate(_dbSet!.AsQueryable(),
             (entity, property) => entity!.Include(property)).AsNoTracking()
