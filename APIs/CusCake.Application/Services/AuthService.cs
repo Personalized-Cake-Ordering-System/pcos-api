@@ -38,6 +38,9 @@ public class AuthService : IAuthService
     public async Task<(AuthResponseModel, Bakery)> BakerySignIn(AuthRequestModel model)
     {
         var bakery = await _unitOfWork.BakeryRepository.FirstOrDefaultAsync(x => x.Email == model.Email & x.Password == model.Password) ?? throw new BadRequestException("Incorrect email or password!");
+
+        if (bakery.Status == BakeryStatusConstants.PENDING) throw new BadRequestException("Waiting for admin conform!");
+
         var authResponse = new AuthResponseModel
         {
             AccessToken = _jWTService.GenerateAccessToken(bakery.Id, RoleConstants.BAKERY),

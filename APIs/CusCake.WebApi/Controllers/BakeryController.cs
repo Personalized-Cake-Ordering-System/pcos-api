@@ -7,8 +7,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CusCake.WebApi.Controllers;
-
-public class BakeryController(IBakeryService bakeryService) : BaseController
+[ApiController]
+[Route("api/bakeries")]
+public class BakeryController(IBakeryService bakeryService) : ControllerBase
 {
     private readonly IBakeryService _bakeryService = bakeryService;
 

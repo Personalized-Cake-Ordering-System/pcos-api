@@ -109,6 +109,8 @@ public class BakeryService : IBakeryService
     {
         var bakery = await GetByIdAsync(id);
 
+        if (bakery.Status == BakeryStatusConstants.PENDING) throw new BadRequestException("Waiting for admin conform!");
+
         _mapper.Map(model, bakery);
         if (model.Avatar != null)
             bakery.AvatarFileId = await _fileService.UploadFileAsync(model.Avatar, FolderConstants.AVATAR);
