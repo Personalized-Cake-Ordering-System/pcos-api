@@ -26,7 +26,7 @@ public class AuthService : IAuthService
     }
     public async Task<(AuthResponseModel, Admin)> AdminSignIn(AuthRequestModel model)
     {
-        var admin = await _unitOfWork.AdminRepository.FirstOrDefaultAsync(x => x.Email == model.Email) ?? throw new BadRequestException("Incorrect email or password!");
+        var admin = await _unitOfWork.AdminRepository.FirstOrDefaultAsync(x => x.Email == model.Email & x.Password == model.Password) ?? throw new BadRequestException("Incorrect email or password!");
         var authResponse = new AuthResponseModel
         {
             AccessToken = _jWTService.GenerateAccessToken(admin.Id, RoleConstants.ADMIN),
@@ -37,7 +37,7 @@ public class AuthService : IAuthService
 
     public async Task<(AuthResponseModel, Bakery)> BakerySignIn(AuthRequestModel model)
     {
-        var bakery = await _unitOfWork.BakeryRepository.FirstOrDefaultAsync(x => x.Email == model.Email) ?? throw new BadRequestException("Incorrect email or password!");
+        var bakery = await _unitOfWork.BakeryRepository.FirstOrDefaultAsync(x => x.Email == model.Email & x.Password == model.Password) ?? throw new BadRequestException("Incorrect email or password!");
         var authResponse = new AuthResponseModel
         {
             AccessToken = _jWTService.GenerateAccessToken(bakery.Id, RoleConstants.BAKERY),
@@ -48,7 +48,7 @@ public class AuthService : IAuthService
 
     public async Task<(AuthResponseModel, Customer)> CustomerSignIn(AuthRequestModel model)
     {
-        var customer = await _unitOfWork.CustomerRepository.FirstOrDefaultAsync(x => x.Email == model.Email) ?? throw new BadRequestException("Incorrect email or password!");
+        var customer = await _unitOfWork.CustomerRepository.FirstOrDefaultAsync(x => x.Email == model.Email & x.Password == model.Password) ?? throw new BadRequestException("Incorrect email or password!");
         var authResponse = new AuthResponseModel
         {
             AccessToken = _jWTService.GenerateAccessToken(customer.Id, RoleConstants.CUSTOMER),
