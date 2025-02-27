@@ -20,6 +20,9 @@ public class AvailableCake : BaseEntity
     [Column("available_cake_quantity")]
     public int AvailableCakeQuantity { get; set; }
 
+    [Column("available_cake_image_id")]
+    public Guid AvailableCakeImageId { get; set; }
+
     [Column("bakery_id")]
     public Guid BakeryId { get; set; }
     public Bakery Bakery { get; set; } = default!;

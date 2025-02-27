@@ -7,7 +7,7 @@ public class ClaimService : IClaimsService
 {
     public ClaimService(IHttpContextAccessor httpContextAccessor)
     {
-        var Id = httpContextAccessor.HttpContext?.User?.FindFirstValue("UserId");
+        var Id = httpContextAccessor.HttpContext?.User?.FindFirstValue("id");
         GetCurrentUser = string.IsNullOrEmpty(Id) ? Guid.Empty : Guid.Parse(Id);
     }
     public Guid GetCurrentUser { get; }

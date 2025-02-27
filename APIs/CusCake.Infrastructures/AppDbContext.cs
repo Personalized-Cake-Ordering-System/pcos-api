@@ -31,6 +31,7 @@ namespace CusCake.Infrastructures
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<Voucher> Vouchers { get; set; }
         public DbSet<CustomerVoucher> CustomerVouchers { get; set; }
+        public DbSet<Admin> Admins { get; set; }
 
         #endregion
 

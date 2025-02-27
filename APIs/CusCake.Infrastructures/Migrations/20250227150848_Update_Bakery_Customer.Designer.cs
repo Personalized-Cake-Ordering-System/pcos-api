@@ -4,6 +4,7 @@ using CusCake.Infrastructures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CusCake.Infrastructures.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250227150848_Update_Bakery_Customer")]
+    partial class Update_Bakery_Customer
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,59 +24,6 @@ namespace CusCake.Infrastructures.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
-
-            modelBuilder.Entity("CusCake.Domain.Entities.Admin", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("created_at");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("created_by");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("email");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("is_deleted");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("name");
-
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("password");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("updated_at");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("updated_by");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Email")
-                        .IsUnique();
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("admins", (string)null);
-                });
 
             modelBuilder.Entity("CusCake.Domain.Entities.AvailableCake", b =>
                 {
@@ -135,7 +85,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasIndex("BakeryId");
 
-                    b.ToTable("available_cakes", (string)null);
+                    b.ToTable("available_cakes");
                 });
 
             modelBuilder.Entity("CusCake.Domain.Entities.Bakery", b =>
@@ -198,11 +148,6 @@ namespace CusCake.Infrastructures.Migrations
                         .HasColumnType("longtext")
                         .HasColumnName("owner_name");
 
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("password");
-
                     b.Property<string>("Phone")
                         .IsRequired()
                         .HasColumnType("varchar(255)")
@@ -248,7 +193,7 @@ namespace CusCake.Infrastructures.Migrations
                     b.HasIndex("TaxCode")
                         .IsUnique();
 
-                    b.ToTable("bakeries", (string)null);
+                    b.ToTable("bakeries");
                 });
 
             modelBuilder.Entity("CusCake.Domain.Entities.BankEvent", b =>
@@ -345,7 +290,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasIndex("TransactionId");
 
-                    b.ToTable("bank_events", (string)null);
+                    b.ToTable("bank_events");
                 });
 
             modelBuilder.Entity("CusCake.Domain.Entities.CakeDecoration", b =>
@@ -395,7 +340,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("cake_decorations", (string)null);
+                    b.ToTable("cake_decorations");
                 });
 
             modelBuilder.Entity("CusCake.Domain.Entities.CakeDecorationDetail", b =>
@@ -439,7 +384,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasIndex("CustomCakeId");
 
-                    b.ToTable("cake_decoration_details", (string)null);
+                    b.ToTable("cake_decoration_details");
                 });
 
             modelBuilder.Entity("CusCake.Domain.Entities.CakeExtra", b =>
@@ -493,7 +438,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("cake_extras", (string)null);
+                    b.ToTable("cake_extras");
                 });
 
             modelBuilder.Entity("CusCake.Domain.Entities.CakeExtraDetail", b =>
@@ -537,7 +482,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasIndex("CustomCakeId");
 
-                    b.ToTable("cake_extra_details", (string)null);
+                    b.ToTable("cake_extra_details");
                 });
 
             modelBuilder.Entity("CusCake.Domain.Entities.CakeMessage", b =>
@@ -596,7 +541,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasIndex("CustomCakeId");
 
-                    b.ToTable("cake_messages", (string)null);
+                    b.ToTable("cake_messages");
                 });
 
             modelBuilder.Entity("CusCake.Domain.Entities.CakePart", b =>
@@ -650,7 +595,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("cake_parts", (string)null);
+                    b.ToTable("cake_parts");
                 });
 
             modelBuilder.Entity("CusCake.Domain.Entities.CakePartDetail", b =>
@@ -694,7 +639,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasIndex("CustomCakeId");
 
-                    b.ToTable("cake_part_details", (string)null);
+                    b.ToTable("cake_part_details");
                 });
 
             modelBuilder.Entity("CusCake.Domain.Entities.CakeReview", b =>
@@ -760,7 +705,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("cake_reviews", (string)null);
+                    b.ToTable("cake_reviews");
                 });
 
             modelBuilder.Entity("CusCake.Domain.Entities.CustomCake", b =>
@@ -821,7 +766,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("custom_cakes", (string)null);
+                    b.ToTable("custom_cakes");
                 });
 
             modelBuilder.Entity("CusCake.Domain.Entities.Customer", b =>
@@ -884,7 +829,7 @@ namespace CusCake.Infrastructures.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("customers", (string)null);
+                    b.ToTable("customers");
                 });
 
             modelBuilder.Entity("CusCake.Domain.Entities.CustomerVoucher", b =>
@@ -935,7 +880,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasIndex("VoucherId");
 
-                    b.ToTable("customer_vouchers", (string)null);
+                    b.ToTable("customer_vouchers");
                 });
 
             modelBuilder.Entity("CusCake.Domain.Entities.Notification", b =>
@@ -1007,7 +952,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("notifications", (string)null);
+                    b.ToTable("notifications");
                 });
 
             modelBuilder.Entity("CusCake.Domain.Entities.Order", b =>
@@ -1093,7 +1038,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasIndex("VoucherId");
 
-                    b.ToTable("orders", (string)null);
+                    b.ToTable("orders");
                 });
 
             modelBuilder.Entity("CusCake.Domain.Entities.OrderDetail", b =>
@@ -1158,7 +1103,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("order_detail", (string)null);
+                    b.ToTable("order_detail");
                 });
 
             modelBuilder.Entity("CusCake.Domain.Entities.OrderSupport", b =>
@@ -1216,7 +1161,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("order_supports", (string)null);
+                    b.ToTable("order_supports");
                 });
 
             modelBuilder.Entity("CusCake.Domain.Entities.Storage", b =>
@@ -1258,7 +1203,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("storages", (string)null);
+                    b.ToTable("storages");
                 });
 
             modelBuilder.Entity("CusCake.Domain.Entities.Transaction", b =>
@@ -1301,7 +1246,7 @@ namespace CusCake.Infrastructures.Migrations
                     b.HasIndex("OrderId")
                         .IsUnique();
 
-                    b.ToTable("transactions", (string)null);
+                    b.ToTable("transactions");
                 });
 
             modelBuilder.Entity("CusCake.Domain.Entities.Voucher", b =>
@@ -1386,7 +1331,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasIndex("BakeryId");
 
-                    b.ToTable("vouchers", (string)null);
+                    b.ToTable("vouchers");
                 });
 
             modelBuilder.Entity("CusCake.Domain.Entities.AvailableCake", b =>
