@@ -22,6 +22,7 @@ public class BakeryController(IBakeryService bakeryService) : ControllerBase
 
 
     [HttpGet("{id}/approve")]
+    [Authorize(Roles = RoleConstants.ADMIN)]
     public async Task<IActionResult> ApproveBakery(Guid id, bool isApprove = true)
     {
         await _bakeryService.ApproveBakeryAsync(id, isApprove);
@@ -30,7 +31,6 @@ public class BakeryController(IBakeryService bakeryService) : ControllerBase
 
 
     [HttpPost]
-    [Authorize(Roles = RoleConstants.ADMIN)]
     public async Task<IActionResult> CreateAsync([FromBody] BakeryCreateModel model)
     {
         var bakery = await _bakeryService.CreateAsync(model);
@@ -38,7 +38,6 @@ public class BakeryController(IBakeryService bakeryService) : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Roles = RoleConstants.ADMIN)]
     public async Task<IActionResult> GetAllAsync(int pageIndex = 0, int pageSize = 10)
     {
         var result = await _bakeryService.GetAllAsync(pageIndex, pageSize);
@@ -52,6 +51,7 @@ public class BakeryController(IBakeryService bakeryService) : ControllerBase
         return Ok(ResponseModel<object, Bakery>.Success(await _bakeryService.UpdateAsync(id, model)));
     }
     [HttpDelete("id")]
+    [Authorize(Roles = RoleConstants.ADMIN)]
     public async Task<IActionResult> DeleteAsync(Guid id)
     {
         await _bakeryService.DeleteAsync(id);

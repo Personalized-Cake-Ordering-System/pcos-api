@@ -29,7 +29,7 @@ public class CustomerController(ICustomerService customerService) : BaseControll
     }
 
     [HttpGet]
-    [Authorize(Roles = RoleConstants.BAKERY + "," + RoleConstants.ADMIN)]
+    [Authorize(Roles = RoleConstants.ADMIN)]
     public async Task<IActionResult> GetAllAsync(int pageIndex = 0, int pageSize = 10)
     {
         var result = await _customerService.GetAllAsync(pageIndex, pageSize);
@@ -37,11 +37,13 @@ public class CustomerController(ICustomerService customerService) : BaseControll
     }
 
     [HttpPut("id")]
+    [Authorize(Roles = RoleConstants.CUSTOMER)]
     public async Task<IActionResult> UpdateAsync(Guid id, [FromBody] CustomerUpdateModel model)
     {
         return Ok(ResponseModel<object, Customer>.Success(await _customerService.UpdateAsync(id, model)));
     }
     [HttpDelete("id")]
+    [Authorize(Roles = RoleConstants.ADMIN)]
     public async Task<IActionResult> DeleteAsync(Guid id)
     {
         await _customerService.DeleteAsync(id);

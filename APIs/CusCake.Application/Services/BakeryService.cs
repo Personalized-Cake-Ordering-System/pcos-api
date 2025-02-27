@@ -4,6 +4,7 @@ using CusCake.Application.Utils;
 using CusCake.Application.ViewModels.BakeryModel;
 using CusCake.Domain.Constants;
 using CusCake.Domain.Entities;
+using UnauthorizedAccessException = CusCake.Application.GlobalExceptionHandling.Exceptions.UnauthorizedAccessException;
 
 namespace CusCake.Application.Services;
 
@@ -36,7 +37,7 @@ public class BakeryService : IBakeryService
 
     public async Task<bool> ApproveBakeryAsync(Guid id, bool isApprove = false)
     {
-        var bakery = await GetByIdAsync(id);
+        var bakery = await _unitOfWork.BakeryRepository.FirstOrDefaultAsync(x => x.Status == BakeryStatusConstants.PENDING & x.Id == id) ?? throw new BadRequestException("Is is not found!");
         bakery.Status = isApprove ? BakeryStatusConstants.CONFIRMED : BakeryStatusConstants.REJECT;
         bakery.ConfirmedAt = _currentTime.GetCurrentTime();
 
@@ -46,23 +47,7 @@ public class BakeryService : IBakeryService
 
     public async Task<Bakery> CreateAsync(BakeryCreateModel model)
     {
-        var existBakeries = await _unitOfWork
-                            .BakeryRepository
-                            .WhereAsync(b =>
-                                b.Email == model.Email ||
-                                b.Phone == model.Phone ||
-                                b.BakeryName == model.BakeryName ||
-                                b.TaxCode == model.TaxCode ||
-                                b.IdentityCardNumber == model.IdentityCardNumber);
-
-        if (existBakeries.Count > 0)
-        {
-            if (existBakeries.Any(x => x.BakeryName == model.BakeryName)) throw new BadRequestException($"Name '{model.BakeryName}' already exists.");
-            if (existBakeries.Any(x => x.Email == model.Email)) throw new BadRequestException($"Email '{model.Email}' already exists.");
-            if (existBakeries.Any(x => x.TaxCode == model.TaxCode)) throw new BadRequestException($"TaxCode '{model.TaxCode}' already exists.");
-            if (existBakeries.Any(x => x.Phone == model.Phone)) throw new BadRequestException($"Phone '{model.Phone}' already exists.");
-            if (existBakeries.Any(x => x.IdentityCardNumber == model.IdentityCardNumber)) throw new BadRequestException($"Phone '{model.IdentityCardNumber}' already exists.");
-        }
+        await ValidateBakery(model.BakeryName, model.Email, model.Phone, model.TaxCode, model.IdentityCardNumber);
 
         var bakery = _mapper.Map<Bakery>(model);
 
@@ -87,7 +72,7 @@ public class BakeryService : IBakeryService
 
     public async Task DeleteAsync(Guid id)
     {
-        var bakery = await GetByIdAsync(id);
+        var bakery = await _unitOfWork.BakeryRepository.FirstOrDefaultAsync(x => x.Status != BakeryStatusConstants.REJECT & x.Id == id) ?? throw new BadRequestException("Id is not found!");
 
         _unitOfWork.BakeryRepository.SoftRemove(bakery);
 
@@ -101,17 +86,41 @@ public class BakeryService : IBakeryService
 
     public async Task<Bakery> GetByIdAsync(Guid id)
     {
-        return await _unitOfWork.BakeryRepository.GetByIdAsync(id) ?? throw new BadRequestException("Is is not exist!");
+        return await _unitOfWork.BakeryRepository.GetByIdAsync(id) ?? throw new BadRequestException("Id is not exist!");
 
+    }
+
+    private async Task ValidateBakery(string name, string email, string phone, string taxCode, string cardNumber)
+    {
+        var existBakeries = await _unitOfWork
+                                    .BakeryRepository
+                                    .WhereAsync(b =>
+                                        b.Status != BakeryStatusConstants.REJECT & (
+                                        b.Email == email ||
+                                        b.Phone == phone ||
+                                        b.BakeryName == name ||
+                                        b.TaxCode == taxCode ||
+                                        b.IdentityCardNumber == cardNumber
+                                    ));
+
+        if (existBakeries.Count > 0)
+        {
+            if (existBakeries.Any(x => x.BakeryName == name)) throw new BadRequestException($"Name '{name}' already exists.");
+            if (existBakeries.Any(x => x.Email == email)) throw new BadRequestException($"Email '{email}' already exists.");
+            if (existBakeries.Any(x => x.TaxCode == taxCode)) throw new BadRequestException($"TaxCode '{taxCode}' already exists.");
+            if (existBakeries.Any(x => x.Phone == phone)) throw new BadRequestException($"Phone '{phone}' already exists.");
+            if (existBakeries.Any(x => x.IdentityCardNumber == cardNumber)) throw new BadRequestException($"Phone '{cardNumber}' already exists.");
+        }
     }
 
     public async Task<Bakery> UpdateAsync(Guid id, BakeryCreateModel model)
     {
-        var bakery = await GetByIdAsync(id);
+        var bakery = await _unitOfWork.BakeryRepository.FirstOrDefaultAsync(x => x.Status == BakeryStatusConstants.CONFIRMED & x.Id == id) ?? throw new BadRequestException("Id is not found!");
 
-        if (bakery.Status == BakeryStatusConstants.PENDING) throw new BadRequestException("Waiting for admin conform!");
+        await ValidateBakery(model.BakeryName, model.Email, model.Phone, model.TaxCode, model.IdentityCardNumber);
 
         _mapper.Map(model, bakery);
+
         if (model.Avatar != null)
             bakery.AvatarFileId = await _fileService.UploadFileAsync(model.Avatar, FolderConstants.AVATAR);
 

@@ -2,6 +2,7 @@ using CusCake.Application.GlobalExceptionHandling.Exceptions;
 using CusCake.Application.ViewModels.AuthModels;
 using CusCake.Domain.Constants;
 using CusCake.Domain.Entities;
+using UnauthorizedAccessException = CusCake.Application.GlobalExceptionHandling.Exceptions.UnauthorizedAccessException;
 
 namespace CusCake.Application.Services;
 
@@ -40,6 +41,7 @@ public class AuthService : IAuthService
         var bakery = await _unitOfWork.BakeryRepository.FirstOrDefaultAsync(x => x.Email == model.Email & x.Password == model.Password) ?? throw new BadRequestException("Incorrect email or password!");
 
         if (bakery.Status == BakeryStatusConstants.PENDING) throw new BadRequestException("Waiting for admin conform!");
+        if (bakery.Status == BakeryStatusConstants.REJECT) throw new UnauthorizedAccessException("No permission to access account");
 
         var authResponse = new AuthResponseModel
         {
