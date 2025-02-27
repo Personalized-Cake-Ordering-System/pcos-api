@@ -10,6 +10,7 @@ namespace CusCake.Infrastructures
 
         public UnitOfWork(
             AppDbContext appDbContext,
+            IAdminRepository adminRepository,
             ICustomerRepository customerRepository,
             IBakeryRepository bakeryRepository,
             IStorageRepository storageRepository,
@@ -55,6 +56,7 @@ namespace CusCake.Infrastructures
             OrderSupportRepository = orderSupportRepository;
             TransactionRepository = transactionRepository;
             VoucherRepository = voucherRepository;
+            AdminRepository = adminRepository;
         }
 
         public ICustomerRepository CustomerRepository { get; }
@@ -89,15 +91,11 @@ namespace CusCake.Infrastructures
 
         public INotificationRepository NotificationRepository { get; }
         public IOrderDetailRepository OrderDetailRepository { get; }
-
         public IOrderRepository OrderRepository { get; }
-
         public IOrderSupportRepository OrderSupportRepository { get; }
-
         public ITransactionRepository TransactionRepository { get; }
-
         public IVoucherRepository VoucherRepository { get; }
-
+        public IAdminRepository AdminRepository { get; }
         public async Task<bool> SaveChangesAsync() => (await _appDbContext.SaveChangesAsync()) > 0;
     }
 }

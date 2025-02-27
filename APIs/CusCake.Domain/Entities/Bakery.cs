@@ -5,10 +5,13 @@ namespace CusCake.Domain.Entities
     [Table("bakeries")]
     public class Bakery : BaseEntity
     {
-        [Column("shop_name")]
-        public string ShopName { get; set; } = default!;
+        [Column("bakery_name")]
+        public string BakeryName { get; set; } = default!;
         [Column("email")]
         public string Email { get; set; } = default!;
+        [Column("password")]
+        public string Password { get; set; } = default!;
+
         [Column("phone")]
         public string Phone { get; set; } = default!;
         [Column("address")]
@@ -30,9 +33,10 @@ namespace CusCake.Domain.Entities
         public string Status { get; set; } = default!;
 
         [Column("confirmed_at")]
-        public string ConfirmAt { get; set; } = default!;
+        public DateTime ConfirmedAt { get; set; } = default!;
+
         [Column("shop_image_files")]
-        public List<Guid> ShopImageFiles { get; set; } = default!;
+        public List<Guid> ShopImageFiles { get; set; } = new List<Guid>()!;
         public ICollection<Notification>? Notifications { get; set; }
         public ICollection<CustomCake>? CustomCakes { get; set; }
         public ICollection<AvailableCake>? AvailableCakes { get; set; }

@@ -1,17 +1,19 @@
 ﻿using AutoMapper;
+using CusCake.Application.GlobalExceptionHandling.Exceptions;
 using CusCake.Application.Utils;
 using CusCake.Application.ViewModels.CustomerModels;
+using CusCake.Domain.Constants;
 using CusCake.Domain.Entities;
 
 namespace CusCake.Application.Services;
 
 public interface ICustomerService
 {
-    Task<bool> CreateAsync(CustomerCreateModel model);
-    Task<CustomerViewModel> GetByIdAsync(Guid id);
-
-    Task<Pagination<Customer>> GetAllAsync(int pageIndex = 0, int pageSize = 10);
-
+    Task<Customer> CreateAsync(CustomerCreateModel model);
+    Task<Customer> GetByIdAsync(Guid id);
+    Task<(Pagination<Customer>, List<Customer>)> GetAllAsync(int pageIndex = 0, int pageSize = 10);
+    Task<Customer> UpdateAsync(Guid id, CustomerUpdateModel model);
+    Task DeleteAsync(Guid id);
 }
 
 public class CustomerService : ICustomerService
@@ -25,26 +27,63 @@ public class CustomerService : ICustomerService
         _mapper = mapper;
     }
 
-    public async Task<bool> CreateAsync(CustomerCreateModel model)
+    public async Task<Customer> CreateAsync(CustomerCreateModel model)
     {
+        var existCustomer = await _unitOfWork.CustomerRepository.WhereAsync(x => x.Email == model.Email);
+
+        if (existCustomer.Count != 0) throw new BadRequestException("Email '{model.Email}' already exists.");
+
         var customer = _mapper.Map<Customer>(model);
-        await _unitOfWork.CustomerRepository.AddAsync(customer);
-        return await _unitOfWork.SaveChangesAsync();
+
+        customer.AccountType = CustomerRegisterConstants.NORMAL;
+
+        var result = await _unitOfWork.CustomerRepository.AddAsync(customer);
+
+        await _unitOfWork.SaveChangesAsync();
+
+        return result;
     }
 
+    public async Task DeleteAsync(Guid id)
+    {
+        var customer = await GetByIdAsync(id);
 
-    public async Task<Pagination<Customer>> GetAllAsync(int pageIndex = 0, int pageSize = 10)
+        _unitOfWork.CustomerRepository.SoftRemove(customer);
+
+        await _unitOfWork.SaveChangesAsync();
+    }
+
+    public async Task<(Pagination<Customer>, List<Customer>)> GetAllAsync(int pageIndex = 0, int pageSize = 10)
     {
         var result = await _unitOfWork.CustomerRepository.ToPagination(pageIndex, pageSize);
-        // throw new BadRequestException("Error");
-
         // var customers = await _unitOfWork.CustomerRepository.GetAllAsync(includes: QueryHelper.Includes<Customer>(x => x.CustomCakes!, x => x.Orders!));
         return result;
     }
 
-    public async Task<CustomerViewModel> GetByIdAsync(Guid id)
+    public async Task<Customer> GetByIdAsync(Guid id)
     {
-        var customer = await _unitOfWork.CustomerRepository.GetByIdAsync(id);
-        return _mapper.Map<CustomerViewModel>(customer);
+        return await _unitOfWork.CustomerRepository.GetByIdAsync(id) ?? throw new BadRequestException("Id is not exist!");
+    }
+
+    public async Task<Customer> UpdateAsync(Guid id, CustomerUpdateModel model)
+    {
+
+
+
+        var customer = await GetByIdAsync(id);
+        if (customer.Email != model.Email)
+        {
+            var existCustomer = await _unitOfWork.CustomerRepository.WhereAsync(x => x.Email == model.Email);
+
+            if (existCustomer.Count != 0) throw new BadRequestException("Email '{model.Email}' already exists.");
+        }
+
+        _mapper.Map(model, customer);
+
+        _unitOfWork.CustomerRepository.Update(customer);
+
+        await _unitOfWork.SaveChangesAsync();
+
+        return customer;
     }
 }
