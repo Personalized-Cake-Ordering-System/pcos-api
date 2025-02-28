@@ -30,7 +30,7 @@ public class AuthController(IAuthService authService) : BaseController
         return Ok(ResponseModel<object, object>.Success(result.Item2, result.Item1));
     }
     [HttpPost("revoke")]
-    public async Task<IActionResult> Revoke([FromBody] RevokeModel model)
+    public IActionResult Revoke([FromBody] RevokeModel model)
     {
         var result = _authService.Revoke(model);
         return Ok(new ResponseModel<object, object> { StatusCode = 200, MetaData = result });

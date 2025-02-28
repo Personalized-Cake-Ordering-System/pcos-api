@@ -18,6 +18,11 @@ public class CakePart : BaseEntity
     [Column("part_description")]
     public string? PartDescription { get; set; }
 
-    public ICollection<CakePartDetail>? CakePartDetails { get; set; }
+    [Column("is_default")]
+    public bool IsDefault { get; set; } = false;
+    [Column("part_image_id")]
+    public Guid PartImageId { get; set; } = default!;
+    public Storage PartImage { get; set; } = default!;
 
+    public ICollection<CakePartDetail>? CakePartDetails { get; set; }
 }

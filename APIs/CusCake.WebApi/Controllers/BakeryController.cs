@@ -39,13 +39,17 @@ public class BakeryController(IBakeryService bakeryService) : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllAsync(int pageIndex = 0, int pageSize = 10, [FromQuery] string? bakeryName = null)
+    public async Task<IActionResult> GetAllAsync(
+        int pageIndex = 0,
+        int pageSize = 10,
+        [FromQuery] string? bakeryName = null
+    )
     {
 
         Expression<Func<Bakery, bool>> filter = x =>
             (string.IsNullOrEmpty(bakeryName) || x.BakeryName.ToLower().Contains(bakeryName.ToLower()));
 
-        var result = await _bakeryService.GetAllAsync(pageIndex, pageSize);
+        var result = await _bakeryService.GetAllAsync(pageIndex, pageSize, filter);
         return Ok(ResponseModel<object, ICollection<Bakery>>.Success(result.Item2, result.Item1));
     }
 

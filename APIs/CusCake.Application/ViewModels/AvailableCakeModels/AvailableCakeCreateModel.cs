@@ -13,7 +13,9 @@ public class AvailableCakeCreateModel
     public string? AvailableCakeDescription { get; set; }
     public string AvailableCakeType { get; set; } = default!;
     public int AvailableCakeQuantity { get; set; } = 0;
-    public List<IFormFile> AvailableCakeImage { get; set; } = default!;
+    public bool IsDefault { get; set; } = false;
+    public IFormFile AvailableCakeMainImage { get; set; } = default!;
+    public List<IFormFile> AvailableCakeImages { get; set; } = default!;
 }
 
 public class AvailableCakeCreateModelValidator : AbstractValidator<AvailableCakeCreateModel>
@@ -42,11 +44,15 @@ public class AvailableCakeCreateModelValidator : AbstractValidator<AvailableCake
         RuleFor(x => x.AvailableCakeQuantity)
             .GreaterThanOrEqualTo(0).WithMessage("Quantity must be greater than or equal to 0.");
 
-        RuleFor(x => x.AvailableCakeImage)
+        RuleFor(x => x.AvailableCakeImages)
             .NotNull().WithMessage("Cake images are required.")
             .Must(images => images != null && images.Count != 0).WithMessage("At least one cake image is required.");
 
-        RuleForEach(x => x.AvailableCakeImage)
+        RuleFor(x => x.AvailableCakeMainImage)
+            .Must(ValidationUtils.BeAValidImage).WithMessage("Main image must be a valid image file (jpg, png, jpeg) under 5MB.")
+            .When(x => x.AvailableCakeImages != null && x.AvailableCakeImages.Count != 0);
+
+        RuleForEach(x => x.AvailableCakeImages)
             .Must(ValidationUtils.BeAValidImage).WithMessage("Each cake image must be a valid image file (jpg, png, jpeg) under 5MB.");
     }
 }
@@ -57,6 +63,15 @@ public class AvailableCakeUpdateModel : AvailableCakeCreateModel
     [Required(ErrorMessage = "Id is require.")]
     public Guid Id { get; set; }
 
-    [Required(ErrorMessage = "AvailableCakeImageFiles is require.")]
-    public List<Guid> AvailableCakeImageFiles { get; set; } = [];
+    public List<Guid> DeleteImageFileIds { get; set; } = [];
+}
+
+public class AvailableCakeUpdateModelValidator : AbstractValidator<AvailableCakeUpdateModel>
+{
+    public AvailableCakeUpdateModelValidator()
+    {
+        RuleFor(x => x.AvailableCakeImages)
+            .Null().WithMessage("Cake images can be null.");
+
+    }
 }

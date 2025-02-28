@@ -19,13 +19,18 @@ namespace CusCake.Domain.Entities
         [Column("owner_name")]
         public string OwnerName { get; set; } = default!;
         [Column("avatar_file_id")]
-        public Guid AvatarFileId { get; set; } = default!;
+        public Guid? AvatarFileId { get; set; } = default!;
+        public Storage? AvatarFile { get; set; } = default!;
         [Column("identity_card_number")]
         public string IdentityCardNumber { get; set; } = default!;
         [Column("font_card_file_id")]
         public Guid FrontCardFileId { get; set; } = default!;
+        public Storage FrontCardFile { get; set; } = default!;
+
         [Column("back_card_file_id")]
         public Guid BackCardFileId { get; set; } = default!;
+        public Storage BackCardFile { get; set; } = default!;
+
         [Column("tax_code")]
         public string TaxCode { get; set; } = default!;
 
@@ -42,7 +47,6 @@ namespace CusCake.Domain.Entities
         public ICollection<AvailableCake>? AvailableCakes { get; set; }
         public ICollection<Order>? Orders { get; set; }
         public ICollection<CakeReview>? CakeReviews { get; set; }
-
         public ICollection<OrderSupport>? OrderSupports { get; set; }
         public ICollection<Voucher>? Vouchers { get; set; }
 

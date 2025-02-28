@@ -13,5 +13,11 @@ public class AvailableCakeConfiguration : IEntityTypeConfiguration<AvailableCake
         builder.HasOne(x => x.Bakery).WithMany(x => x.AvailableCakes).HasForeignKey(x => x.BakeryId).OnDelete(DeleteBehavior.Cascade);
         builder.HasMany(x => x.OrderDetails).WithOne(x => x.AvailableCake).HasForeignKey(x => x.AvailableCakeId).OnDelete(DeleteBehavior.Cascade);
         builder.HasMany(x => x.CakeReviews).WithOne(x => x.AvailableCake).HasForeignKey(x => x.AvailableCakeId).OnDelete(DeleteBehavior.Cascade);
+        builder
+           .HasOne(c => c.AvailableCakeMainImage)
+           .WithMany()
+           .HasForeignKey(c => c.AvailableCakeMainImageId)
+           .OnDelete(DeleteBehavior.Cascade);
+
     }
 }

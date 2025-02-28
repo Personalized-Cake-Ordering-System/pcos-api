@@ -24,5 +24,23 @@ public class BakeryConfiguration : IEntityTypeConfiguration<Bakery>
         builder.HasMany(x => x.OrderSupports).WithOne(x => x.Bakery).HasForeignKey(x => x.BakeryId).OnDelete(DeleteBehavior.Cascade);
         builder.HasMany(x => x.Vouchers).WithOne(x => x.Bakery).HasForeignKey(x => x.BakeryId).OnDelete(DeleteBehavior.Cascade);
 
+        builder
+           .HasOne(c => c.AvatarFile)
+           .WithMany()
+           .HasForeignKey(c => c.AvatarFileId)
+           .OnDelete(DeleteBehavior.Cascade);
+
+        builder
+           .HasOne(c => c.BackCardFile)
+           .WithMany()
+           .HasForeignKey(c => c.BackCardFileId)
+           .OnDelete(DeleteBehavior.Cascade);
+
+        builder
+           .HasOne(c => c.FrontCardFile)
+           .WithMany()
+           .HasForeignKey(c => c.FrontCardFileId)
+           .OnDelete(DeleteBehavior.Cascade);
+
     }
 }

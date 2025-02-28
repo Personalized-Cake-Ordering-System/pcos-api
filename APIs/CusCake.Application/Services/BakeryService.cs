@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using AutoMapper;
+using CusCake.Application.Extensions;
 using CusCake.Application.GlobalExceptionHandling.Exceptions;
 using CusCake.Application.Utils;
 using CusCake.Application.ViewModels.BakeryModel;
@@ -20,20 +21,13 @@ public interface IBakeryService
     Task<bool> ApproveBakeryAsync(Guid id, bool isApprove = true);
 }
 
-public class BakeryService : IBakeryService
+public class BakeryService(IUnitOfWork unitOfWork, IFileService fileService, IMapper mapper, ICurrentTime currentTime) : IBakeryService
 {
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IFileService _fileService;
-    private readonly IMapper _mapper;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IFileService _fileService = fileService;
+    private readonly IMapper _mapper = mapper;
 
-    private readonly ICurrentTime _currentTime;
-    public BakeryService(IUnitOfWork unitOfWork, IFileService fileService, IMapper mapper, ICurrentTime currentTime)
-    {
-        _fileService = fileService;
-        _mapper = mapper;
-        _unitOfWork = unitOfWork;
-        _currentTime = currentTime;
-    }
+    private readonly ICurrentTime _currentTime = currentTime;
 
     public async Task<bool> ApproveBakeryAsync(Guid id, bool isApprove = false)
     {
@@ -55,7 +49,7 @@ public class BakeryService : IBakeryService
         bakery.FrontCardFileId = await _fileService.UploadFileAsync(model.FrontCardImage, FolderConstants.IDENTITY_CARD);
         bakery.BackCardFileId = await _fileService.UploadFileAsync(model.BackCardImage, FolderConstants.IDENTITY_CARD);
 
-        if (model.ShopImages.Count != 0)
+        if (model.ShopImages is not null && model.ShopImages.Count != 0)
         {
             foreach (var image in model.ShopImages)
             {
@@ -81,12 +75,15 @@ public class BakeryService : IBakeryService
 
     public async Task<(Pagination<Bakery>, List<Bakery>)> GetAllAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<Bakery, bool>>? filter = null)
     {
-        return await _unitOfWork.BakeryRepository.ToPagination(pageIndex, pageSize);
+        var includes = QueryHelper.Includes<Bakery>(x => x.AvatarFile!, x => x.FrontCardFile!, x => x.BackCardFile);
+        return await _unitOfWork.BakeryRepository.ToPagination(pageIndex, pageSize, filter: filter, includes: includes);
     }
 
     public async Task<Bakery> GetByIdAsync(Guid id)
     {
-        return await _unitOfWork.BakeryRepository.GetByIdAsync(id) ?? throw new BadRequestException("Id is not exist!");
+        var includes = QueryHelper.Includes<Bakery>(x => x.AvatarFile!, x => x.FrontCardFile!, x => x.BackCardFile);
+
+        return await _unitOfWork.BakeryRepository.GetByIdAsync(id, includes: includes) ?? throw new BadRequestException("Id is not exist!");
 
     }
 
@@ -129,6 +126,14 @@ public class BakeryService : IBakeryService
 
         if (model.BackCardImage != null)
             bakery.BackCardFileId = await _fileService.UploadFileAsync(model.BackCardImage, FolderConstants.IDENTITY_CARD);
+
+        if (model.DeleteImageFileIds != null && model.DeleteImageFileIds!.Count > 0)
+        {
+            foreach (var imageId in model.DeleteImageFileIds)
+            {
+                bakery.ShopImageFiles.Remove(imageId);
+            }
+        }
 
         if (model.ShopImages.Count != 0)
         {

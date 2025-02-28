@@ -19,7 +19,7 @@ public interface IGenericRepository<TEntity> where TEntity : BaseEntity
         int pageNumber = 0,
         int pageSize = 10,
         bool withDeleted = false,
-        Expression<Func<Bakery, bool>>? filter = null,
+        Expression<Func<TEntity, bool>>? filter = null,
         params Expression<Func<TEntity, object>>[] includes
     );
 }

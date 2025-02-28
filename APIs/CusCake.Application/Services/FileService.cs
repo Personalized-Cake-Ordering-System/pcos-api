@@ -14,23 +14,27 @@ public interface IFileService
 
     Task<Storage> GetFileAsync(Guid fileId);
 
+    Task<List<Storage>> GetListAsync(List<Guid> fileIds);
+
 }
 
 
-public class FileService : IFileService
+public class FileService(AppSettings appSettings, IUnitOfWork unitOfWork) : IFileService
 {
-    private readonly AppSettings _appSettings;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly AppSettings _appSettings = appSettings;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-    public FileService(AppSettings appSettings, IUnitOfWork unitOfWork)
-    {
-        _appSettings = appSettings;
-        _unitOfWork = unitOfWork;
-    }
     public async Task<Storage> GetFileAsync(Guid fileId)
     {
         var file = await _unitOfWork.StorageRepository.GetByIdAsync(fileId) ?? throw new BadRequestException("File not found!");
         return file;
+    }
+
+    public async Task<List<Storage>> GetListAsync(List<Guid> fileIds)
+    {
+        if (fileIds == null || fileIds.Count == 0) throw new BadRequestException("Invalid parameter!");
+
+        return await _unitOfWork.StorageRepository.WhereAsync(x => fileIds.Contains(x.Id));
     }
 
     public Task<bool> RemoveFileAsync(Guid fileId, string folder)

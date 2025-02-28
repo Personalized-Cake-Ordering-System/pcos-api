@@ -20,6 +20,10 @@ public class AvailableCake : BaseEntity
     [Column("available_cake_quantity")]
     public int AvailableCakeQuantity { get; set; }
 
+    [Column("available_main_image_id")]
+    public Guid? AvailableCakeMainImageId { get; set; }
+    public Storage? AvailableCakeMainImage { get; set; }
+
     [Column("available_cake_image_files")]
     public List<Guid> AvailableCakeImageFiles { get; set; } = [];
 
