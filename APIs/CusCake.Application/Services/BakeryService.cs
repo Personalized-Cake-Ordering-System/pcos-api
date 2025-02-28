@@ -1,10 +1,10 @@
+using System.Linq.Expressions;
 using AutoMapper;
 using CusCake.Application.GlobalExceptionHandling.Exceptions;
 using CusCake.Application.Utils;
 using CusCake.Application.ViewModels.BakeryModel;
 using CusCake.Domain.Constants;
 using CusCake.Domain.Entities;
-using UnauthorizedAccessException = CusCake.Application.GlobalExceptionHandling.Exceptions.UnauthorizedAccessException;
 
 namespace CusCake.Application.Services;
 
@@ -12,9 +12,9 @@ namespace CusCake.Application.Services;
 public interface IBakeryService
 {
     Task<Bakery> CreateAsync(BakeryCreateModel model);
-    Task<Bakery> UpdateAsync(Guid id, BakeryCreateModel model);
+    Task<Bakery> UpdateAsync(Guid id, BakeryUpdateModel model);
     Task<Bakery> GetByIdAsync(Guid id);
-    Task<(Pagination<Bakery>, List<Bakery>)> GetAllAsync(int pageIndex = 0, int pageSize = 10);
+    Task<(Pagination<Bakery>, List<Bakery>)> GetAllAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<Bakery, bool>>? filter = null);
     Task DeleteAsync(Guid id);
 
     Task<bool> ApproveBakeryAsync(Guid id, bool isApprove = true);
@@ -79,7 +79,7 @@ public class BakeryService : IBakeryService
         await _unitOfWork.SaveChangesAsync();
     }
 
-    public async Task<(Pagination<Bakery>, List<Bakery>)> GetAllAsync(int pageIndex = 0, int pageSize = 10)
+    public async Task<(Pagination<Bakery>, List<Bakery>)> GetAllAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<Bakery, bool>>? filter = null)
     {
         return await _unitOfWork.BakeryRepository.ToPagination(pageIndex, pageSize);
     }
@@ -113,7 +113,7 @@ public class BakeryService : IBakeryService
         }
     }
 
-    public async Task<Bakery> UpdateAsync(Guid id, BakeryCreateModel model)
+    public async Task<Bakery> UpdateAsync(Guid id, BakeryUpdateModel model)
     {
         var bakery = await _unitOfWork.BakeryRepository.FirstOrDefaultAsync(x => x.Status == BakeryStatusConstants.CONFIRMED & x.Id == id) ?? throw new BadRequestException("Id is not found!");
 

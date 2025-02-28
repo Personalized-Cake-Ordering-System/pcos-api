@@ -15,5 +15,11 @@ public interface IGenericRepository<TEntity> where TEntity : BaseEntity
     void SoftRemove(TEntity entity);
     Task AddRangeAsync(List<TEntity> entities);
     void SoftRemoveRange(List<TEntity> entities);
-    Task<(Pagination<TEntity>, List<TEntity>)> ToPagination(int pageNumber = 0, int pageSize = 10, bool withDeleted = false, params Expression<Func<TEntity, object>>[] includes);
+    Task<(Pagination<TEntity>, List<TEntity>)> ToPagination(
+        int pageNumber = 0,
+        int pageSize = 10,
+        bool withDeleted = false,
+        Expression<Func<Bakery, bool>>? filter = null,
+        params Expression<Func<TEntity, object>>[] includes
+    );
 }

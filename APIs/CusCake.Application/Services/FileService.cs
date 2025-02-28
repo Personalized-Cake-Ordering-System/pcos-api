@@ -12,7 +12,7 @@ public interface IFileService
 
     Task<bool> RemoveFileAsync(Guid fileId, string folder);
 
-    Task<Storage> GetFileAsync(Guid fileId, string folder);
+    Task<Storage> GetFileAsync(Guid fileId);
 
 }
 
@@ -27,7 +27,7 @@ public class FileService : IFileService
         _appSettings = appSettings;
         _unitOfWork = unitOfWork;
     }
-    public async Task<Storage> GetFileAsync(Guid fileId, string folder)
+    public async Task<Storage> GetFileAsync(Guid fileId)
     {
         var file = await _unitOfWork.StorageRepository.GetByIdAsync(fileId) ?? throw new BadRequestException("File not found!");
         return file;

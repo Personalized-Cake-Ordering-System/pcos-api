@@ -9,6 +9,8 @@ public class BakeryUpdateModel : BakeryCreateModel
 {
     [Required(ErrorMessage = "Id is required.")]
     public Guid Id { get; set; }
+    [Required(ErrorMessage = "ShopImageFiles is require.")]
+    public List<Guid>? ShopImageFiles { get; set; }
 }
 
 public class BakeryUpdateModelValidator : AbstractValidator<BakeryUpdateModel>

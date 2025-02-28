@@ -77,9 +77,24 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
         _dbSet.UpdateRange(entities);
     }
 
-    public async Task<(Pagination<TEntity>, List<TEntity>)> ToPagination(int pageIndex = 0, int pageSize = 10, bool withDeleted = false, params Expression<Func<TEntity, object>>[] includes)
+    public async Task<(Pagination<TEntity>, List<TEntity>)> ToPagination(
+        int pageIndex = 0,
+        int pageSize = 10,
+        bool withDeleted = false,
+        Expression<Func<Bakery, bool>>? filter = null,
+        params Expression<Func<TEntity, object>>[] includes)
     {
-        var items = await GetAllAsync(withDeleted, includes);
+        var itemsQuery = await GetAllAsync(withDeleted, includes);
+
+        // Áp dụng filter nếu có
+        if (filter != null)
+        {
+            Func<TEntity, bool> compiledFilter = (Func<TEntity, bool>)filter.Compile();
+            itemsQuery = [.. itemsQuery.AsQueryable().Where(compiledFilter)];
+        }
+
+        var items = itemsQuery;
+
         var paginatedItems = items.Skip(pageIndex * pageSize).Take(pageSize).ToList();
 
         var pagination = new Pagination<TEntity>
