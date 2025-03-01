@@ -1,6 +1,6 @@
 using CusCake.Application.Services;
 using CusCake.Application.ViewModels;
-using CusCake.Application.ViewModels.CakePartModels;
+using CusCake.Application.ViewModels.CakeExtraModels;
 using CusCake.Domain.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,25 +8,25 @@ using Microsoft.AspNetCore.Mvc;
 namespace CusCake.WebApi.Controllers;
 
 [ApiController]
-[Route("api/cake_parts")]
-public class CakePartController(ICakePartService cakePartService) : ControllerBase
+[Route("api/cake_extras")]
+public class CakeExtraController(ICakeExtraService cakeExtraService) : ControllerBase
 {
-    private readonly ICakePartService _cakePartService = cakePartService;
+    private readonly ICakeExtraService _cakeExtraService = cakeExtraService;
 
 
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetByIdAsync(Guid id)
     {
-        return Ok(ResponseModel<object, object>.Success(await _cakePartService.GetByIdAsync(id)));
+        return Ok(ResponseModel<object, object>.Success(await _cakeExtraService.GetByIdAsync(id)));
     }
 
 
     [HttpPost]
     [Authorize(Roles = RoleConstants.BAKERY)]
-    public async Task<IActionResult> CreateAsync([FromForm] CakePartCreateModel model)
+    public async Task<IActionResult> CreateAsync([FromForm] CakeExtraCreateModel model)
     {
-        var cake = await _cakePartService.CreateAsync(model);
+        var cake = await _cakeExtraService.CreateAsync(model);
         return StatusCode(201, new ResponseModel<object, object> { StatusCode = 201, Payload = cake });
     }
 
@@ -36,22 +36,22 @@ public class CakePartController(ICakePartService cakePartService) : ControllerBa
         int pageSize = 10)
     {
 
-        var result = await _cakePartService.GetAllAsync(pageIndex, pageSize);
+        var result = await _cakeExtraService.GetAllAsync(pageIndex, pageSize);
         return Ok(ResponseModel<object, object>.Success(result.Item2, result.Item1));
     }
 
     [HttpPut("id")]
     [Authorize(Roles = RoleConstants.BAKERY)]
-    public async Task<IActionResult> UpdateAsync(Guid id, [FromForm] CakePartUpdateModel model)
+    public async Task<IActionResult> UpdateAsync(Guid id, [FromForm] CakeExtraUpdateModel model)
     {
-        return Ok(ResponseModel<object, object>.Success(await _cakePartService.UpdateAsync(id, model)));
+        return Ok(ResponseModel<object, object>.Success(await _cakeExtraService.UpdateAsync(id, model)));
     }
 
     [HttpDelete("id")]
     [Authorize(Roles = RoleConstants.BAKERY)]
     public async Task<IActionResult> DeleteAsync(Guid id)
     {
-        await _cakePartService.DeleteAsync(id);
+        await _cakeExtraService.DeleteAsync(id);
 
         return StatusCode(204, new ResponseModel<object, object> { StatusCode = 204 });
     }

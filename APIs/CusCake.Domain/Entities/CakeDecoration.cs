@@ -16,6 +16,17 @@ public class CakeDecoration : BaseEntity
     [Column("decoration_description")]
     public string? DecorationDescription { get; set; }
 
+    [Column("decoration_color")]
+    public string? DecorationColor { get; set; }
+
+
+    [Column("decoration_image_id")]
+    public Guid? DecorationImageId { get; set; }
+    public Storage? DecorationImage { get; set; }
+
+
+    public Guid BakeryId { get; set; } = default!;
+
     public ICollection<CakeDecorationDetail>? CakeDecorationDetails { get; set; }
 
 }

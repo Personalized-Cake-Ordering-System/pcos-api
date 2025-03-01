@@ -14,6 +14,6 @@ public class CakePartConfiguration : IEntityTypeConfiguration<CakePart>
             .HasOne(c => c.PartImage)
             .WithMany()
             .HasForeignKey(c => c.PartImageId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

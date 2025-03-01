@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CusCake.WebApi.Controllers;
 
+[ApiController]
+[Route("api/available_cakes")]
 public class AvailableCakeController(IAvailableCakeService availableCakeService) : BaseController
 {
     private readonly IAvailableCakeService _availableCakeService = availableCakeService;

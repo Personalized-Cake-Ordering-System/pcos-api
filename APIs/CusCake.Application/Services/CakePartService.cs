@@ -38,6 +38,8 @@ public class CakePartService(IUnitOfWork unitOfWork,
             part.PartImageId = await _fileService.UploadFileAsync(model.Image, FolderConstants.CAKE_PART_IMAGES);
         }
 
+        part.BakeryId = _claimsService.GetCurrentUser;
+
         var result = await _unitOfWork.CakePartRepository.AddAsync(part);
 
         await _unitOfWork.SaveChangesAsync();
@@ -58,7 +60,7 @@ public class CakePartService(IUnitOfWork unitOfWork,
     {
         Expression<Func<CakePart, bool>> combinedFilter = filter ?? (x => true);
 
-        Expression<Func<CakePart, bool>> idFilter = x => x.CreatedBy == _claimsService.GetCurrentUser;
+        Expression<Func<CakePart, bool>> idFilter = x => x.BakeryId == _claimsService.GetCurrentUser;
         combinedFilter = FilterCustom.CombineFilters(combinedFilter, idFilter);
 
         return await _unitOfWork.CakePartRepository.ToPagination(pageIndex, pageSize, includes: x => x.PartImage!, filter: combinedFilter);
@@ -72,6 +74,9 @@ public class CakePartService(IUnitOfWork unitOfWork,
     public async Task<CakePart> UpdateAsync(Guid id, CakePartUpdateModel model)
     {
         var part = await GetByIdAsync(id);
+
+        if (part.BakeryId != _claimsService.GetCurrentUser) throw new BadRequestException("No permission to edit!");
+
         _mapper.Map(model, part);
 
         if (model.Image is not null)
