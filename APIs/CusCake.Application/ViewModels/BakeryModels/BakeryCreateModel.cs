@@ -18,7 +18,7 @@ public class BakeryCreateModel
     public IFormFile Avatar { get; set; } = default!;
     public IFormFile FrontCardImage { get; set; } = default!;
     public IFormFile BackCardImage { get; set; } = default!;
-    public List<IFormFile> ShopImages { get; set; } = default!;
+    public List<IFormFile>? ShopImages { get; set; } = default!;
 
 }
 
@@ -75,6 +75,9 @@ public class BakeryCreateModelValidator : AbstractValidator<BakeryCreateModel>
         RuleFor(x => x.BackCardImage)
             .NotNull().WithMessage("Back card image is required.")
             .Must(ValidationUtils.BeAValidImage).WithMessage("Back card image must be a valid image file (jpg, png, jpeg) under 5MB.");
+
+        RuleFor(x => x.ShopImages)
+                    .Null().WithMessage("Images can be null.");
 
         RuleForEach(x => x.ShopImages)
             .Must(ValidationUtils.BeAValidImage).WithMessage("Each shop image must be a valid image file (jpg, png, jpeg) under 5MB.")
