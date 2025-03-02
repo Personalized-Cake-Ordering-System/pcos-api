@@ -1,10 +1,11 @@
+using System.ComponentModel.DataAnnotations;
 using CusCake.Application.Validators;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 
-namespace CusCake.Application.ViewModels.BakeryModel;
+namespace CusCake.Application.ViewModels.BakeryModels;
 
-public class BakeryCreateModel
+public class BakeryBaseActionModel
 {
     public string BakeryName { get; set; } = default!;
     public string Email { get; set; } = default!;
@@ -15,17 +16,16 @@ public class BakeryCreateModel
     public string OwnerName { get; set; } = default!;
     public string TaxCode { get; set; } = default!;
     public string IdentityCardNumber { get; set; } = default!;
-    public IFormFile Avatar { get; set; } = default!;
-    public IFormFile FrontCardImage { get; set; } = default!;
-    public IFormFile BackCardImage { get; set; } = default!;
     public List<IFormFile>? ShopImages { get; set; } = default!;
 
 }
 
-public class BakeryCreateModelValidator : AbstractValidator<BakeryCreateModel>
+
+public class BakeryBaseActionModelValidator : AbstractValidator<BakeryBaseActionModel>
 {
-    public BakeryCreateModelValidator()
+    public BakeryBaseActionModelValidator()
     {
+
         RuleFor(x => x.Password)
             .NotEmpty().WithMessage("Password name is required.")
             .MaximumLength(30)
@@ -54,10 +54,6 @@ public class BakeryCreateModelValidator : AbstractValidator<BakeryCreateModel>
             .NotEmpty().WithMessage("Owner name is required.")
             .MaximumLength(100).WithMessage("Owner name cannot exceed 100 characters.");
 
-        RuleFor(x => x.Avatar)
-            .NotNull().WithMessage("Avatar image is required.")
-            .Must(ValidationUtils.BeAValidImage).WithMessage("Avatar must be a valid image file (jpg, png, jpeg) under 5MB.");
-
         RuleFor(x => x.TaxCode)
             .NotEmpty().WithMessage("Tax code is required.")
             .Matches(@"^\d{10}(\d{3})?$")
@@ -68,6 +64,36 @@ public class BakeryCreateModelValidator : AbstractValidator<BakeryCreateModel>
             .Matches(@"^\d{9}$|^\d{12}$")
             .WithMessage("Identity card number must be 9 or 12 digits.");
 
+        RuleFor(x => x.ShopImages)
+            .Null().WithMessage("Images can be null.");
+
+        RuleForEach(x => x.ShopImages)
+            .Must(ValidationUtils.BeAValidImage).WithMessage("Each shop image must be a valid image file (jpg, png, jpeg) under 5MB.")
+            .When(x => x.ShopImages != null && x.ShopImages.Count != 0);
+    }
+}
+
+public class BakeryCreateModel : BakeryBaseActionModel
+{
+
+    public IFormFile? Avatar { get; set; } = default!;
+    public IFormFile? FrontCardImage { get; set; } = default!;
+    public IFormFile? BackCardImage { get; set; } = default!;
+
+}
+
+public class BakeryCreateModelValidator : AbstractValidator<BakeryCreateModel>
+{
+    public BakeryCreateModelValidator()
+    {
+
+        Include(new BakeryBaseActionModelValidator());
+
+        RuleFor(x => x.Avatar)
+            .NotNull().WithMessage("Avatar image is required.")
+            .Must(ValidationUtils.BeAValidImage).WithMessage("Avatar must be a valid image file (jpg, png, jpeg) under 5MB.");
+
+
         RuleFor(x => x.FrontCardImage)
             .NotNull().WithMessage("Front card image is required.")
             .Must(ValidationUtils.BeAValidImage).WithMessage("Front card image must be a valid image file (jpg, png, jpeg) under 5MB.");
@@ -76,13 +102,37 @@ public class BakeryCreateModelValidator : AbstractValidator<BakeryCreateModel>
             .NotNull().WithMessage("Back card image is required.")
             .Must(ValidationUtils.BeAValidImage).WithMessage("Back card image must be a valid image file (jpg, png, jpeg) under 5MB.");
 
-        RuleFor(x => x.ShopImages)
-                    .Null().WithMessage("Images can be null.");
-
-        RuleForEach(x => x.ShopImages)
-            .Must(ValidationUtils.BeAValidImage).WithMessage("Each shop image must be a valid image file (jpg, png, jpeg) under 5MB.")
-            .When(x => x.ShopImages != null && x.ShopImages.Count != 0);
     }
+}
 
+public class BakeryUpdateModel : BakeryCreateModel
+{
+    [Required(ErrorMessage = "Id is required.")]
+    public Guid Id { get; set; }
+    public List<Guid>? DeleteImageFileIds { get; set; } = [];
+}
+
+public class BakeryUpdateModelValidator : AbstractValidator<BakeryUpdateModel>
+{
+    public BakeryUpdateModelValidator()
+    {
+
+        Include(new BakeryBaseActionModelValidator());
+
+        RuleFor(x => x.Avatar)
+            .Must(ValidationUtils.BeAValidImage)
+            .WithMessage("Avatar must be a valid image file (jpg, png, jpeg) under 5MB.")
+            .When(x => x.Avatar != null);
+
+        RuleFor(x => x.FrontCardImage)
+            .Must(ValidationUtils.BeAValidImage).WithMessage("Front card image must be a valid image file (jpg, png, jpeg) under 5MB.")
+            .When(x => x.FrontCardImage != null)
+            .OverridePropertyName("FrontCardImage");
+
+        RuleFor(x => x.BackCardImage)
+            .Must(ValidationUtils.BeAValidImage).WithMessage("Back card image must be a valid image file (jpg, png, jpeg) under 5MB.")
+            .When(x => x.BackCardImage != null)
+            .OverridePropertyName("BackCardImage");
+    }
 
 }

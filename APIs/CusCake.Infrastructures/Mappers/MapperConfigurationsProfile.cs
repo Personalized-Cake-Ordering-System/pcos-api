@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using CusCake.Application.ViewModels.AdminModels;
 using CusCake.Application.ViewModels.AvailableCakeModels;
-using CusCake.Application.ViewModels.BakeryModel;
+using CusCake.Application.ViewModels.BakeryModels;
 using CusCake.Application.ViewModels.CakePartModels;
 using CusCake.Application.ViewModels.CustomerModels;
 using CusCake.Domain.Entities;

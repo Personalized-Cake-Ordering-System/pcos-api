@@ -3,7 +3,7 @@ using AutoMapper;
 using CusCake.Application.GlobalExceptionHandling.Exceptions;
 using CusCake.Application.Services.IServices;
 using CusCake.Application.Utils;
-using CusCake.Application.ViewModels.CakeExtraModels;
+using CusCake.Application.ViewModels.CakeDecorationModels;
 using CusCake.Domain.Constants;
 using CusCake.Domain.Entities;
 

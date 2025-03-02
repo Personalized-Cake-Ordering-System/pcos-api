@@ -1,6 +1,6 @@
 using CusCake.Application.Services;
 using CusCake.Application.ViewModels;
-using CusCake.Application.ViewModels.CakeExtraModels;
+using CusCake.Application.ViewModels.CakeDecorationModels;
 using CusCake.Domain.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -40,14 +40,14 @@ public class CakeDecorationController(ICakeDecorationService service) : Controll
         return Ok(ResponseModel<object, object>.Success(result.Item2, result.Item1));
     }
 
-    [HttpPut("id")]
+    [HttpPut("{id}")]
     [Authorize(Roles = RoleConstants.BAKERY)]
     public async Task<IActionResult> UpdateAsync(Guid id, [FromForm] CakeDecorationUpdateModel model)
     {
         return Ok(ResponseModel<object, object>.Success(await _service.UpdateAsync(id, model)));
     }
 
-    [HttpDelete("id")]
+    [HttpDelete("{id}")]
     [Authorize(Roles = RoleConstants.BAKERY)]
     public async Task<IActionResult> DeleteAsync(Guid id)
     {

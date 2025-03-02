@@ -3,7 +3,7 @@ using AutoMapper;
 using CusCake.Application.Extensions;
 using CusCake.Application.GlobalExceptionHandling.Exceptions;
 using CusCake.Application.Utils;
-using CusCake.Application.ViewModels.BakeryModel;
+using CusCake.Application.ViewModels.BakeryModels;
 using CusCake.Domain.Constants;
 using CusCake.Domain.Entities;
 
@@ -45,9 +45,9 @@ public class BakeryService(IUnitOfWork unitOfWork, IFileService fileService, IMa
 
         var bakery = _mapper.Map<Bakery>(model);
 
-        bakery.AvatarFileId = await _fileService.UploadFileAsync(model.Avatar, FolderConstants.AVATAR);
-        bakery.FrontCardFileId = await _fileService.UploadFileAsync(model.FrontCardImage, FolderConstants.IDENTITY_CARD);
-        bakery.BackCardFileId = await _fileService.UploadFileAsync(model.BackCardImage, FolderConstants.IDENTITY_CARD);
+        bakery.AvatarFileId = await _fileService.UploadFileAsync(model.Avatar!, FolderConstants.AVATAR);
+        bakery.FrontCardFileId = await _fileService.UploadFileAsync(model.FrontCardImage!, FolderConstants.IDENTITY_CARD);
+        bakery.BackCardFileId = await _fileService.UploadFileAsync(model.BackCardImage!, FolderConstants.IDENTITY_CARD);
 
         if (model.ShopImages is not null && model.ShopImages.Count != 0)
         {
@@ -135,7 +135,7 @@ public class BakeryService(IUnitOfWork unitOfWork, IFileService fileService, IMa
             }
         }
 
-        if (model.ShopImages.Count != 0)
+        if (model.ShopImages != null && model.ShopImages.Count != 0)
         {
             foreach (var image in model.ShopImages)
             {

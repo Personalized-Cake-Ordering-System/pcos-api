@@ -2,7 +2,7 @@ using CusCake.Application.Validators;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 
-namespace CusCake.Application.ViewModels.CakeExtraModels;
+namespace CusCake.Application.ViewModels.CakeDecorationModels;
 
 
 public class CakeDecorationCreateModel

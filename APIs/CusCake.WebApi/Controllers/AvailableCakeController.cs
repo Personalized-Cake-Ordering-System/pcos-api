@@ -46,14 +46,14 @@ public class AvailableCakeController(IAvailableCakeService availableCakeService)
         return Ok(ResponseModel<object, object>.Success(result.Item2, result.Item1));
     }
 
-    [HttpPut("id")]
+    [HttpPut("{id}")]
     [Authorize(Roles = RoleConstants.BAKERY)]
     public async Task<IActionResult> UpdateAsync(Guid id, [FromForm] AvailableCakeUpdateModel model)
     {
         return Ok(ResponseModel<object, object>.Success(await _availableCakeService.UpdateAsync(id, model)));
     }
 
-    [HttpDelete("id")]
+    [HttpDelete("{id}")]
     [Authorize(Roles = RoleConstants.BAKERY)]
     public async Task<IActionResult> DeleteAsync(Guid id)
     {

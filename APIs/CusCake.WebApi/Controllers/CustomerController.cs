@@ -36,13 +36,13 @@ public class CustomerController(ICustomerService customerService) : BaseControll
         return Ok(ResponseModel<object, ICollection<Customer>>.Success(result.Item2, result.Item1));
     }
 
-    [HttpPut("id")]
+    [HttpPut("{id}")]
     [Authorize(Roles = RoleConstants.CUSTOMER)]
     public async Task<IActionResult> UpdateAsync(Guid id, [FromBody] CustomerUpdateModel model)
     {
         return Ok(ResponseModel<object, Customer>.Success(await _customerService.UpdateAsync(id, model)));
     }
-    [HttpDelete("id")]
+    [HttpDelete("{id}")]
     [Authorize(Roles = RoleConstants.ADMIN)]
     public async Task<IActionResult> DeleteAsync(Guid id)
     {
