@@ -10,5 +10,12 @@ public class CakeDecorationConfiguration : IEntityTypeConfiguration<CakeDecorati
     public void Configure(EntityTypeBuilder<CakeDecoration> builder)
     {
         builder.HasMany(x => x.CakeDecorationDetails).WithOne(x => x.CakeDecoration).HasForeignKey(x => x.CakeDecorationId).OnDelete(DeleteBehavior.Cascade);
+
+        builder
+           .HasOne(c => c.DecorationImage)
+           .WithMany()
+           .HasForeignKey(c => c.DecorationImageId)
+           .OnDelete(DeleteBehavior.SetNull);
+
     }
 }

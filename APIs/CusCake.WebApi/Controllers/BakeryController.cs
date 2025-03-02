@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using CusCake.Application.Services;
 using CusCake.Application.ViewModels;
-using CusCake.Application.ViewModels.BakeryModel;
+using CusCake.Application.ViewModels.BakeryModels;
 using CusCake.Domain.Constants;
 using CusCake.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
@@ -53,14 +53,14 @@ public class BakeryController(IBakeryService bakeryService) : ControllerBase
         return Ok(ResponseModel<object, ICollection<Bakery>>.Success(result.Item2, result.Item1));
     }
 
-    [HttpPut("id")]
+    [HttpPut("{id}")]
     [Authorize(Roles = RoleConstants.BAKERY + "," + RoleConstants.ADMIN)]
     public async Task<IActionResult> UpdateAsync(Guid id, [FromForm] BakeryUpdateModel model)
     {
         return Ok(ResponseModel<object, Bakery>.Success(await _bakeryService.UpdateAsync(id, model)));
     }
 
-    [HttpDelete("id")]
+    [HttpDelete("{id}")]
     [Authorize(Roles = RoleConstants.ADMIN)]
     public async Task<IActionResult> DeleteAsync(Guid id)
     {

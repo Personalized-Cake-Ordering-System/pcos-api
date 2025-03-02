@@ -4,7 +4,7 @@ namespace CusCake.Application.Validators;
 
 public static class ValidationUtils
 {
-    public static bool BeAValidImage(IFormFile file)
+    public static bool BeAValidImage(IFormFile? file)
     {
         if (file == null) return true;
 

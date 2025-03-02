@@ -14,6 +14,8 @@ public class CakePartCreateModel
 
     public string PartType { get; set; } = default!;
 
+    public string? PartColor { get; set; }
+
     public string? PartDescription { get; set; }
 
     public bool IsDefault { get; set; } = false;

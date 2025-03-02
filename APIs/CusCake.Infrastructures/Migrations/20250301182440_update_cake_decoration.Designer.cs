@@ -4,6 +4,7 @@ using CusCake.Infrastructures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CusCake.Infrastructures.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250301182440_update_cake_decoration")]
+    partial class update_cake_decoration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -479,7 +482,7 @@ namespace CusCake.Infrastructures.Migrations
                         .HasColumnType("longtext")
                         .HasColumnName("extra_description");
 
-                    b.Property<Guid?>("ExtraImageId")
+                    b.Property<Guid>("ExtraImageId")
                         .HasColumnType("char(36)")
                         .HasColumnName("extra_image_id");
 
@@ -657,7 +660,7 @@ namespace CusCake.Infrastructures.Migrations
                         .HasColumnType("longtext")
                         .HasColumnName("part_description");
 
-                    b.Property<Guid?>("PartImageId")
+                    b.Property<Guid>("PartImageId")
                         .HasColumnType("char(36)")
                         .HasColumnName("part_image_id");
 
@@ -1519,7 +1522,8 @@ namespace CusCake.Infrastructures.Migrations
                     b.HasOne("CusCake.Domain.Entities.Storage", "ExtraImage")
                         .WithMany()
                         .HasForeignKey("ExtraImageId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("ExtraImage");
                 });
@@ -1559,7 +1563,8 @@ namespace CusCake.Infrastructures.Migrations
                     b.HasOne("CusCake.Domain.Entities.Storage", "PartImage")
                         .WithMany()
                         .HasForeignKey("PartImageId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("PartImage");
                 });

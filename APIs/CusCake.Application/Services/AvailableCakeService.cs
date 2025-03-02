@@ -33,9 +33,9 @@ public class AvailableCakeService(IUnitOfWork unitOfWork, IMapper mapper, IFileS
     {
         var cake = _mapper.Map<AvailableCake>(model);
 
-        if (model.AvailableCakeImages is not null && model.AvailableCakeImages.Count > 0)
+        if (model.AvailableCakeFileImages is not null && model.AvailableCakeFileImages.Count > 0)
         {
-            foreach (var image in model.AvailableCakeImages)
+            foreach (var image in model.AvailableCakeFileImages)
             {
                 var fileId = await _fileService.UploadFileAsync(image, FolderConstants.AVAILABLE_CAKE_IMAGES);
                 cake.AvailableCakeImageFiles.Add(fileId);
@@ -43,7 +43,7 @@ public class AvailableCakeService(IUnitOfWork unitOfWork, IMapper mapper, IFileS
         }
 
 
-        cake.AvailableCakeMainImageId = await _fileService.UploadFileAsync(model.AvailableCakeMainImage, FolderConstants.AVAILABLE_CAKE_IMAGES);
+        cake.AvailableCakeMainImageId = await _fileService.UploadFileAsync(model.AvailableCakeFileImage, FolderConstants.AVAILABLE_CAKE_IMAGES);
 
 
         var result = await _unitOfWork.AvailableCakeRepository.AddAsync(cake);
@@ -91,14 +91,14 @@ public class AvailableCakeService(IUnitOfWork unitOfWork, IMapper mapper, IFileS
             }
         }
 
-        if (model.AvailableCakeMainImage != null)
+        if (model.AvailableCakeFileImage != null)
         {
-            cake.AvailableCakeMainImageId = await _fileService.UploadFileAsync(model.AvailableCakeMainImage, FolderConstants.AVAILABLE_CAKE_IMAGES);
+            cake.AvailableCakeMainImageId = await _fileService.UploadFileAsync(model.AvailableCakeFileImage, FolderConstants.AVAILABLE_CAKE_IMAGES);
         }
 
-        if (model.AvailableCakeImages != null && model.AvailableCakeImages.Count > 0)
+        if (model.AvailableCakeFileImages != null && model.AvailableCakeFileImages.Count > 0)
         {
-            foreach (var image in model.AvailableCakeImages)
+            foreach (var image in model.AvailableCakeFileImages)
             {
                 var fileId = await _fileService.UploadFileAsync(image, FolderConstants.AVAILABLE_CAKE_IMAGES);
                 cake.AvailableCakeImageFiles.Add(fileId);

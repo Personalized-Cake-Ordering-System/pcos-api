@@ -11,7 +11,8 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Text.Json.Serialization;
 using System.Text;
-
+using FluentValidation;
+using FluentValidation.AspNetCore;
 namespace CusCake.WebApi
 {
     public static class DependencyInjection
@@ -33,6 +34,8 @@ namespace CusCake.WebApi
                 }
             );
 
+
+
             List<Assembly> assemblies = new List<Assembly>
                      {
                          CusCake.Application.AssemblyReference.Assembly,
@@ -46,6 +49,11 @@ namespace CusCake.WebApi
              .UsingRegistrationStrategy(RegistrationStrategy.Skip)
              .AsMatchingInterface()
              .WithScopedLifetime());
+
+
+            services.AddValidatorsFromAssemblies(assemblies: assemblies);
+            services.AddFluentValidationAutoValidation();
+            services.AddFluentValidationClientsideAdapters();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
@@ -93,7 +101,7 @@ namespace CusCake.WebApi
                                 Id="Bearer"
                             }
                         },
-                        new string[]{}
+                        Array.Empty<string>()
                     }
                 });
             });
