@@ -1,5 +1,6 @@
 using CusCake.Application.Services;
 using CusCake.Application.ViewModels;
+using CusCake.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CusCake.WebApi.Controllers;
@@ -21,8 +22,8 @@ public class FileController(IFileService fileService) : BaseController
     }
 
     [HttpPost()]
-    public async Task<IActionResult> UploadFile(IFormFile formFile, string folder)
+    public async Task<IActionResult> UploadFile(IFormFile formFile)
     {
-        return Ok(ResponseModel<object, Guid>.Success(await _fileService.UploadFileAsync(formFile, folder)));
+        return Ok(ResponseModel<object, Storage>.Success(await _fileService.UploadFileAsync(formFile)));
     }
 }

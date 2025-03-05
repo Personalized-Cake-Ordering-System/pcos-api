@@ -2,6 +2,7 @@ using CusCake.Application.Services;
 using CusCake.Application.ViewModels;
 using CusCake.Application.ViewModels.CakePartModels;
 using CusCake.Domain.Constants;
+using CusCake.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,8 +27,8 @@ public class CakePartController(ICakePartService cakePartService) : ControllerBa
     [Authorize(Roles = RoleConstants.BAKERY)]
     public async Task<IActionResult> CreateAsync([FromBody] List<CakePartCreateModel> models)
     {
-        var cake = await _cakePartService.CreateAsync(models);
-        return StatusCode(201, new ResponseModel<object, object> { StatusCode = 201, Payload = cake });
+        var cakes = await _cakePartService.CreateAsync(models);
+        return StatusCode(201, new ResponseModel<object, List<CakePart>> { StatusCode = 201, Payload = cakes });
     }
 
     [HttpGet]

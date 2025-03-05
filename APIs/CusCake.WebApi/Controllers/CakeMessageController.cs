@@ -2,6 +2,7 @@ using CusCake.Application.Services;
 using CusCake.Application.ViewModels;
 using CusCake.Application.ViewModels.CakeMessageModels;
 using CusCake.Domain.Constants;
+using CusCake.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,8 +27,8 @@ public class CakeMessageController(ICakeMessageService cakeMessageService) : Con
     [Authorize(Roles = RoleConstants.BAKERY)]
     public async Task<IActionResult> CreateAsync([FromBody] List<CakeMessageCreateModel> models)
     {
-        var cake = await _cakeMessageService.CreateAsync(models);
-        return StatusCode(201, new ResponseModel<object, object> { StatusCode = 201, Payload = cake });
+        var cakes = await _cakeMessageService.CreateAsync(models);
+        return StatusCode(201, new ResponseModel<object, List<CakeMessage>> { StatusCode = 201, Payload = cakes });
     }
 
     [HttpGet]

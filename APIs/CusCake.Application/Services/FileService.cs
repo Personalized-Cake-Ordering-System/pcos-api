@@ -1,4 +1,5 @@
 using CusCake.Application.GlobalExceptionHandling.Exceptions;
+using CusCake.Domain.Constants;
 using CusCake.Domain.Entities;
 using Firebase.Auth;
 using Firebase.Storage;
@@ -8,7 +9,7 @@ namespace CusCake.Application.Services;
 
 public interface IFileService
 {
-    Task<Guid> UploadFileAsync(IFormFile fileUpload, string folder);
+    Task<Storage> UploadFileAsync(IFormFile fileUpload, string folder = FolderConstants.IMAGES);
 
     Task<bool> RemoveFileAsync(Guid fileId, string folder);
 
@@ -42,7 +43,7 @@ public class FileService(AppSettings appSettings, IUnitOfWork unitOfWork) : IFil
         throw new Exception();
     }
 
-    public async Task<Guid> UploadFileAsync(IFormFile fileUpload, string folder)
+    public async Task<Storage> UploadFileAsync(IFormFile fileUpload, string folder = FolderConstants.IMAGES)
     {
         if (fileUpload.Length > 0)
         {
@@ -71,7 +72,7 @@ public class FileService(AppSettings appSettings, IUnitOfWork unitOfWork) : IFil
                 var url = await cancellation;
                 var result = await _unitOfWork.StorageRepository.AddAsync(new Storage { FileName = newFileName, FileUrl = url });
                 await _unitOfWork.SaveChangesAsync();
-                return result.Id;
+                return result;
             }
             catch (Exception ex)
             {

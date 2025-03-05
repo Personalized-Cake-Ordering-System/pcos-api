@@ -34,7 +34,7 @@ public class AvailableCakeService(IUnitOfWork unitOfWork, IMapper mapper, IFileS
         var cake = _mapper.Map<AvailableCake>(model);
 
 
-        cake.AvailableCakeMainImageId = await _fileService.UploadFileAsync(model.AvailableCakeFileImage, FolderConstants.AVAILABLE_CAKE_IMAGES);
+        cake.AvailableCakeMainImageId = (await _fileService.UploadFileAsync(model.AvailableCakeFileImage, FolderConstants.AVAILABLE_CAKE_IMAGES)).Id;
 
 
         var result = await _unitOfWork.AvailableCakeRepository.AddAsync(cake);
@@ -77,7 +77,7 @@ public class AvailableCakeService(IUnitOfWork unitOfWork, IMapper mapper, IFileS
 
         if (model.AvailableCakeFileImage != null)
         {
-            cake.AvailableCakeMainImageId = await _fileService.UploadFileAsync(model.AvailableCakeFileImage, FolderConstants.AVAILABLE_CAKE_IMAGES);
+            cake.AvailableCakeMainImageId = (await _fileService.UploadFileAsync(model.AvailableCakeFileImage, FolderConstants.AVAILABLE_CAKE_IMAGES)).Id;
         }
 
         _unitOfWork.AvailableCakeRepository.Update(cake);

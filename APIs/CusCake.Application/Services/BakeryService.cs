@@ -45,9 +45,9 @@ public class BakeryService(IUnitOfWork unitOfWork, IFileService fileService, IMa
 
         var bakery = _mapper.Map<Bakery>(model);
 
-        bakery.AvatarFileId = await _fileService.UploadFileAsync(model.Avatar!, FolderConstants.AVATAR);
-        bakery.FrontCardFileId = await _fileService.UploadFileAsync(model.FrontCardImage!, FolderConstants.IDENTITY_CARD);
-        bakery.BackCardFileId = await _fileService.UploadFileAsync(model.BackCardImage!, FolderConstants.IDENTITY_CARD);
+        bakery.AvatarFileId = (await _fileService.UploadFileAsync(model.Avatar!, FolderConstants.AVATAR)).Id;
+        bakery.FrontCardFileId = (await _fileService.UploadFileAsync(model.FrontCardImage!, FolderConstants.IDENTITY_CARD)).Id;
+        bakery.BackCardFileId = (await _fileService.UploadFileAsync(model.BackCardImage!, FolderConstants.IDENTITY_CARD)).Id;
 
         bakery.Status = BakeryStatusConstants.PENDING;
 
@@ -111,13 +111,13 @@ public class BakeryService(IUnitOfWork unitOfWork, IFileService fileService, IMa
         _mapper.Map(model, bakery);
 
         if (model.Avatar != null)
-            bakery.AvatarFileId = await _fileService.UploadFileAsync(model.Avatar, FolderConstants.AVATAR);
+            bakery.AvatarFileId = (await _fileService.UploadFileAsync(model.Avatar, FolderConstants.AVATAR)).Id;
 
         if (model.FrontCardImage != null)
-            bakery.FrontCardFileId = await _fileService.UploadFileAsync(model.FrontCardImage, FolderConstants.IDENTITY_CARD);
+            bakery.FrontCardFileId = (await _fileService.UploadFileAsync(model.FrontCardImage, FolderConstants.IDENTITY_CARD)).Id;
 
         if (model.BackCardImage != null)
-            bakery.BackCardFileId = await _fileService.UploadFileAsync(model.BackCardImage, FolderConstants.IDENTITY_CARD);
+            bakery.BackCardFileId = (await _fileService.UploadFileAsync(model.BackCardImage, FolderConstants.IDENTITY_CARD)).Id;
 
 
         _unitOfWork.BakeryRepository.Update(bakery);
