@@ -11,7 +11,7 @@ namespace CusCake.Application.Services;
 
 public interface ICakeDecorationService
 {
-    Task<CakeDecoration> CreateAsync(CakeDecorationCreateModel model);
+    Task<List<CakeDecoration>> CreateAsync(List<CakeDecorationCreateModel> models);
     Task<CakeDecoration> UpdateAsync(Guid id, CakeDecorationUpdateModel model);
     Task<CakeDecoration> GetByIdAsync(Guid id);
     Task<(Pagination<CakeDecoration>, List<CakeDecoration>)> GetAllAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<CakeDecoration, bool>>? filter = null);
@@ -29,22 +29,20 @@ public class CakeDecorationService(IUnitOfWork unitOfWork,
     private readonly IFileService _fileService = fileService;
     private readonly IClaimsService _claimsService = claimsService;
 
-    public async Task<CakeDecoration> CreateAsync(CakeDecorationCreateModel model)
+    public async Task<List<CakeDecoration>> CreateAsync(List<CakeDecorationCreateModel> models)
     {
-        var decoration = _mapper.Map<CakeDecoration>(model);
+        var decorations = _mapper.Map<List<CakeDecoration>>(models);
 
-        if (model.Image != null)
+        foreach (var decoration in decorations)
         {
-            decoration.DecorationImageId = await _fileService.UploadFileAsync(model.Image, FolderConstants.CAKE_PART_IMAGES);
+            decoration.BakeryId = _claimsService.GetCurrentUser;
         }
 
-        decoration.BakeryId = _claimsService.GetCurrentUser;
-
-        var result = await _unitOfWork.CakeDecorationRepository.AddAsync(decoration);
+        await _unitOfWork.CakeDecorationRepository.AddRangeAsync(decorations);
 
         await _unitOfWork.SaveChangesAsync();
 
-        return result;
+        return decorations;
     }
 
     public async Task DeleteAsync(Guid id)
@@ -78,11 +76,6 @@ public class CakeDecorationService(IUnitOfWork unitOfWork,
         if (decoration.BakeryId != _claimsService.GetCurrentUser) throw new BadRequestException("No permission to edit!");
 
         _mapper.Map(model, decoration);
-
-        if (model.Image is not null)
-        {
-            decoration.DecorationImageId = await _fileService.UploadFileAsync(model.Image, FolderConstants.CAKE_PART_IMAGES);
-        }
 
         _unitOfWork.CakeDecorationRepository.Update(decoration);
 

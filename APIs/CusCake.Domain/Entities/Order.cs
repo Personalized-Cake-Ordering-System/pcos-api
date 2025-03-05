@@ -11,7 +11,13 @@ public class Order : BaseEntity
     public string? OrderNote { get; set; }
 
     [Column("pickup_time")]
-    public DateTime PickUpTime { get; set; } = DateTime.Now;
+    public DateTime? PickUpTime { get; set; } = DateTime.Now;
+
+    [Column("shipping_type")]
+    public string ShippingType { get; set; } = default!;
+
+    [Column("payment_type")]
+    public string PaymentType { get; set; } = default!;
 
     [Column("canceled_reason")]
     public string? CanceledReason { get; set; }

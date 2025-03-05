@@ -24,9 +24,9 @@ public class CakeDecorationController(ICakeDecorationService service) : Controll
 
     [HttpPost]
     [Authorize(Roles = RoleConstants.BAKERY)]
-    public async Task<IActionResult> CreateAsync([FromForm] CakeDecorationCreateModel model)
+    public async Task<IActionResult> CreateAsync([FromBody] List<CakeDecorationCreateModel> models)
     {
-        var decoration = await _service.CreateAsync(model);
+        var decoration = await _service.CreateAsync(models);
         return StatusCode(201, new ResponseModel<object, object> { StatusCode = 201, Payload = decoration });
     }
 

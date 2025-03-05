@@ -4,6 +4,7 @@ using CusCake.Infrastructures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CusCake.Infrastructures.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250305085411_update_cake_message_fields")]
+    partial class update_cake_message_fields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1217,23 +1220,13 @@ namespace CusCake.Infrastructures.Migrations
                         .HasColumnType("longtext")
                         .HasColumnName("order_status");
 
-                    b.Property<string>("PaymentType")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("payment_type");
-
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("longtext")
                         .HasColumnName("phone_number");
 
-                    b.Property<DateTime?>("PickUpTime")
+                    b.Property<DateTime>("PickUpTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("pickup_time");
-
-                    b.Property<string>("ShippingType")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("shipping_type");
 
                     b.Property<double>("TotalPrice")
                         .HasColumnType("double")
@@ -1273,7 +1266,7 @@ namespace CusCake.Infrastructures.Migrations
                         .HasColumnType("char(36)")
                         .HasColumnName("id");
 
-                    b.Property<Guid?>("AvailableCakeId")
+                    b.Property<Guid>("AvailableCakeId")
                         .HasColumnType("char(36)")
                         .HasColumnName("available_cake_id");
 
@@ -1293,7 +1286,7 @@ namespace CusCake.Infrastructures.Migrations
                         .HasColumnType("char(36)")
                         .HasColumnName("created_by");
 
-                    b.Property<Guid?>("CustomCakeId")
+                    b.Property<Guid>("CustomCakeId")
                         .HasColumnType("char(36)")
                         .HasColumnName("custom_cake_id");
 
@@ -1868,7 +1861,8 @@ namespace CusCake.Infrastructures.Migrations
                     b.HasOne("CusCake.Domain.Entities.AvailableCake", "AvailableCake")
                         .WithMany("OrderDetails")
                         .HasForeignKey("AvailableCakeId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("CusCake.Domain.Entities.CakeReview", "CakeReview")
                         .WithOne("OrderDetail")
@@ -1878,7 +1872,8 @@ namespace CusCake.Infrastructures.Migrations
                     b.HasOne("CusCake.Domain.Entities.CustomCake", "CustomCake")
                         .WithMany("OrderDetails")
                         .HasForeignKey("CustomCakeId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("CusCake.Domain.Entities.Order", "Order")
                         .WithMany("OrderDetails")

@@ -11,7 +11,7 @@ namespace CusCake.Application.Services;
 
 public interface ICakePartService
 {
-    Task<CakePart> CreateAsync(CakePartCreateModel model);
+    Task<List<CakePart>> CreateAsync(List<CakePartCreateModel> models);
     Task<CakePart> UpdateAsync(Guid id, CakePartUpdateModel model);
     Task<CakePart> GetByIdAsync(Guid id);
     Task<(Pagination<CakePart>, List<CakePart>)> GetAllAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<CakePart, bool>>? filter = null);
@@ -29,22 +29,20 @@ public class CakePartService(IUnitOfWork unitOfWork,
     private readonly IFileService _fileService = fileService;
     private readonly IClaimsService _claimsService = claimsService;
 
-    public async Task<CakePart> CreateAsync(CakePartCreateModel model)
+    public async Task<List<CakePart>> CreateAsync(List<CakePartCreateModel> models)
     {
-        var part = _mapper.Map<CakePart>(model);
+        var parts = _mapper.Map<List<CakePart>>(models);
 
-        if (model.Image != null)
+        foreach (var part in parts)
         {
-            part.PartImageId = await _fileService.UploadFileAsync(model.Image, FolderConstants.CAKE_PART_IMAGES);
+            part.BakeryId = _claimsService.GetCurrentUser;
         }
 
-        part.BakeryId = _claimsService.GetCurrentUser;
-
-        var result = await _unitOfWork.CakePartRepository.AddAsync(part);
+        await _unitOfWork.CakePartRepository.AddRangeAsync(parts);
 
         await _unitOfWork.SaveChangesAsync();
 
-        return result;
+        return parts;
     }
 
     public async Task DeleteAsync(Guid id)
@@ -78,11 +76,6 @@ public class CakePartService(IUnitOfWork unitOfWork,
         if (part.BakeryId != _claimsService.GetCurrentUser) throw new BadRequestException("No permission to edit!");
 
         _mapper.Map(model, part);
-
-        if (model.Image is not null)
-        {
-            part.PartImageId = await _fileService.UploadFileAsync(model.Image, FolderConstants.CAKE_PART_IMAGES);
-        }
 
         _unitOfWork.CakePartRepository.Update(part);
         await _unitOfWork.SaveChangesAsync();

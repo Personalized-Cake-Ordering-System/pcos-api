@@ -25,8 +25,7 @@ public class CustomCake : BaseEntity
     public Guid BakeryId { get; set; }
     public Bakery Bakery { get; set; } = default!;
 
-    public ICollection<CakeMessage>? CakeMessages { get; set; }
-
+    public ICollection<CakeMessageDetail>? CakeMessageDetails { get; set; }
     public ICollection<CakePartDetail>? CakePartDetails { get; set; }
     public ICollection<CakeExtraDetail>? CakeExtraDetails { get; set; }
     public ICollection<CakeDecorationDetail>? CakeDecorationDetails { get; set; }

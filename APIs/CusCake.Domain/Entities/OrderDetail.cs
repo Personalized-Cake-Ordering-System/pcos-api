@@ -11,7 +11,7 @@ public class OrderDetail : BaseEntity
     public Order Order { get; set; } = default!;
 
     [Column("available_cake_id")]
-    public Guid AvailableCakeId { get; set; }
+    public Guid? AvailableCakeId { get; set; }
 
     public AvailableCake? AvailableCake { get; set; }
 
@@ -26,7 +26,7 @@ public class OrderDetail : BaseEntity
     public CakeReview? CakeReview { get; set; }
 
     [Column("custom_cake_id")]
-    public Guid CustomCakeId { get; set; }
+    public Guid? CustomCakeId { get; set; }
     public CustomCake? CustomCake { get; set; }
 
 }

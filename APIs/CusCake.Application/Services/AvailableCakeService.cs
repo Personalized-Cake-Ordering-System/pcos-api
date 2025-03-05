@@ -33,15 +33,6 @@ public class AvailableCakeService(IUnitOfWork unitOfWork, IMapper mapper, IFileS
     {
         var cake = _mapper.Map<AvailableCake>(model);
 
-        if (model.AvailableCakeFileImages is not null && model.AvailableCakeFileImages.Count > 0)
-        {
-            foreach (var image in model.AvailableCakeFileImages)
-            {
-                var fileId = await _fileService.UploadFileAsync(image, FolderConstants.AVAILABLE_CAKE_IMAGES);
-                cake.AvailableCakeImageFiles.Add(fileId);
-            }
-        }
-
 
         cake.AvailableCakeMainImageId = await _fileService.UploadFileAsync(model.AvailableCakeFileImage, FolderConstants.AVAILABLE_CAKE_IMAGES);
 
@@ -83,27 +74,12 @@ public class AvailableCakeService(IUnitOfWork unitOfWork, IMapper mapper, IFileS
 
         _mapper.Map(model, cake);
 
-        if (model.DeleteImageFileIds != null && model.DeleteImageFileIds.Count != 0)
-        {
-            foreach (var image in model.DeleteImageFileIds)
-            {
-                cake.AvailableCakeImageFiles.Remove(image);
-            }
-        }
 
         if (model.AvailableCakeFileImage != null)
         {
             cake.AvailableCakeMainImageId = await _fileService.UploadFileAsync(model.AvailableCakeFileImage, FolderConstants.AVAILABLE_CAKE_IMAGES);
         }
 
-        if (model.AvailableCakeFileImages != null && model.AvailableCakeFileImages.Count > 0)
-        {
-            foreach (var image in model.AvailableCakeFileImages)
-            {
-                var fileId = await _fileService.UploadFileAsync(image, FolderConstants.AVAILABLE_CAKE_IMAGES);
-                cake.AvailableCakeImageFiles.Add(fileId);
-            }
-        }
         _unitOfWork.AvailableCakeRepository.Update(cake);
 
         await _unitOfWork.SaveChangesAsync();

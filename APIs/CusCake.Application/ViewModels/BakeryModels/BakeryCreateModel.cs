@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using CusCake.Application.Validators;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
@@ -7,18 +7,34 @@ namespace CusCake.Application.ViewModels.BakeryModels;
 
 public class BakeryBaseActionModel
 {
+    [JsonPropertyName("bakery_name")]
     public string BakeryName { get; set; } = default!;
+
+    [JsonPropertyName("email")]
     public string Email { get; set; } = default!;
+
+    [JsonPropertyName("password")]
     public string Password { get; set; } = default!;
 
+    [JsonPropertyName("phone")]
     public string Phone { get; set; } = default!;
-    public string Address { get; set; } = default!;
-    public string OwnerName { get; set; } = default!;
-    public string TaxCode { get; set; } = default!;
-    public string IdentityCardNumber { get; set; } = default!;
-    public List<IFormFile>? ShopImages { get; set; } = default!;
 
+    [JsonPropertyName("address")]
+    public string Address { get; set; } = default!;
+
+    [JsonPropertyName("owner_name")]
+    public string OwnerName { get; set; } = default!;
+
+    [JsonPropertyName("tax_code")]
+    public string TaxCode { get; set; } = default!;
+
+    [JsonPropertyName("identity_card_number")]
+    public string IdentityCardNumber { get; set; } = default!;
+
+    [JsonPropertyName("shop_image_files")]
+    public List<Guid>? ShopImageFiles { get; set; } = new List<Guid>()!;
 }
+
 
 
 public class BakeryBaseActionModelValidator : AbstractValidator<BakeryBaseActionModel>
@@ -64,22 +80,23 @@ public class BakeryBaseActionModelValidator : AbstractValidator<BakeryBaseAction
             .Matches(@"^\d{9}$|^\d{12}$")
             .WithMessage("Identity card number must be 9 or 12 digits.");
 
-        RuleFor(x => x.ShopImages)
-            .Null().WithMessage("Images can be null.");
 
-        RuleForEach(x => x.ShopImages)
-            .Must(ValidationUtils.BeAValidImage).WithMessage("Each shop image must be a valid image file (jpg, png, jpeg) under 5MB.")
-            .When(x => x.ShopImages != null && x.ShopImages.Count != 0);
+        RuleFor(x => x.ShopImageFiles)
+            .Must(files => files!.All(file => file != Guid.Empty)).WithMessage("ShopImageFiles contains an invalid GUID.")
+            .When(x => x.ShopImageFiles != null && x.ShopImageFiles.Count != 0);
     }
 }
 
 public class BakeryCreateModel : BakeryBaseActionModel
 {
-
+    [JsonPropertyName("avatar")]
     public IFormFile? Avatar { get; set; } = default!;
-    public IFormFile? FrontCardImage { get; set; } = default!;
-    public IFormFile? BackCardImage { get; set; } = default!;
 
+    [JsonPropertyName("front_card_image")]
+    public IFormFile? FrontCardImage { get; set; } = default!;
+
+    [JsonPropertyName("back_card_image")]
+    public IFormFile? BackCardImage { get; set; } = default!;
 }
 
 public class BakeryCreateModelValidator : AbstractValidator<BakeryCreateModel>
@@ -107,9 +124,7 @@ public class BakeryCreateModelValidator : AbstractValidator<BakeryCreateModel>
 
 public class BakeryUpdateModel : BakeryCreateModel
 {
-    [Required(ErrorMessage = "Id is required.")]
-    public Guid Id { get; set; }
-    public List<Guid>? DeleteImageFileIds { get; set; } = [];
+    public List<Guid> ShopImageFiles { get; set; } = default!;
 }
 
 public class BakeryUpdateModelValidator : AbstractValidator<BakeryUpdateModel>

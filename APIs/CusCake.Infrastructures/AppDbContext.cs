@@ -20,6 +20,8 @@ namespace CusCake.Infrastructures
         public DbSet<CakeExtra> CakeExtras { get; set; }
         public DbSet<CakeExtraDetail> CakeExtraDetails { get; set; }
         public DbSet<CakeMessage> CakeMessages { get; set; }
+        public DbSet<CakeMessageDetail> CakeMessageDetails { get; set; }
+        public DbSet<CakeMessageType> CakeMessageTypes { get; set; }
         public DbSet<CakePart> CakeParts { get; set; }
         public DbSet<CakePartDetail> CakePartDetails { get; set; }
         public DbSet<CakeReview> CakeReviews { get; set; }
