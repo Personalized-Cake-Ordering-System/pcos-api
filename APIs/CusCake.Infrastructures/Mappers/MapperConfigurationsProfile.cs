@@ -7,6 +7,7 @@ using CusCake.Application.ViewModels.CakeExtraModels;
 using CusCake.Application.ViewModels.CakeMessageModels;
 using CusCake.Application.ViewModels.CakePartModels;
 using CusCake.Application.ViewModels.CustomerModels;
+using CusCake.Application.ViewModels.OrderModels;
 using CusCake.Domain.Entities;
 
 namespace CusCake.Infrastructures.Mappers
@@ -53,6 +54,12 @@ namespace CusCake.Infrastructures.Mappers
 
             CreateMap<CakeMessageTypeModel, CakeMessageType>().ReverseMap();
             #endregion
+
+            #region Cake Extras
+            CreateMap<OrderCreateModel, Order>().ReverseMap();
+            CreateMap<OrderDetailCreateModel, OrderDetail>().ReverseMap();
+            #endregion
+
         }
     }
 }

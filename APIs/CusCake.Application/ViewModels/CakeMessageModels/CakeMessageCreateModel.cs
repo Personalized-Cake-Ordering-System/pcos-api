@@ -1,25 +1,44 @@
 using FluentValidation;
+using System.Text.Json.Serialization;
 
 namespace CusCake.Application.ViewModels.CakeMessageModels;
 
 public class CakeMessageCreateModel
 {
+    [JsonPropertyName("message_name")]
     public string MessageName { get; set; } = default!;
-    public Guid? MessageImageId { get; set; } = default!;
-    public string? MessageColor { get; set; }
-    public double MessagePrice { get; set; } = 0;
-    public string MessageType { get; set; } = default!;
-    public string? MessageDescription { get; set; }
-    public List<CakeMessageTypeModel>? CakeMessageTypeCreates { get; set; }
 
+    [JsonPropertyName("message_image_id")]
+    public Guid? MessageImageId { get; set; } = default!;
+
+    [JsonPropertyName("message_color")]
+    public string? MessageColor { get; set; }
+
+    [JsonPropertyName("message_price")]
+    public double MessagePrice { get; set; } = 0;
+
+    [JsonPropertyName("message_type")]
+    public string MessageType { get; set; } = default!;
+
+    [JsonPropertyName("message_description")]
+    public string? MessageDescription { get; set; }
+
+    [JsonPropertyName("cake_message_type_creates")]
+    public List<CakeMessageTypeModel>? CakeMessageTypeCreates { get; set; }
 }
 
 public class CakeMessageTypeModel
 {
+    [JsonPropertyName("type")]
     public string Type { get; set; } = default!;
+
+    [JsonPropertyName("name")]
     public string Name { get; set; } = default!;
+
+    [JsonPropertyName("color")]
     public string Color { get; set; } = default!;
 }
+
 
 public class CakeMessageCreateModelValidator : AbstractValidator<CakeMessageCreateModel>
 {

@@ -119,14 +119,6 @@ public class BakeryService(IUnitOfWork unitOfWork, IFileService fileService, IMa
         if (model.BackCardImage != null)
             bakery.BackCardFileId = await _fileService.UploadFileAsync(model.BackCardImage, FolderConstants.IDENTITY_CARD);
 
-        if (model.DeleteImageFileIds != null && model.DeleteImageFileIds!.Count > 0)
-        {
-            foreach (var imageId in model.DeleteImageFileIds)
-            {
-                bakery.ShopImageFiles.Remove(imageId);
-            }
-        }
-
 
         _unitOfWork.BakeryRepository.Update(bakery);
         await _unitOfWork.SaveChangesAsync();

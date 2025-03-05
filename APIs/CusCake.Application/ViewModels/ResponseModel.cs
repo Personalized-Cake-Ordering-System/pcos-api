@@ -1,18 +1,18 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace CusCake.Application.ViewModels;
 
 public class ResponseModel<TMetaData, TPayload>
 {
-    [JsonProperty("statusCode")]
+    [JsonPropertyName("statusCode")]
     public int StatusCode { get; set; } = 200;
 
-    [JsonProperty("errors")]
+    [JsonPropertyName("errors")]
     public List<string> Errors { get; set; } = new();
 
-    [JsonProperty("metaData")]
+    [JsonPropertyName("metaData")]
     public TMetaData? MetaData { get; set; } = default!;
-    [JsonProperty("payload")]
+    [JsonPropertyName("payload")]
     public TPayload? Payload { get; set; } = default!;
 
     public static ResponseModel<TMetaData, TPayload> Success(TPayload payload, TMetaData? metaData = default)

@@ -1,27 +1,31 @@
-using CusCake.Application.Validators;
 using FluentValidation;
-using Microsoft.AspNetCore.Http;
+using System.Text.Json.Serialization;
+
 
 namespace CusCake.Application.ViewModels.CakeExtraModels;
 
-
 public class CakeExtraCreateModel
 {
-
+    [JsonPropertyName("extra_name")]
     public string ExtraName { get; set; } = default!;
 
+    [JsonPropertyName("extra_price")]
     public double ExtraPrice { get; set; } = 0;
 
+    [JsonPropertyName("extra_type")]
     public string ExtraType { get; set; } = default!;
 
+    [JsonPropertyName("extra_description")]
     public string? ExtraDescription { get; set; }
 
+    [JsonPropertyName("extra_color")]
     public string? ExtraColor { get; set; }
 
+    [JsonPropertyName("is_default")]
     public bool IsDefault { get; set; } = false;
 
+    [JsonPropertyName("extra_image_id")]
     public Guid? ExtraImageId { get; set; }
-
 }
 
 public class CakeExtraCreateModelValidator : AbstractValidator<CakeExtraCreateModel>

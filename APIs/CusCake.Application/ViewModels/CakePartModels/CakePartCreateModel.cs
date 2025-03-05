@@ -1,28 +1,33 @@
-using CusCake.Application.Validators;
 using FluentValidation;
-using Microsoft.AspNetCore.Http;
+using System.Text.Json.Serialization;
 
 namespace CusCake.Application.ViewModels.CakePartModels;
 
 
 public class CakePartCreateModel
 {
-
+    [JsonPropertyName("part_name")]
     public string PartName { get; set; } = default!;
 
+    [JsonPropertyName("part_price")]
     public double PartPrice { get; set; } = 0;
 
+    [JsonPropertyName("part_type")]
     public string PartType { get; set; } = default!;
 
+    [JsonPropertyName("part_color")]
     public string? PartColor { get; set; }
 
+    [JsonPropertyName("part_description")]
     public string? PartDescription { get; set; }
 
+    [JsonPropertyName("is_default")]
     public bool IsDefault { get; set; } = false;
 
+    [JsonPropertyName("part_image_id")]
     public Guid? PartImageId { get; set; }
-
 }
+
 
 public class CakePartCreateModelValidator : AbstractValidator<CakePartCreateModel>
 {

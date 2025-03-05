@@ -1,21 +1,33 @@
-using System.ComponentModel.DataAnnotations;
 using CusCake.Application.Validators;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
+using System.Text.Json.Serialization;
 
 namespace CusCake.Application.ViewModels.AvailableCakeModels;
 
 
 public class AvailableCakeBaseActionModel
 {
+    [JsonPropertyName("bakery_id")]
     public Guid BakeryId { get; set; }
-    public double AvailableCakePrice { get; set; } = 0;
-    public string AvailableCakeName { get; set; } = default!;
-    public string? AvailableCakeDescription { get; set; }
-    public string AvailableCakeType { get; set; } = default!;
-    public int AvailableCakeQuantity { get; set; } = 0;
-    public List<Guid> AvailableCakeImageFiles { get; set; } = default!;
 
+    [JsonPropertyName("available_cake_price")]
+    public double AvailableCakePrice { get; set; } = 0;
+
+    [JsonPropertyName("available_cake_name")]
+    public string AvailableCakeName { get; set; } = default!;
+
+    [JsonPropertyName("available_cake_description")]
+    public string? AvailableCakeDescription { get; set; }
+
+    [JsonPropertyName("available_cake_type")]
+    public string AvailableCakeType { get; set; } = default!;
+
+    [JsonPropertyName("available_cake_quantity")]
+    public int AvailableCakeQuantity { get; set; } = 0;
+
+    [JsonPropertyName("available_cake_image_files")]
+    public List<Guid> AvailableCakeImageFiles { get; set; } = default!;
 }
 
 
@@ -56,6 +68,7 @@ public class AvailableCakeBaseActionModelValidator : AbstractValidator<Available
 
 public class AvailableCakeCreateModel : AvailableCakeBaseActionModel
 {
+    [JsonPropertyName("available_cake_file_image")]
     public IFormFile AvailableCakeFileImage { get; set; } = default!;
 }
 
@@ -75,6 +88,7 @@ public class AvailableCakeCreateModelValidator : AbstractValidator<AvailableCake
 
 public class AvailableCakeUpdateModel : AvailableCakeBaseActionModel
 {
+    [JsonPropertyName("available_cake_file_image")]
     public IFormFile? AvailableCakeFileImage { get; set; }
 
 }

@@ -1,28 +1,34 @@
-using CusCake.Application.Validators;
 using FluentValidation;
-using Microsoft.AspNetCore.Http;
+using System.Text.Json.Serialization;
 
 namespace CusCake.Application.ViewModels.CakeDecorationModels;
 
 
+
 public class CakeDecorationCreateModel
 {
-
+    [JsonPropertyName("decoration_name")]
     public string DecorationName { get; set; } = default!;
 
+    [JsonPropertyName("decoration_price")]
     public double DecorationPrice { get; set; } = 0;
 
+    [JsonPropertyName("decoration_type")]
     public string DecorationType { get; set; } = default!;
 
+    [JsonPropertyName("decoration_description")]
     public string? DecorationDescription { get; set; }
 
+    [JsonPropertyName("decoration_color")]
     public string? DecorationColor { get; set; }
 
+    [JsonPropertyName("is_default")]
     public bool IsDefault { get; set; } = false;
 
+    [JsonPropertyName("decoration_image_id")]
     public Guid? DecorationImageId { get; set; }
-
 }
+
 
 public class CakeDecorationCreateModelValidator : AbstractValidator<CakeDecorationCreateModel>
 {

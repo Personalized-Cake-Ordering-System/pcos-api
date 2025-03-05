@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using CusCake.Application.Validators;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
@@ -7,18 +7,34 @@ namespace CusCake.Application.ViewModels.BakeryModels;
 
 public class BakeryBaseActionModel
 {
+    [JsonPropertyName("bakery_name")]
     public string BakeryName { get; set; } = default!;
+
+    [JsonPropertyName("email")]
     public string Email { get; set; } = default!;
+
+    [JsonPropertyName("password")]
     public string Password { get; set; } = default!;
 
+    [JsonPropertyName("phone")]
     public string Phone { get; set; } = default!;
-    public string Address { get; set; } = default!;
-    public string OwnerName { get; set; } = default!;
-    public string TaxCode { get; set; } = default!;
-    public string IdentityCardNumber { get; set; } = default!;
-    public List<Guid>? ShopImageFiles { get; set; } = new List<Guid>()!;
 
+    [JsonPropertyName("address")]
+    public string Address { get; set; } = default!;
+
+    [JsonPropertyName("owner_name")]
+    public string OwnerName { get; set; } = default!;
+
+    [JsonPropertyName("tax_code")]
+    public string TaxCode { get; set; } = default!;
+
+    [JsonPropertyName("identity_card_number")]
+    public string IdentityCardNumber { get; set; } = default!;
+
+    [JsonPropertyName("shop_image_files")]
+    public List<Guid>? ShopImageFiles { get; set; } = new List<Guid>()!;
 }
+
 
 
 public class BakeryBaseActionModelValidator : AbstractValidator<BakeryBaseActionModel>
@@ -73,11 +89,14 @@ public class BakeryBaseActionModelValidator : AbstractValidator<BakeryBaseAction
 
 public class BakeryCreateModel : BakeryBaseActionModel
 {
-
+    [JsonPropertyName("avatar")]
     public IFormFile? Avatar { get; set; } = default!;
-    public IFormFile? FrontCardImage { get; set; } = default!;
-    public IFormFile? BackCardImage { get; set; } = default!;
 
+    [JsonPropertyName("front_card_image")]
+    public IFormFile? FrontCardImage { get; set; } = default!;
+
+    [JsonPropertyName("back_card_image")]
+    public IFormFile? BackCardImage { get; set; } = default!;
 }
 
 public class BakeryCreateModelValidator : AbstractValidator<BakeryCreateModel>
@@ -105,7 +124,7 @@ public class BakeryCreateModelValidator : AbstractValidator<BakeryCreateModel>
 
 public class BakeryUpdateModel : BakeryCreateModel
 {
-    public List<Guid>? DeleteImageFileIds { get; set; } = [];
+    public List<Guid> ShopImageFiles { get; set; } = default!;
 }
 
 public class BakeryUpdateModelValidator : AbstractValidator<BakeryUpdateModel>

@@ -1,14 +1,20 @@
 ﻿
+using System.Text.Json.Serialization;
 using FluentValidation;
 
 namespace CusCake.Application.ViewModels.CustomerModels;
 
 public class CustomerCreateModel
 {
+    [JsonPropertyName("name")]
     public string Name { get; set; } = default!;
+    [JsonPropertyName("email")]
     public string Email { get; set; } = default!;
+    [JsonPropertyName("phone")]
     public string Phone { get; set; } = default!;
+    [JsonPropertyName("address")]
     public string Address { get; set; } = default!;
+    [JsonPropertyName("password")]
     public string Password { get; set; } = default!;
 
 }
