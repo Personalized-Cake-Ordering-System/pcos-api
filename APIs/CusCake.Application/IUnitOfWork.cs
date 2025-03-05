@@ -26,5 +26,7 @@ public interface IUnitOfWork
     IStorageRepository StorageRepository { get; }
     ITransactionRepository TransactionRepository { get; }
     IVoucherRepository VoucherRepository { get; }
+    ICakeMessageTypeRepository CakeMessageTypeRepository { get; }
+    ICakeMessageDetailRepository CakeMessageDetailRepository { get; }
     Task<bool> SaveChangesAsync();
 }

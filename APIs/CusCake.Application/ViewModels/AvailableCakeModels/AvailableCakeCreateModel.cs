@@ -14,7 +14,7 @@ public class AvailableCakeBaseActionModel
     public string? AvailableCakeDescription { get; set; }
     public string AvailableCakeType { get; set; } = default!;
     public int AvailableCakeQuantity { get; set; } = 0;
-    public List<IFormFile>? AvailableCakeFileImages { get; set; } = default!;
+    public List<Guid> AvailableCakeImageFiles { get; set; } = default!;
 
 }
 
@@ -45,13 +45,12 @@ public class AvailableCakeBaseActionModelValidator : AbstractValidator<Available
         RuleFor(x => x.AvailableCakeQuantity)
             .GreaterThanOrEqualTo(0).WithMessage("Quantity must be greater than or equal to 0.");
 
-        RuleFor(x => x.AvailableCakeFileImages)
-            .Null().WithMessage("Images can be null.");
+        RuleFor(x => x.AvailableCakeImageFiles)
+                    .NotNull().WithMessage("AvailableCakeImageFiles cannot be null")
+                    .NotEmpty().WithMessage("AvailableCakeImageFiles cannot be empty")
+                    .Must(files => files.All(file => file != Guid.Empty))
+                    .WithMessage("AvailableCakeImageFiles contains an invalid GUID");
 
-
-        RuleForEach(x => x.AvailableCakeFileImages)
-            .Must(ValidationUtils.BeAValidImage).WithMessage("Each cake image must be a valid image file (jpg, png, jpeg) under 5MB.")
-            .When(x => x.AvailableCakeFileImages != null && x.AvailableCakeFileImages.Count != 0);
     }
 }
 
@@ -76,11 +75,8 @@ public class AvailableCakeCreateModelValidator : AbstractValidator<AvailableCake
 
 public class AvailableCakeUpdateModel : AvailableCakeBaseActionModel
 {
-    [Required(ErrorMessage = "Id is require.")]
-    public Guid Id { get; set; }
     public IFormFile? AvailableCakeFileImage { get; set; }
 
-    public List<Guid>? DeleteImageFileIds { get; set; } = [];
 }
 
 public class AvailableCakeUpdateModelValidator : AbstractValidator<AvailableCakeUpdateModel>
@@ -89,16 +85,9 @@ public class AvailableCakeUpdateModelValidator : AbstractValidator<AvailableCake
     {
         Include(new AvailableCakeBaseActionModelValidator());
 
-        RuleFor(x => x.Id)
-            .NotEmpty().WithMessage("Id is required.")
-            .NotEqual(Guid.Empty).WithMessage("Id must be a valid GUID.");
-
         RuleFor(x => x.AvailableCakeFileImage)
             .Must(ValidationUtils.BeAValidImage).WithMessage("Main image must be a valid image file (jpg, png, jpeg) under 5MB.")
             .When(x => x.AvailableCakeFileImage != null);
 
-        RuleFor(x => x.DeleteImageFileIds)
-            .Must(ids => ids == null || ids.All(id => id != Guid.Empty))
-            .WithMessage("DeleteImageFileIds cannot contain empty GUIDs.");
     }
 }

@@ -11,7 +11,7 @@ namespace CusCake.Application.Services;
 
 public interface ICakeExtraService
 {
-    Task<CakeExtra> CreateAsync(CakeExtraCreateModel model);
+    Task<List<CakeExtra>> CreateAsync(List<CakeExtraCreateModel> models);
     Task<CakeExtra> UpdateAsync(Guid id, CakeExtraUpdateModel model);
     Task<CakeExtra> GetByIdAsync(Guid id);
     Task<(Pagination<CakeExtra>, List<CakeExtra>)> GetAllAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<CakeExtra, bool>>? filter = null);
@@ -29,22 +29,22 @@ public class CakeExtraService(IUnitOfWork unitOfWork,
     private readonly IFileService _fileService = fileService;
     private readonly IClaimsService _claimsService = claimsService;
 
-    public async Task<CakeExtra> CreateAsync(CakeExtraCreateModel model)
+    public async Task<List<CakeExtra>> CreateAsync(List<CakeExtraCreateModel> models)
     {
-        var extra = _mapper.Map<CakeExtra>(model);
+        var extras = _mapper.Map<List<CakeExtra>>(models);
 
-        if (model.Image != null)
+        foreach (var extra in extras)
         {
-            extra.ExtraImageId = await _fileService.UploadFileAsync(model.Image, FolderConstants.CAKE_PART_IMAGES);
+            extra.BakeryId = _claimsService.GetCurrentUser;
+
         }
 
-        extra.BakeryId = _claimsService.GetCurrentUser;
 
-        var result = await _unitOfWork.CakeExtraRepository.AddAsync(extra);
+        await _unitOfWork.CakeExtraRepository.AddRangeAsync(extras);
 
         await _unitOfWork.SaveChangesAsync();
 
-        return result;
+        return extras;
     }
 
     public async Task DeleteAsync(Guid id)
@@ -78,11 +78,6 @@ public class CakeExtraService(IUnitOfWork unitOfWork,
         if (extra.BakeryId != _claimsService.GetCurrentUser) throw new BadRequestException("No permission to edit!");
 
         _mapper.Map(model, extra);
-
-        if (model.Image is not null)
-        {
-            extra.ExtraImageId = await _fileService.UploadFileAsync(model.Image, FolderConstants.CAKE_PART_IMAGES);
-        }
 
         _unitOfWork.CakeExtraRepository.Update(extra);
 

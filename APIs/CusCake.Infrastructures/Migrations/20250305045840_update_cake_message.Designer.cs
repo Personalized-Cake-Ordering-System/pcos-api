@@ -4,6 +4,7 @@ using CusCake.Infrastructures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CusCake.Infrastructures.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250305045840_update_cake_message")]
+    partial class update_cake_message
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -571,9 +574,6 @@ namespace CusCake.Infrastructures.Migrations
                         .HasColumnType("char(36)")
                         .HasColumnName("id");
 
-                    b.Property<Guid>("BakeryId")
-                        .HasColumnType("char(36)");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("created_at");
@@ -585,6 +585,10 @@ namespace CusCake.Infrastructures.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("is_deleted");
+
+                    b.Property<string>("MessageColor")
+                        .HasColumnType("longtext")
+                        .HasColumnName("message_color");
 
                     b.Property<string>("MessageDescription")
                         .HasColumnType("longtext")
@@ -618,8 +622,6 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MessageImageId");
-
                     b.ToTable("cake_messages");
                 });
 
@@ -646,6 +648,10 @@ namespace CusCake.Infrastructures.Migrations
                         .HasColumnType("char(36)")
                         .HasColumnName("custom_cake_id");
 
+                    b.Property<Guid?>("ImageFileId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("image_file_id");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("is_deleted");
@@ -653,23 +659,6 @@ namespace CusCake.Infrastructures.Migrations
                     b.Property<string>("Message")
                         .HasColumnType("longtext")
                         .HasColumnName("message");
-
-                    b.Property<Guid?>("MessageImageId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("message_image_id");
-
-                    b.Property<string>("MessageType")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("message_type");
-
-                    b.Property<string>("TypeColor")
-                        .HasColumnType("longtext")
-                        .HasColumnName("message_type_color");
-
-                    b.Property<string>("TypeName")
-                        .HasColumnType("longtext")
-                        .HasColumnName("message_type_name");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime(6)")
@@ -685,7 +674,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasIndex("CustomCakeId");
 
-                    b.HasIndex("MessageImageId");
+                    b.HasIndex("ImageFileId");
 
                     b.ToTable("cake_message_details");
                 });
@@ -701,10 +690,6 @@ namespace CusCake.Infrastructures.Migrations
                         .HasColumnType("char(36)")
                         .HasColumnName("cake_message_id");
 
-                    b.Property<string>("Color")
-                        .HasColumnType("longtext")
-                        .HasColumnName("message_color");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("created_at");
@@ -717,15 +702,14 @@ namespace CusCake.Infrastructures.Migrations
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("is_deleted");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
+                    b.Property<string>("TypeColor")
                         .HasColumnType("longtext")
-                        .HasColumnName("message_name");
+                        .HasColumnName("type_color");
 
-                    b.Property<string>("Type")
+                    b.Property<string>("TypeName")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("message_type");
+                        .HasColumnName("type_name");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime(6)")
@@ -1662,16 +1646,6 @@ namespace CusCake.Infrastructures.Migrations
                     b.Navigation("CustomCake");
                 });
 
-            modelBuilder.Entity("CusCake.Domain.Entities.CakeMessage", b =>
-                {
-                    b.HasOne("CusCake.Domain.Entities.Storage", "MessageImage")
-                        .WithMany()
-                        .HasForeignKey("MessageImageId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("MessageImage");
-                });
-
             modelBuilder.Entity("CusCake.Domain.Entities.CakeMessageDetail", b =>
                 {
                     b.HasOne("CusCake.Domain.Entities.CakeMessage", "CakeMessage")
@@ -1686,16 +1660,16 @@ namespace CusCake.Infrastructures.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("CusCake.Domain.Entities.Storage", "MessageImageFile")
+                    b.HasOne("CusCake.Domain.Entities.Storage", "ImageFile")
                         .WithMany()
-                        .HasForeignKey("MessageImageId")
+                        .HasForeignKey("ImageFileId")
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("CakeMessage");
 
                     b.Navigation("CustomCake");
 
-                    b.Navigation("MessageImageFile");
+                    b.Navigation("ImageFile");
                 });
 
             modelBuilder.Entity("CusCake.Domain.Entities.CakeMessageType", b =>

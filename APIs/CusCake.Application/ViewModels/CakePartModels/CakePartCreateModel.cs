@@ -20,7 +20,7 @@ public class CakePartCreateModel
 
     public bool IsDefault { get; set; } = false;
 
-    public IFormFile? Image { get; set; }
+    public Guid? PartImageId { get; set; }
 
 }
 
@@ -44,14 +44,13 @@ public class CakePartCreateModelValidator : AbstractValidator<CakePartCreateMode
             .When(x => x.PartDescription != null);
 
 
-        RuleFor(x => x.Image)
-            .Must(ValidationUtils.BeAValidImage!)
-            .WithMessage("Image must be a valid image file (jpg, png, jpeg) under 5MB.")
-            .When(x => x.Image != null);
+        RuleFor(x => x.PartImageId)
+            .Must(x => x != Guid.Empty)
+            .WithMessage("PartImageId must different empty Guid.")
+            .When(x => x.PartImageId != null);
     }
 }
 
 public class CakePartUpdateModel : CakePartCreateModel
 {
-    public Guid Id { get; set; }
 }

@@ -49,14 +49,6 @@ public class BakeryService(IUnitOfWork unitOfWork, IFileService fileService, IMa
         bakery.FrontCardFileId = await _fileService.UploadFileAsync(model.FrontCardImage!, FolderConstants.IDENTITY_CARD);
         bakery.BackCardFileId = await _fileService.UploadFileAsync(model.BackCardImage!, FolderConstants.IDENTITY_CARD);
 
-        if (model.ShopImages is not null && model.ShopImages.Count != 0)
-        {
-            foreach (var image in model.ShopImages)
-            {
-                bakery.ShopImageFiles.Add(await _fileService.UploadFileAsync(image, FolderConstants.BAKER_IMAGES));
-            }
-        }
-
         bakery.Status = BakeryStatusConstants.PENDING;
 
         var result = await _unitOfWork.BakeryRepository.AddAsync(bakery);
@@ -132,14 +124,6 @@ public class BakeryService(IUnitOfWork unitOfWork, IFileService fileService, IMa
             foreach (var imageId in model.DeleteImageFileIds)
             {
                 bakery.ShopImageFiles.Remove(imageId);
-            }
-        }
-
-        if (model.ShopImages != null && model.ShopImages.Count != 0)
-        {
-            foreach (var image in model.ShopImages)
-            {
-                bakery.ShopImageFiles.Add(await _fileService.UploadFileAsync(image, FolderConstants.BAKER_IMAGES));
             }
         }
 

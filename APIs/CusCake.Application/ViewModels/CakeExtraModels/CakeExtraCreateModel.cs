@@ -20,7 +20,7 @@ public class CakeExtraCreateModel
 
     public bool IsDefault { get; set; } = false;
 
-    public IFormFile? Image { get; set; }
+    public Guid? ExtraImageId { get; set; }
 
 }
 
@@ -44,14 +44,13 @@ public class CakeExtraCreateModelValidator : AbstractValidator<CakeExtraCreateMo
             .When(x => x.ExtraDescription != null);
 
 
-        RuleFor(x => x.Image)
-            .Must(ValidationUtils.BeAValidImage!)
-            .WithMessage("Image must be a valid image file (jpg, png, jpeg) under 5MB.")
-            .When(x => x.Image != null);
+        RuleFor(x => x.ExtraImageId)
+            .Must(x => x != Guid.Empty)
+            .WithMessage("ExtraImageId must different empty Guid.")
+            .When(x => x.ExtraImageId != null);
     }
 }
 
 public class CakeExtraUpdateModel : CakeExtraCreateModel
 {
-    public Guid Id { get; set; }
 }

@@ -16,7 +16,7 @@ public class BakeryBaseActionModel
     public string OwnerName { get; set; } = default!;
     public string TaxCode { get; set; } = default!;
     public string IdentityCardNumber { get; set; } = default!;
-    public List<IFormFile>? ShopImages { get; set; } = default!;
+    public List<Guid>? ShopImageFiles { get; set; } = new List<Guid>()!;
 
 }
 
@@ -64,12 +64,10 @@ public class BakeryBaseActionModelValidator : AbstractValidator<BakeryBaseAction
             .Matches(@"^\d{9}$|^\d{12}$")
             .WithMessage("Identity card number must be 9 or 12 digits.");
 
-        RuleFor(x => x.ShopImages)
-            .Null().WithMessage("Images can be null.");
 
-        RuleForEach(x => x.ShopImages)
-            .Must(ValidationUtils.BeAValidImage).WithMessage("Each shop image must be a valid image file (jpg, png, jpeg) under 5MB.")
-            .When(x => x.ShopImages != null && x.ShopImages.Count != 0);
+        RuleFor(x => x.ShopImageFiles)
+            .Must(files => files!.All(file => file != Guid.Empty)).WithMessage("ShopImageFiles contains an invalid GUID.")
+            .When(x => x.ShopImageFiles != null && x.ShopImageFiles.Count != 0);
     }
 }
 
@@ -107,8 +105,6 @@ public class BakeryCreateModelValidator : AbstractValidator<BakeryCreateModel>
 
 public class BakeryUpdateModel : BakeryCreateModel
 {
-    [Required(ErrorMessage = "Id is required.")]
-    public Guid Id { get; set; }
     public List<Guid>? DeleteImageFileIds { get; set; } = [];
 }
 

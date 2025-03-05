@@ -19,4 +19,10 @@ public class FileController(IFileService fileService) : BaseController
     {
         return Ok(ResponseModel<object, object>.Success(await _fileService.GetListAsync(ids)));
     }
+
+    [HttpPost()]
+    public async Task<IActionResult> UploadFile(IFormFile formFile, string folder)
+    {
+        return Ok(ResponseModel<object, Guid>.Success(await _fileService.UploadFileAsync(formFile, folder)));
+    }
 }

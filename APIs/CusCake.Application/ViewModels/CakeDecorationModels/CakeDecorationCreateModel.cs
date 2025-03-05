@@ -20,7 +20,7 @@ public class CakeDecorationCreateModel
 
     public bool IsDefault { get; set; } = false;
 
-    public IFormFile? Image { get; set; }
+    public Guid? DecorationImageId { get; set; }
 
 }
 
@@ -44,14 +44,13 @@ public class CakeDecorationCreateModelValidator : AbstractValidator<CakeDecorati
             .When(x => x.DecorationDescription != null);
 
 
-        RuleFor(x => x.Image)
-            .Must(ValidationUtils.BeAValidImage!)
-            .WithMessage("Image must be a valid image file (jpg, png, jpeg) under 5MB.")
-            .When(x => x.Image != null);
+        RuleFor(x => x.DecorationImageId)
+            .Must(x => x != Guid.Empty)
+            .WithMessage("DecorationImageId must different empty Guid")
+            .When(x => x.DecorationImageId != null);
     }
 }
 
 public class CakeDecorationUpdateModel : CakeDecorationCreateModel
 {
-    public Guid Id { get; set; }
 }

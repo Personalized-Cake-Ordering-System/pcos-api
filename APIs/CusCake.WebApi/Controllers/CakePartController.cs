@@ -24,9 +24,9 @@ public class CakePartController(ICakePartService cakePartService) : ControllerBa
 
     [HttpPost]
     [Authorize(Roles = RoleConstants.BAKERY)]
-    public async Task<IActionResult> CreateAsync([FromForm] CakePartCreateModel model)
+    public async Task<IActionResult> CreateAsync([FromBody] List<CakePartCreateModel> models)
     {
-        var cake = await _cakePartService.CreateAsync(model);
+        var cake = await _cakePartService.CreateAsync(models);
         return StatusCode(201, new ResponseModel<object, object> { StatusCode = 201, Payload = cake });
     }
 
