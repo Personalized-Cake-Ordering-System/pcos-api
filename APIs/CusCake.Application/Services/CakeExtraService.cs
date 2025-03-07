@@ -29,16 +29,34 @@ public class CakeExtraService(IUnitOfWork unitOfWork,
     private readonly IFileService _fileService = fileService;
     private readonly IClaimsService _claimsService = claimsService;
 
+
+    private async Task<List<CakeExtra>?> GetListDefaultAsync(List<string> types)
+    {
+        var cake_extras = await _unitOfWork.CakeExtraRepository
+                    .WhereAsync(x =>
+                        x.IsDefault &&
+                        types.Contains(x.ExtraType) &&
+                        x.BakeryId == _claimsService.GetCurrentUser
+                    );
+
+        return cake_extras.Count != 0 ? cake_extras : null;
+    }
+
+
+
     public async Task<List<CakeExtra>> CreateAsync(List<CakeExtraCreateModel> models)
     {
         var extras = _mapper.Map<List<CakeExtra>>(models);
 
+        var default_extras = await GetListDefaultAsync([.. models.Select(x => x.ExtraType)]);
+
         foreach (var extra in extras)
         {
+            if (default_extras != null && default_extras.Any(x => x.ExtraType == extra.ExtraType))
+                throw new BadRequestException($"Type {extra.ExtraType} already has default value!");
+
             extra.BakeryId = _claimsService.GetCurrentUser;
-
         }
-
 
         await _unitOfWork.CakeExtraRepository.AddRangeAsync(extras);
 
@@ -73,11 +91,16 @@ public class CakeExtraService(IUnitOfWork unitOfWork,
 
     public async Task<CakeExtra> UpdateAsync(Guid id, CakeExtraUpdateModel model)
     {
-        var extra = await GetByIdAsync(id);
 
+        var extra = await GetByIdAsync(id);
         if (extra.BakeryId != _claimsService.GetCurrentUser) throw new BadRequestException("No permission to edit!");
 
         _mapper.Map(model, extra);
+
+        var default_extras = await GetListDefaultAsync([extra.ExtraType]);
+
+        if (default_extras != null && default_extras[0].Id != extra.Id)
+            throw new BadRequestException($"Type {extra.ExtraType} already has default value!");
 
         _unitOfWork.CakeExtraRepository.Update(extra);
 

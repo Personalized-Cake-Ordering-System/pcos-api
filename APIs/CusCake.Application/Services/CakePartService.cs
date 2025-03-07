@@ -29,12 +29,31 @@ public class CakePartService(IUnitOfWork unitOfWork,
     private readonly IFileService _fileService = fileService;
     private readonly IClaimsService _claimsService = claimsService;
 
+
+    private async Task<List<CakePart>?> GetListDefaultAsync(List<string> types)
+    {
+        var cake_parts = await _unitOfWork.CakePartRepository
+                    .WhereAsync(x =>
+                        x.IsDefault &&
+                        types.Contains(x.PartType) &&
+                        x.BakeryId == _claimsService.GetCurrentUser
+                    );
+
+        return cake_parts.Count != 0 ? cake_parts : null;
+    }
+
+
     public async Task<List<CakePart>> CreateAsync(List<CakePartCreateModel> models)
     {
         var parts = _mapper.Map<List<CakePart>>(models);
 
+        var default_parts = await GetListDefaultAsync([.. models.Select(x => x.PartType)]);
+
         foreach (var part in parts)
         {
+            if (default_parts != null && default_parts.Any(x => x.PartType == part.PartType))
+                throw new BadRequestException($"Type {part.PartType} already has default value!");
+
             part.BakeryId = _claimsService.GetCurrentUser;
         }
 
@@ -72,10 +91,14 @@ public class CakePartService(IUnitOfWork unitOfWork,
     public async Task<CakePart> UpdateAsync(Guid id, CakePartUpdateModel model)
     {
         var part = await GetByIdAsync(id);
+        _mapper.Map(model, part);
 
         if (part.BakeryId != _claimsService.GetCurrentUser) throw new BadRequestException("No permission to edit!");
 
-        _mapper.Map(model, part);
+        var default_parts = await GetListDefaultAsync([part.PartType]);
+
+        if (default_parts != null && default_parts[0].Id != part.Id)
+            throw new BadRequestException($"Type {part.PartType} already has default value!");
 
         _unitOfWork.CakePartRepository.Update(part);
         await _unitOfWork.SaveChangesAsync();

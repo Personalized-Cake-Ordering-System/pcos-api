@@ -4,7 +4,6 @@ using CusCake.Application.GlobalExceptionHandling.Exceptions;
 using CusCake.Application.Services.IServices;
 using CusCake.Application.Utils;
 using CusCake.Application.ViewModels.CakeDecorationModels;
-using CusCake.Domain.Constants;
 using CusCake.Domain.Entities;
 
 namespace CusCake.Application.Services;
@@ -29,12 +28,32 @@ public class CakeDecorationService(IUnitOfWork unitOfWork,
     private readonly IFileService _fileService = fileService;
     private readonly IClaimsService _claimsService = claimsService;
 
+
+    private async Task<List<CakeDecoration>?> GetListDefaultAsync(List<string> types)
+    {
+        var cake_decorations = await _unitOfWork.CakeDecorationRepository
+                    .WhereAsync(x =>
+                        x.IsDefault &&
+                        types.Contains(x.DecorationType) &&
+                        x.BakeryId == _claimsService.GetCurrentUser
+                    );
+
+        return cake_decorations.Count != 0 ? cake_decorations : null;
+    }
+
+
+
     public async Task<List<CakeDecoration>> CreateAsync(List<CakeDecorationCreateModel> models)
     {
         var decorations = _mapper.Map<List<CakeDecoration>>(models);
 
+        var default_decorations = await GetListDefaultAsync([.. models.Select(x => x.DecorationType)]);
+
         foreach (var decoration in decorations)
         {
+            if (default_decorations != null && default_decorations.Any(x => x.DecorationType == decoration.DecorationType))
+                throw new BadRequestException($"Type {decoration.DecorationType} already has default value!");
+
             decoration.BakeryId = _claimsService.GetCurrentUser;
         }
 
@@ -76,6 +95,11 @@ public class CakeDecorationService(IUnitOfWork unitOfWork,
         if (decoration.BakeryId != _claimsService.GetCurrentUser) throw new BadRequestException("No permission to edit!");
 
         _mapper.Map(model, decoration);
+
+        var default_decorations = await GetListDefaultAsync([decoration.DecorationType]);
+
+        if (default_decorations != null && default_decorations[0].Id != decoration.Id)
+            throw new BadRequestException($"Type {decoration.DecorationType} already has default value!");
 
         _unitOfWork.CakeDecorationRepository.Update(decoration);
 

@@ -4,13 +4,13 @@ namespace CusCake.Application.ViewModels;
 
 public class ResponseModel<TMetaData, TPayload>
 {
-    [JsonPropertyName("statusCode")]
+    [JsonPropertyName("status_code")]
     public int StatusCode { get; set; } = 200;
 
     [JsonPropertyName("errors")]
     public List<string> Errors { get; set; } = new();
 
-    [JsonPropertyName("metaData")]
+    [JsonPropertyName("meta_data")]
     public TMetaData? MetaData { get; set; } = default!;
     [JsonPropertyName("payload")]
     public TPayload? Payload { get; set; } = default!;

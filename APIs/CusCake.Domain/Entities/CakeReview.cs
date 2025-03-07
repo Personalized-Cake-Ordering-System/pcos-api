@@ -1,30 +1,48 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace CusCake.Domain.Entities;
 
 [Table("cake_reviews")]
 public class CakeReview : BaseEntity
 {
-
     [Column("content")]
+    [JsonPropertyName("content")]
     public string? Content { get; set; }
+
     [Column("rating")]
+    [JsonPropertyName("rating")]
     public int Rating { get; set; }
+
     [Column("review_image_file_id")]
+    [JsonPropertyName("review_image_file_id")]
     public Guid ReviewImageFileId { get; set; }
 
     [Column("order_detail_id")]
+    [JsonPropertyName("order_detail_id")]
     public Guid OrderDetailId { get; set; }
+
+    [JsonPropertyName("order_detail")]
     public OrderDetail OrderDetail { get; set; } = default!;
 
     [Column("available_cake_id")]
+    [JsonPropertyName("available_cake_id")]
     public Guid AvailableCakeId { get; set; }
-    public AvailableCake AvailableCake { get; set; } = default!;
-    [Column("bakery_id")]
-    public Guid BakeryId { get; set; }
-    public Bakery Bakery { get; set; } = default!;
-    [Column("customer_id")]
-    public Guid CustomerId { get; set; }
-    public Customer Customer { get; set; } = default!;
 
+    [JsonPropertyName("available_cake")]
+    public AvailableCake AvailableCake { get; set; } = default!;
+
+    [Column("bakery_id")]
+    [JsonPropertyName("bakery_id")]
+    public Guid BakeryId { get; set; }
+
+    [JsonPropertyName("bakery")]
+    public Bakery Bakery { get; set; } = default!;
+
+    [Column("customer_id")]
+    [JsonPropertyName("customer_id")]
+    public Guid CustomerId { get; set; }
+
+    [JsonPropertyName("customer")]
+    public Customer Customer { get; set; } = default!;
 }

@@ -1,5 +1,5 @@
-﻿
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace CusCake.Domain.Entities
 {
@@ -7,26 +7,45 @@ namespace CusCake.Domain.Entities
     public class Customer : BaseEntity
     {
         [Column("name")]
+        [JsonPropertyName("name")]
         public string Name { get; set; } = default!;
 
         [Column("phone")]
+        [JsonPropertyName("phone")]
         public string? Phone { get; set; } = default!;
+
         [Column("address")]
+        [JsonPropertyName("address")]
         public string? Address { get; set; } = default!;
 
         [Column("email")]
+        [JsonPropertyName("email")]
         public string Email { get; set; } = default!;
+
         [Column("password")]
+        [JsonPropertyName("password")]
         public string Password { get; set; } = default!;
 
         [Column("account_type")]
+        [JsonPropertyName("account_type")]
         public string AccountType { get; set; } = default!;
-        public ICollection<Notification>? Notifications { get; set; }
-        public ICollection<CustomCake>? CustomCakes { get; set; }
-        public ICollection<Order>? Orders { get; set; }
-        public ICollection<CakeReview>? CakeReviews { get; set; }
-        public ICollection<OrderSupport>? OrderSupports { get; set; }
-        public ICollection<CustomerVoucher>? CustomerVouchers { get; set; }
 
+        [JsonPropertyName("notifications")]
+        public ICollection<Notification>? Notifications { get; set; }
+
+        [JsonPropertyName("custom_cakes")]
+        public ICollection<CustomCake>? CustomCakes { get; set; }
+
+        [JsonPropertyName("orders")]
+        public ICollection<Order>? Orders { get; set; }
+
+        [JsonPropertyName("cake_reviews")]
+        public ICollection<CakeReview>? CakeReviews { get; set; }
+
+        [JsonPropertyName("order_supports")]
+        public ICollection<OrderSupport>? OrderSupports { get; set; }
+
+        [JsonPropertyName("customer_vouchers")]
+        public ICollection<CustomerVoucher>? CustomerVouchers { get; set; }
     }
 }

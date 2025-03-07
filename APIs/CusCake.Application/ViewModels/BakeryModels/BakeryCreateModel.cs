@@ -32,7 +32,7 @@ public class BakeryBaseActionModel
     public string IdentityCardNumber { get; set; } = default!;
 
     [JsonPropertyName("shop_image_files")]
-    public List<Guid>? ShopImageFiles { get; set; } = new List<Guid>()!;
+    public List<Guid> ShopImageFiles { get; set; } = new List<Guid>()!;
 }
 
 
@@ -122,9 +122,17 @@ public class BakeryCreateModelValidator : AbstractValidator<BakeryCreateModel>
     }
 }
 
-public class BakeryUpdateModel : BakeryCreateModel
+public class BakeryUpdateModel : BakeryBaseActionModel
 {
-    public List<Guid> ShopImageFiles { get; set; } = default!;
+
+    [JsonPropertyName("avatar")]
+    public IFormFile? Avatar { get; set; }
+
+    [JsonPropertyName("front_card_image")]
+    public IFormFile? FrontCardImage { get; set; }
+
+    [JsonPropertyName("back_card_image")]
+    public IFormFile? BackCardImage { get; set; }
 }
 
 public class BakeryUpdateModelValidator : AbstractValidator<BakeryUpdateModel>
