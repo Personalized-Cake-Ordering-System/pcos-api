@@ -52,7 +52,7 @@ public class CakeDecorationCreateModelValidator : AbstractValidator<CakeDecorati
         RuleFor(x => x.DecorationType)
              .NotNull().WithMessage("Decoration type is required.")
              .Must(value => Enum.IsDefined(typeof(CakeDecorationTypeEnum), value))
-             .WithMessage($"Invalid extra type. Must be one of: {string.Join(", ", Enum.GetNames(typeof(CakeDecorationTypeEnum)))}");
+             .WithMessage($"Invalid Decoration type. Must be one of: {string.Join(", ", Enum.GetNames(typeof(CakeDecorationTypeEnum)))}");
 
         RuleFor(x => x.DecorationDescription)
             .MaximumLength(500).WithMessage("Description cannot exceed 500 characters.")
