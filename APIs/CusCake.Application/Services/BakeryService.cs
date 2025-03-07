@@ -79,7 +79,7 @@ public class BakeryService(IUnitOfWork unitOfWork, IFileService fileService, IMa
 
     }
 
-    private async Task ValidateBakery(string name, string email, string phone, string taxCode, string cardNumber)
+    private async Task ValidateBakery(string name = "", string email = "", string phone = "", string taxCode = "", string cardNumber = "")
     {
         var existBakeries = await _unitOfWork
                                     .BakeryRepository
@@ -94,11 +94,16 @@ public class BakeryService(IUnitOfWork unitOfWork, IFileService fileService, IMa
 
         if (existBakeries.Count > 0)
         {
-            if (existBakeries.Any(x => x.BakeryName == name)) throw new BadRequestException($"Name '{name}' already exists.");
-            if (existBakeries.Any(x => x.Email == email)) throw new BadRequestException($"Email '{email}' already exists.");
-            if (existBakeries.Any(x => x.TaxCode == taxCode)) throw new BadRequestException($"TaxCode '{taxCode}' already exists.");
-            if (existBakeries.Any(x => x.Phone == phone)) throw new BadRequestException($"Phone '{phone}' already exists.");
-            if (existBakeries.Any(x => x.IdentityCardNumber == cardNumber)) throw new BadRequestException($"Phone '{cardNumber}' already exists.");
+            if (!string.IsNullOrEmpty(name) && existBakeries.Any(x => x.BakeryName == name))
+                throw new BadRequestException($"Name '{name}' already exists.");
+            if (!string.IsNullOrEmpty(email) && existBakeries.Any(x => x.Email == email))
+                throw new BadRequestException($"Email '{email}' already exists.");
+            if (!string.IsNullOrEmpty(taxCode) && existBakeries.Any(x => x.TaxCode == taxCode))
+                throw new BadRequestException($"TaxCode '{taxCode}' already exists.");
+            if (!string.IsNullOrEmpty(phone) && existBakeries.Any(x => x.Phone == phone))
+                throw new BadRequestException($"Phone '{phone}' already exists.");
+            if (!string.IsNullOrEmpty(cardNumber) && existBakeries.Any(x => x.IdentityCardNumber == cardNumber))
+                throw new BadRequestException($"Phone '{cardNumber}' already exists.");
         }
     }
 
@@ -106,7 +111,14 @@ public class BakeryService(IUnitOfWork unitOfWork, IFileService fileService, IMa
     {
         var bakery = await _unitOfWork.BakeryRepository.FirstOrDefaultAsync(x => x.Status == BakeryStatusConstants.CONFIRMED & x.Id == id) ?? throw new BadRequestException("Id is not found!");
 
-        await ValidateBakery(model.BakeryName, model.Email, model.Phone, model.TaxCode, model.IdentityCardNumber);
+        if (bakery.BakeryName != model.BakeryName)
+            await ValidateBakery(
+                model.BakeryName == bakery.BakeryName ? model.BakeryName : "",
+                model.Email == bakery.Email ? model.Email : "",
+                model.Phone == bakery.Phone ? model.Phone : "",
+                model.TaxCode == bakery.TaxCode ? model.TaxCode : "",
+                model.IdentityCardNumber == bakery.IdentityCardNumber ? model.IdentityCardNumber : ""
+            );
 
         _mapper.Map(model, bakery);
 
