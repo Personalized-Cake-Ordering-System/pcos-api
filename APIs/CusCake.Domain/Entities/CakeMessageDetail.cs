@@ -42,9 +42,15 @@ public class CakeMessageDetail : BaseEntity
 
 public class CakeMessageTypeDetail
 {
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = default!;
+
     [JsonPropertyName("type_name")]
-    public string TypeName { get; set; } = default!;
+    public string Name { get; set; } = default!;
 
     [JsonPropertyName("type_color")]
-    public string TypeColor { get; set; } = default!;
+    public string Color { get; set; } = default!;
+
+    [JsonPropertyName("type")]
+    public string Type { get; set; } = default!;
 }

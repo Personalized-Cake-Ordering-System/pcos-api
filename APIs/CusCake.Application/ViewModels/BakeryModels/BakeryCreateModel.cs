@@ -43,10 +43,9 @@ public class BakeryBaseActionModelValidator : AbstractValidator<BakeryBaseAction
     {
 
         RuleFor(x => x.Password)
-            .NotEmpty().WithMessage("Password name is required.")
-            .MaximumLength(30)
-            .MinimumLength(8)
-            .WithMessage("Password cannot exceed 30 characters.");
+            .NotEmpty().WithMessage("Password is required and must be between 8 and 30 characters.")
+            .Length(8, 30).WithMessage("Password must be between 8 and 30 characters.");
+
 
         RuleFor(x => x.BakeryName)
             .NotEmpty().WithMessage("Bakery name is required.")

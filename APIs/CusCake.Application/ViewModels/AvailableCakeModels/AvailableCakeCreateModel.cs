@@ -58,10 +58,10 @@ public class AvailableCakeBaseActionModelValidator : AbstractValidator<Available
             .GreaterThanOrEqualTo(0).WithMessage("Quantity must be greater than or equal to 0.");
 
         RuleFor(x => x.AvailableCakeImageFiles)
-                    .NotNull().WithMessage("AvailableCakeImageFiles cannot be null")
-                    .NotEmpty().WithMessage("AvailableCakeImageFiles cannot be empty")
-                    .Must(files => files.All(file => file != Guid.Empty))
-                    .WithMessage("AvailableCakeImageFiles contains an invalid GUID");
+            .NotNull().WithMessage("AvailableCakeImageFiles cannot be null")
+            .NotEmpty().WithMessage("AvailableCakeImageFiles cannot be empty")
+            .Must(files => files.All(file => file != Guid.Empty))
+            .WithMessage("AvailableCakeImageFiles contains an invalid GUID");
 
     }
 }

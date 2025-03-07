@@ -11,9 +11,6 @@ public class CakeMessageCreateModel
     [JsonPropertyName("message_image_id")]
     public Guid? MessageImageId { get; set; } = default!;
 
-    [JsonPropertyName("message_color")]
-    public string? MessageColor { get; set; }
-
     [JsonPropertyName("message_price")]
     public double MessagePrice { get; set; } = 0;
 
@@ -51,10 +48,6 @@ public class CakeMessageCreateModelValidator : AbstractValidator<CakeMessageCrea
         RuleFor(x => x.MessageImageId)
             .NotEqual(Guid.Empty).WithMessage("MessageImageId cannot be an empty GUID.")
             .When(x => x.MessageImageId.HasValue);
-
-        RuleFor(x => x.MessageColor)
-            .MaximumLength(20).WithMessage("MessageColor cannot exceed 20 characters.")
-            .When(x => !string.IsNullOrEmpty(x.MessageColor));
 
         RuleFor(x => x.MessagePrice)
             .GreaterThanOrEqualTo(0).WithMessage("MessagePrice must be greater than or equal to 0.");

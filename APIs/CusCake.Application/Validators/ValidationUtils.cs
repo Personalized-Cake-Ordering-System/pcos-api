@@ -15,4 +15,9 @@ public static class ValidationUtils
         var extension = Path.GetExtension(file.FileName)?.ToLower();
         return allowedExtensions.Contains(extension);
     }
+
+    public static bool BeUniqueId(List<Guid> ids)
+    {
+        return ids.Distinct().Count() == ids.Count;
+    }
 }
