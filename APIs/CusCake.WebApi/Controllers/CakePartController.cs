@@ -47,7 +47,7 @@ public class CakePartController(ICakePartService cakePartService) : ControllerBa
 
     [HttpPut("{id}")]
     [Authorize(Roles = RoleConstants.BAKERY)]
-    public async Task<IActionResult> UpdateAsync(Guid id, [FromForm] CakePartUpdateModel model)
+    public async Task<IActionResult> UpdateAsync(Guid id, [FromBody] CakePartUpdateModel model)
     {
         return Ok(ResponseModel<object, object>.Success(await _cakePartService.UpdateAsync(id, model)));
     }

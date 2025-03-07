@@ -4,8 +4,8 @@ using CusCake.Application.GlobalExceptionHandling.Exceptions;
 using CusCake.Application.Services.IServices;
 using CusCake.Application.Utils;
 using CusCake.Application.ViewModels.CakeExtraModels;
-using CusCake.Domain.Constants;
 using CusCake.Domain.Entities;
+using CusCake.Domain.Enums;
 
 namespace CusCake.Application.Services;
 
@@ -42,8 +42,6 @@ public class CakeExtraService(IUnitOfWork unitOfWork,
         return cake_extras.Count != 0 ? cake_extras : null;
     }
 
-
-
     public async Task<List<CakeExtra>> CreateAsync(List<CakeExtraCreateModel> models)
     {
         var extras = _mapper.Map<List<CakeExtra>>(models);
@@ -52,7 +50,7 @@ public class CakeExtraService(IUnitOfWork unitOfWork,
 
         foreach (var extra in extras)
         {
-            if (default_extras != null && default_extras.Any(x => x.ExtraType == extra.ExtraType))
+            if (default_extras != null && (default_extras.Any(x => x.ExtraType == extra.ExtraType) && extra.IsDefault))
                 throw new BadRequestException($"Type {extra.ExtraType} already has default value!");
 
             extra.BakeryId = _claimsService.GetCurrentUser;
@@ -76,12 +74,8 @@ public class CakeExtraService(IUnitOfWork unitOfWork,
 
     public async Task<(Pagination<CakeExtra>, List<CakeExtra>)> GetAllAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<CakeExtra, bool>>? filter = null)
     {
-        Expression<Func<CakeExtra, bool>> combinedFilter = filter ?? (x => true);
 
-        Expression<Func<CakeExtra, bool>> idFilter = x => x.BakeryId == _claimsService.GetCurrentUser;
-        combinedFilter = FilterCustom.CombineFilters(combinedFilter, idFilter);
-
-        return await _unitOfWork.CakeExtraRepository.ToPagination(pageIndex, pageSize, includes: x => x.ExtraImage!, filter: combinedFilter);
+        return await _unitOfWork.CakeExtraRepository.ToPagination(pageIndex, pageSize, includes: x => x.ExtraImage!, filter: filter);
     }
 
     public async Task<CakeExtra> GetByIdAsync(Guid id)
@@ -99,7 +93,7 @@ public class CakeExtraService(IUnitOfWork unitOfWork,
 
         var default_extras = await GetListDefaultAsync([extra.ExtraType]);
 
-        if (default_extras != null && default_extras[0].Id != extra.Id)
+        if (default_extras != null && (default_extras[0].Id != extra.Id && extra.IsDefault))
             throw new BadRequestException($"Type {extra.ExtraType} already has default value!");
 
         _unitOfWork.CakeExtraRepository.Update(extra);

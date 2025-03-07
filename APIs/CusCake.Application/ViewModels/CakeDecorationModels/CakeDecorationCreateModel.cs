@@ -1,3 +1,4 @@
+using CusCake.Domain.Enums;
 using FluentValidation;
 using System.Text.Json.Serialization;
 
@@ -29,6 +30,13 @@ public class CakeDecorationCreateModel
     public Guid? DecorationImageId { get; set; }
 }
 
+public class ListCakeDecorationCreateModelValidator : AbstractValidator<List<CakeDecorationCreateModel>>
+{
+    public ListCakeDecorationCreateModelValidator()
+    {
+        RuleForEach(x => x).SetValidator(new CakeDecorationCreateModelValidator());
+    }
+}
 
 public class CakeDecorationCreateModelValidator : AbstractValidator<CakeDecorationCreateModel>
 {
@@ -42,8 +50,9 @@ public class CakeDecorationCreateModelValidator : AbstractValidator<CakeDecorati
             .GreaterThanOrEqualTo(0).WithMessage("Price must be greater than or equal to 0.");
 
         RuleFor(x => x.DecorationType)
-            .NotEmpty().WithMessage("Type is required.")
-            .MaximumLength(50).WithMessage("Type cannot exceed 50 characters.");
+             .NotNull().WithMessage("Decoration type is required.")
+             .Must(value => Enum.IsDefined(typeof(CakeDecorationTypeEnum), value))
+             .WithMessage($"Invalid extra type. Must be one of: {string.Join(", ", Enum.GetNames(typeof(CakeDecorationTypeEnum)))}");
 
         RuleFor(x => x.DecorationDescription)
             .MaximumLength(500).WithMessage("Description cannot exceed 500 characters.")

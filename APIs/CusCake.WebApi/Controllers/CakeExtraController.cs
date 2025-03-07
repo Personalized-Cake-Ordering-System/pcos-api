@@ -46,7 +46,7 @@ public class CakeExtraController(ICakeExtraService cakeExtraService) : Controlle
 
     [HttpPut("{id}")]
     [Authorize(Roles = RoleConstants.BAKERY)]
-    public async Task<IActionResult> UpdateAsync(Guid id, [FromForm] CakeExtraUpdateModel model)
+    public async Task<IActionResult> UpdateAsync(Guid id, [FromBody] CakeExtraUpdateModel model)
     {
         return Ok(ResponseModel<object, object>.Success(await _cakeExtraService.UpdateAsync(id, model)));
     }
