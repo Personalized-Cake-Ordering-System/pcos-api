@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using CusCake.Application.Services;
 using CusCake.Application.ViewModels;
 using CusCake.Application.ViewModels.CakeDecorationModels;
@@ -33,17 +34,21 @@ public class CakeDecorationController(ICakeDecorationService service) : Controll
 
     [HttpGet]
     public async Task<IActionResult> GetAllAsync(
+        [FromQuery] Guid? bakeryId,
         int pageIndex = 0,
-        int pageSize = 10)
+        int pageSize = 10
+    )
     {
+        Expression<Func<CakeDecoration, bool>> filter = x =>
+                  (bakeryId == null || x.BakeryId == bakeryId);
 
-        var result = await _service.GetAllAsync(pageIndex, pageSize);
+        var result = await _service.GetAllAsync(pageIndex, pageSize, filter);
         return Ok(ResponseModel<object, object>.Success(result.Item2, result.Item1));
     }
 
     [HttpPut("{id}")]
     [Authorize(Roles = RoleConstants.BAKERY)]
-    public async Task<IActionResult> UpdateAsync(Guid id, [FromForm] CakeDecorationUpdateModel model)
+    public async Task<IActionResult> UpdateAsync(Guid id, [FromBody] CakeDecorationUpdateModel model)
     {
         return Ok(ResponseModel<object, object>.Success(await _service.UpdateAsync(id, model)));
     }

@@ -51,7 +51,7 @@ public class CakePartService(IUnitOfWork unitOfWork,
 
         foreach (var part in parts)
         {
-            if (default_parts != null && default_parts.Any(x => x.PartType == part.PartType))
+            if (default_parts != null && (default_parts.Any(x => x.PartType == part.PartType) && part.IsDefault))
                 throw new BadRequestException($"Type {part.PartType} already has default value!");
 
             part.BakeryId = _claimsService.GetCurrentUser;
@@ -75,12 +75,8 @@ public class CakePartService(IUnitOfWork unitOfWork,
 
     public async Task<(Pagination<CakePart>, List<CakePart>)> GetAllAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<CakePart, bool>>? filter = null)
     {
-        Expression<Func<CakePart, bool>> combinedFilter = filter ?? (x => true);
 
-        Expression<Func<CakePart, bool>> idFilter = x => x.BakeryId == _claimsService.GetCurrentUser;
-        combinedFilter = FilterCustom.CombineFilters(combinedFilter, idFilter);
-
-        return await _unitOfWork.CakePartRepository.ToPagination(pageIndex, pageSize, includes: x => x.PartImage!, filter: combinedFilter);
+        return await _unitOfWork.CakePartRepository.ToPagination(pageIndex, pageSize, includes: x => x.PartImage!, filter: filter);
     }
 
     public async Task<CakePart> GetByIdAsync(Guid id)
@@ -97,7 +93,7 @@ public class CakePartService(IUnitOfWork unitOfWork,
 
         var default_parts = await GetListDefaultAsync([part.PartType]);
 
-        if (default_parts != null && default_parts[0].Id != part.Id)
+        if (default_parts != null && (default_parts[0].Id != part.Id && part.IsDefault))
             throw new BadRequestException($"Type {part.PartType} already has default value!");
 
         _unitOfWork.CakePartRepository.Update(part);

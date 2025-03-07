@@ -1,3 +1,4 @@
+using CusCake.Domain.Enums;
 using FluentValidation;
 using System.Text.Json.Serialization;
 
@@ -28,6 +29,15 @@ public class CakeExtraCreateModel
     public Guid? ExtraImageId { get; set; }
 }
 
+public class ListCakeExtraCreateModelValidator : AbstractValidator<List<CakeExtraCreateModel>>
+{
+    public ListCakeExtraCreateModelValidator()
+    {
+        RuleForEach(x => x).SetValidator(new CakeExtraCreateModelValidator());
+    }
+}
+
+
 public class CakeExtraCreateModelValidator : AbstractValidator<CakeExtraCreateModel>
 {
     public CakeExtraCreateModelValidator()
@@ -40,20 +50,23 @@ public class CakeExtraCreateModelValidator : AbstractValidator<CakeExtraCreateMo
             .GreaterThanOrEqualTo(0).WithMessage("Extra price must be greater than or equal to 0.");
 
         RuleFor(x => x.ExtraType)
-            .NotEmpty().WithMessage("Extra type is required.")
-            .MaximumLength(50).WithMessage("Extra type cannot exceed 50 characters.");
+            .NotNull().WithMessage("Extra type is required.")
+            .Must(value => Enum.IsDefined(typeof(CakeExtraTypeEnum), value))
+            .WithMessage($"Invalid extra type. Must be one of: {string.Join(", ", Enum.GetNames(typeof(CakeExtraTypeEnum)))}");
+
 
         RuleFor(x => x.ExtraDescription)
             .MaximumLength(500).WithMessage("Description cannot exceed 500 characters.")
             .When(x => x.ExtraDescription != null);
 
-
         RuleFor(x => x.ExtraImageId)
             .Must(x => x != Guid.Empty)
-            .WithMessage("ExtraImageId must different empty Guid.")
+            .WithMessage("ExtraImageId must be different from empty Guid.")
             .When(x => x.ExtraImageId != null);
     }
+
 }
+
 
 public class CakeExtraUpdateModel : CakeExtraCreateModel
 {

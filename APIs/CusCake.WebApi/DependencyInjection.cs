@@ -13,6 +13,8 @@ using System.Text.Json.Serialization;
 using System.Text;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Mvc;
+using CusCake.Application.ViewModels;
 namespace CusCake.WebApi
 {
     public static class DependencyInjection
@@ -110,6 +112,21 @@ namespace CusCake.WebApi
             services.AddSingleton<GlobalErrorHandlingMiddleware>();
             services.AddSingleton<PerformanceMiddleware>();
             services.AddSingleton<Stopwatch>();
+
+            services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.InvalidModelStateResponseFactory = context =>
+                {
+                    var errors = context.ModelState
+                        .Where(x => x.Value?.Errors.Count > 0)
+                        .SelectMany(x => x.Value!.Errors.Select(e => $"{x.Key}: {e.ErrorMessage}"))
+                        .ToList();
+
+                    var response = ResponseModel<object, object>.Fail(errors: errors);
+                    return new BadRequestObjectResult(response);
+                };
+            });
+
             return services;
         }
     }

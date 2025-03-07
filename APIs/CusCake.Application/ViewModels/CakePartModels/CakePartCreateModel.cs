@@ -1,3 +1,4 @@
+using CusCake.Domain.Enums;
 using FluentValidation;
 using System.Text.Json.Serialization;
 
@@ -28,6 +29,13 @@ public class CakePartCreateModel
     public Guid? PartImageId { get; set; }
 }
 
+public class ListCakePartCreateModelValidator : AbstractValidator<List<CakePartCreateModel>>
+{
+    public ListCakePartCreateModelValidator()
+    {
+        RuleForEach(x => x).SetValidator(new CakePartCreateModelValidator());
+    }
+}
 
 public class CakePartCreateModelValidator : AbstractValidator<CakePartCreateModel>
 {
@@ -41,8 +49,9 @@ public class CakePartCreateModelValidator : AbstractValidator<CakePartCreateMode
             .GreaterThanOrEqualTo(0).WithMessage("Part price must be greater than or equal to 0.");
 
         RuleFor(x => x.PartType)
-            .NotEmpty().WithMessage("Part type is required.")
-            .MaximumLength(50).WithMessage("Part type cannot exceed 50 characters.");
+           .NotNull().WithMessage("Part type is required.")
+           .Must(value => Enum.IsDefined(typeof(CakePartTypeEnum), value))
+           .WithMessage($"Invalid Part type. Must be one of: {string.Join(", ", Enum.GetNames(typeof(CakePartTypeEnum)))}");
 
         RuleFor(x => x.PartDescription)
             .MaximumLength(500).WithMessage("Description cannot exceed 500 characters.")

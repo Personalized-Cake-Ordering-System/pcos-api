@@ -1,3 +1,4 @@
+using CusCake.Domain.Enums;
 using FluentValidation;
 using System.Text.Json.Serialization;
 
@@ -35,7 +36,13 @@ public class CakeMessageTypeModel
     [JsonPropertyName("color")]
     public string Color { get; set; } = default!;
 }
-
+public class ListCakeMessageCreateModelValidator : AbstractValidator<List<CakeMessageCreateModel>>
+{
+    public ListCakeMessageCreateModelValidator()
+    {
+        RuleForEach(x => x).SetValidator(new CakeMessageCreateModelValidator());
+    }
+}
 
 public class CakeMessageCreateModelValidator : AbstractValidator<CakeMessageCreateModel>
 {
@@ -53,8 +60,9 @@ public class CakeMessageCreateModelValidator : AbstractValidator<CakeMessageCrea
             .GreaterThanOrEqualTo(0).WithMessage("MessagePrice must be greater than or equal to 0.");
 
         RuleFor(x => x.MessageType)
-            .NotEmpty().WithMessage("MessageType is required.")
-            .MaximumLength(50).WithMessage("MessageType cannot exceed 50 characters.");
+            .NotNull().WithMessage("Message type is required.")
+            .Must(value => Enum.IsDefined(typeof(CakeMessageTypeEnum), value))
+            .WithMessage($"Invalid Message type. Must be one of: {string.Join(", ", Enum.GetNames(typeof(CakeMessageTypeEnum)))}");
 
         RuleFor(x => x.MessageDescription)
             .MaximumLength(500).WithMessage("MessageDescription cannot exceed 500 characters.")

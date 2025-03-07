@@ -20,4 +20,8 @@ public static class ValidationUtils
     {
         return ids.Distinct().Count() == ids.Count;
     }
+    public static bool BeValidEnumValue<TEnum>(int value) where TEnum : struct, Enum
+    {
+        return Enum.IsDefined(typeof(TEnum), value);
+    }
 }
