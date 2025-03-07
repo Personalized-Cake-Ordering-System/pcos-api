@@ -13,7 +13,11 @@ public interface ICakeDecorationService
     Task<List<CakeDecoration>> CreateAsync(List<CakeDecorationCreateModel> models);
     Task<CakeDecoration> UpdateAsync(Guid id, CakeDecorationUpdateModel model);
     Task<CakeDecoration> GetByIdAsync(Guid id);
-    Task<(Pagination<CakeDecoration>, List<CakeDecoration>)> GetAllAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<CakeDecoration, bool>>? filter = null);
+    Task<(Pagination<CakeDecoration>, List<CakeDecoration>)> GetAllAsync(
+        int pageIndex = 0,
+        int pageSize = 10,
+        Expression<Func<CakeDecoration, bool>>? filter = null
+    );
     Task DeleteAsync(Guid id);
 }
 
@@ -75,12 +79,7 @@ public class CakeDecorationService(IUnitOfWork unitOfWork,
 
     public async Task<(Pagination<CakeDecoration>, List<CakeDecoration>)> GetAllAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<CakeDecoration, bool>>? filter = null)
     {
-        Expression<Func<CakeDecoration, bool>> combinedFilter = filter ?? (x => true);
-
-        Expression<Func<CakeDecoration, bool>> idFilter = x => x.BakeryId == _claimsService.GetCurrentUser;
-        combinedFilter = FilterCustom.CombineFilters(combinedFilter, idFilter);
-
-        return await _unitOfWork.CakeDecorationRepository.ToPagination(pageIndex, pageSize, includes: x => x.DecorationImage!, filter: combinedFilter);
+        return await _unitOfWork.CakeDecorationRepository.ToPagination(pageIndex, pageSize, includes: x => x.DecorationImage!, filter: filter);
     }
 
     public async Task<CakeDecoration> GetByIdAsync(Guid id)

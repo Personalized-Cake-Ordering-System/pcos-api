@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using CusCake.Application.Services;
 using CusCake.Application.ViewModels;
 using CusCake.Application.ViewModels.CakeDecorationModels;
@@ -33,11 +34,15 @@ public class CakeDecorationController(ICakeDecorationService service) : Controll
 
     [HttpGet]
     public async Task<IActionResult> GetAllAsync(
+        [FromQuery] Guid? bakeryId,
         int pageIndex = 0,
-        int pageSize = 10)
+        int pageSize = 10
+    )
     {
+        Expression<Func<CakeDecoration, bool>> filter = x =>
+                  (bakeryId == null || x.BakeryId == bakeryId);
 
-        var result = await _service.GetAllAsync(pageIndex, pageSize);
+        var result = await _service.GetAllAsync(pageIndex, pageSize, filter);
         return Ok(ResponseModel<object, object>.Success(result.Item2, result.Item1));
     }
 
