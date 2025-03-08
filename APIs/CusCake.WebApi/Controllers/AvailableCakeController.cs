@@ -26,7 +26,7 @@ public class AvailableCakeController(IAvailableCakeService availableCakeService)
 
     [HttpPost]
     [Authorize(Roles = RoleConstants.BAKERY)]
-    public async Task<IActionResult> CreateAsync([FromForm] AvailableCakeCreateModel model)
+    public async Task<IActionResult> CreateAsync([FromBody] AvailableCakeCreateModel model)
     {
         var cake = await _availableCakeService.CreateAsync(model);
         return StatusCode(201, new ResponseModel<object, object> { StatusCode = 201, Payload = cake });
@@ -48,7 +48,7 @@ public class AvailableCakeController(IAvailableCakeService availableCakeService)
 
     [HttpPut("{id}")]
     [Authorize(Roles = RoleConstants.BAKERY)]
-    public async Task<IActionResult> UpdateAsync(Guid id, [FromForm] AvailableCakeUpdateModel model)
+    public async Task<IActionResult> UpdateAsync(Guid id, [FromBody] AvailableCakeUpdateModel model)
     {
         return Ok(ResponseModel<object, object>.Success(await _availableCakeService.UpdateAsync(id, model)));
     }

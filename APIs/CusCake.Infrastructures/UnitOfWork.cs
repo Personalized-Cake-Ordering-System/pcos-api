@@ -33,7 +33,8 @@ namespace CusCake.Infrastructures
             ITransactionRepository transactionRepository,
             IVoucherRepository voucherRepository,
             ICakeMessageTypeRepository cakeMessageTypeRepository,
-            ICakeMessageDetailRepository cakeMessageDetailRepository
+            ICakeMessageDetailRepository cakeMessageDetailRepository,
+            IAuthRepository authRepository
         )
         {
             _appDbContext = appDbContext;
@@ -61,6 +62,7 @@ namespace CusCake.Infrastructures
             AdminRepository = adminRepository;
             CakeMessageDetailRepository = cakeMessageDetailRepository;
             CakeMessageTypeRepository = cakeMessageTypeRepository;
+            AuthRepository = authRepository;
         }
 
         public ICustomerRepository CustomerRepository { get; }
@@ -104,6 +106,9 @@ namespace CusCake.Infrastructures
         public ICakeMessageTypeRepository CakeMessageTypeRepository { get; }
 
         public ICakeMessageDetailRepository CakeMessageDetailRepository { get; }
+
+        public IAuthRepository AuthRepository { get; }
+
         public async Task<bool> SaveChangesAsync() => (await _appDbContext.SaveChangesAsync()) > 0;
     }
 }

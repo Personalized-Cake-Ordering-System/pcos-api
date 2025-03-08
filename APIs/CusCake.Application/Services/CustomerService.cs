@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using CusCake.Application.GlobalExceptionHandling.Exceptions;
 using CusCake.Application.Utils;
+using CusCake.Application.ViewModels.AuthModels;
 using CusCake.Application.ViewModels.CustomerModels;
 using CusCake.Domain.Constants;
 using CusCake.Domain.Entities;
@@ -16,16 +17,11 @@ public interface ICustomerService
     Task DeleteAsync(Guid id);
 }
 
-public class CustomerService : ICustomerService
+public class CustomerService(IUnitOfWork unitOfWork, IMapper mapper, IAuthService authService) : ICustomerService
 {
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
-
-    public CustomerService(IUnitOfWork unitOfWork, IMapper mapper)
-    {
-        _unitOfWork = unitOfWork;
-        _mapper = mapper;
-    }
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IMapper _mapper = mapper;
+    private readonly IAuthService _authService = authService;
 
     public async Task<Customer> CreateAsync(CustomerCreateModel model)
     {
@@ -41,6 +37,14 @@ public class CustomerService : ICustomerService
 
         await _unitOfWork.SaveChangesAsync();
 
+        await _authService.CreateAsync(new AuthCreateModel
+        {
+            Email = model.Email,
+            Password = model.Password,
+            EntityId = customer.Id,
+            Role = RoleConstants.CUSTOMER
+        });
+
         return result;
     }
 
@@ -51,6 +55,7 @@ public class CustomerService : ICustomerService
         _unitOfWork.CustomerRepository.SoftRemove(customer);
 
         await _unitOfWork.SaveChangesAsync();
+        await _authService.DeleteAsync(customer.Id);
     }
 
     public async Task<(Pagination<Customer>, List<Customer>)> GetAllAsync(int pageIndex = 0, int pageSize = 10)
@@ -68,21 +73,19 @@ public class CustomerService : ICustomerService
     public async Task<Customer> UpdateAsync(Guid id, CustomerUpdateModel model)
     {
 
-
-
         var customer = await GetByIdAsync(id);
-        if (customer.Email != model.Email)
-        {
-            var existCustomer = await _unitOfWork.CustomerRepository.WhereAsync(x => x.Email == model.Email);
-
-            if (existCustomer.Count != 0) throw new BadRequestException("Email '{model.Email}' already exists.");
-        }
 
         _mapper.Map(model, customer);
 
         _unitOfWork.CustomerRepository.Update(customer);
 
         await _unitOfWork.SaveChangesAsync();
+
+        await _authService.UpdateAsync(new AuthUpdateModel
+        {
+            EntityId = customer.Id,
+            Password = customer.Password
+        });
 
         return customer;
     }

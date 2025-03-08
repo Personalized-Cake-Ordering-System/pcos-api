@@ -32,7 +32,7 @@ public class BakeryController(IBakeryService bakeryService) : ControllerBase
 
 
     [HttpPost]
-    public async Task<IActionResult> CreateAsync([FromForm] BakeryCreateModel model)
+    public async Task<IActionResult> CreateAsync([FromBody] BakeryCreateModel model)
     {
         var bakery = await _bakeryService.CreateAsync(model);
         return StatusCode(201, new ResponseModel<object, object> { StatusCode = 201, Payload = bakery });
@@ -47,7 +47,7 @@ public class BakeryController(IBakeryService bakeryService) : ControllerBase
     {
 
         Expression<Func<Bakery, bool>> filter = x =>
-            (string.IsNullOrEmpty(bakeryName) || x.BakeryName.ToLower().Contains(bakeryName.ToLower()));
+            (string.IsNullOrEmpty(bakeryName) || x.BakeryName.Contains(bakeryName, StringComparison.CurrentCultureIgnoreCase));
 
         var result = await _bakeryService.GetAllAsync(pageIndex, pageSize, filter);
         return Ok(ResponseModel<object, ICollection<Bakery>>.Success(result.Item2, result.Item1));
@@ -55,7 +55,7 @@ public class BakeryController(IBakeryService bakeryService) : ControllerBase
 
     [HttpPut("{id}")]
     [Authorize(Roles = RoleConstants.BAKERY + "," + RoleConstants.ADMIN)]
-    public async Task<IActionResult> UpdateAsync(Guid id, [FromForm] BakeryUpdateModel model)
+    public async Task<IActionResult> UpdateAsync(Guid id, [FromBody] BakeryUpdateModel model)
     {
         return Ok(ResponseModel<object, Bakery>.Success(await _bakeryService.UpdateAsync(id, model)));
     }

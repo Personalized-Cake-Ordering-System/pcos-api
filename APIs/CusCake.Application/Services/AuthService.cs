@@ -1,69 +1,103 @@
+using AutoMapper;
+using CusCake.Application.Extensions;
 using CusCake.Application.GlobalExceptionHandling.Exceptions;
 using CusCake.Application.ViewModels.AuthModels;
 using CusCake.Domain.Constants;
 using CusCake.Domain.Entities;
-using UnauthorizedAccessException = CusCake.Application.GlobalExceptionHandling.Exceptions.UnauthorizedAccessException;
 
 namespace CusCake.Application.Services;
 
 
 public interface IAuthService
 {
-    Task<(AuthResponseModel, Customer)> CustomerSignIn(AuthRequestModel model);
-    Task<(AuthResponseModel, Admin)> AdminSignIn(AuthRequestModel model);
-    Task<(AuthResponseModel, Bakery)> BakerySignIn(AuthRequestModel model);
+    Task<(AuthResponseModel, object)> SignIn(AuthRequestModel model);
     string Revoke(RevokeModel revoke);
+    Task<Auth> CreateAsync(AuthCreateModel model);
+    Task<bool> UpdateAsync(AuthUpdateModel model);
+    Task<bool> DeleteAsync(Guid entityId);
 }
 
-public class AuthService : IAuthService
+public class AuthService(
+    IUnitOfWork unitOfWork,
+    IJWTService jWTService,
+    IMapper mapper
+) : IAuthService
 {
-    private readonly IUnitOfWork _unitOfWork;
-    private IJWTService _jWTService;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IJWTService _jWTService = jWTService;
 
-    public AuthService(IUnitOfWork unitOfWork, IJWTService jWTService)
-    {
-        _unitOfWork = unitOfWork;
-        _jWTService = jWTService;
-    }
-    public async Task<(AuthResponseModel, Admin)> AdminSignIn(AuthRequestModel model)
-    {
-        var admin = await _unitOfWork.AdminRepository.FirstOrDefaultAsync(x => x.Email == model.Email & x.Password == model.Password) ?? throw new BadRequestException("Incorrect email or password!");
-        var authResponse = new AuthResponseModel
-        {
-            AccessToken = _jWTService.GenerateAccessToken(admin.Id, RoleConstants.ADMIN),
-            RefreshToken = _jWTService.GenerateRefreshToken(admin.Id, RoleConstants.ADMIN)
-        };
-        return (authResponse, admin);
-    }
+    private readonly IMapper _mapper = mapper;
 
-    public async Task<(AuthResponseModel, Bakery)> BakerySignIn(AuthRequestModel model)
+    public async Task<(AuthResponseModel, object)> SignIn(AuthRequestModel model)
     {
-        var bakery = await _unitOfWork.BakeryRepository.FirstOrDefaultAsync(x => x.Email == model.Email & x.Password == model.Password) ?? throw new BadRequestException("Incorrect email or password!");
 
-        if (bakery.Status == BakeryStatusConstants.PENDING) throw new BadRequestException("Waiting for admin conform!");
-        if (bakery.Status == BakeryStatusConstants.REJECT) throw new UnauthorizedAccessException("No permission to access account");
+        // var includes = QueryHelper.Includes<Auth>(x => x.Customer!, x => x.Admin!, x => x.Bakery!);
+
+        var auth = await _unitOfWork.AuthRepository
+            .FirstOrDefaultAsync(x =>
+                x.Email == model.Email &
+                x.Password == model.Password
+            ) ?? throw new BadRequestException("Incorrect email or password!");
 
         var authResponse = new AuthResponseModel
         {
-            AccessToken = _jWTService.GenerateAccessToken(bakery.Id, RoleConstants.BAKERY),
-            RefreshToken = _jWTService.GenerateRefreshToken(bakery.Id, RoleConstants.BAKERY)
+            AccessToken = _jWTService.GenerateAccessToken(auth.EntityId, auth.Role),
+            RefreshToken = _jWTService.GenerateRefreshToken(auth.EntityId, auth.Role)
         };
-        return (authResponse, bakery);
-    }
 
-    public async Task<(AuthResponseModel, Customer)> CustomerSignIn(AuthRequestModel model)
-    {
-        var customer = await _unitOfWork.CustomerRepository.FirstOrDefaultAsync(x => x.Email == model.Email & x.Password == model.Password) ?? throw new BadRequestException("Incorrect email or password!");
-        var authResponse = new AuthResponseModel
-        {
-            AccessToken = _jWTService.GenerateAccessToken(customer.Id, RoleConstants.CUSTOMER),
-            RefreshToken = _jWTService.GenerateRefreshToken(customer.Id, RoleConstants.CUSTOMER)
-        };
-        return (authResponse, customer);
+        var result = _mapper.Map<AuthViewModel>(auth);
+        if (auth.Role == RoleConstants.ADMIN)
+            result.Entity = await _unitOfWork.AdminRepository.GetByIdAsync(auth.EntityId) ?? throw new BadRequestException("Not found");
+        else if (auth.Role == RoleConstants.CUSTOMER)
+            result.Entity = await _unitOfWork.CustomerRepository.GetByIdAsync(auth.EntityId) ?? throw new BadRequestException("Not found");
+        else
+            result.Entity = await _unitOfWork.BakeryRepository.GetByIdAsync(auth.EntityId) ?? throw new BadRequestException("Not found");
+
+        return (authResponse, result);
     }
 
     public string Revoke(RevokeModel revoke)
     {
         return _jWTService.RevokeToken(revoke);
     }
+
+    public async Task<Auth> CreateAsync(AuthCreateModel model)
+    {
+        var auth = _mapper.Map<Auth>(model);
+        var isExist = await _unitOfWork.AuthRepository
+            .FirstOrDefaultAsync(x =>
+                x.Email == model.Email &&
+                x.Role == model.Role);
+        if (isExist != null) throw new BadRequestException($"Email {model.Email} has already exist!");
+
+        await _unitOfWork.AuthRepository.AddAsync(auth);
+        await _unitOfWork.SaveChangesAsync();
+
+        return auth;
+    }
+
+    public async Task<bool> UpdateAsync(AuthUpdateModel model)
+    {
+        var auth = await _unitOfWork.AuthRepository
+            .FirstOrDefaultAsync(x => x.EntityId == model.EntityId) ?? throw new BadRequestException("Error at update auth!");
+
+        _mapper.Map(model, auth);
+
+        _unitOfWork.AuthRepository.Update(auth);
+
+        return await _unitOfWork.SaveChangesAsync();
+    }
+
+    public async Task<bool> DeleteAsync(Guid entityId)
+    {
+        var auth = await _unitOfWork.AuthRepository
+            .FirstOrDefaultAsync(x => x.EntityId == entityId) ?? throw new BadRequestException("Error at update auth!");
+
+        _unitOfWork.AuthRepository.SoftRemove(auth);
+
+        return await _unitOfWork.SaveChangesAsync();
+    }
 }
+
+
+

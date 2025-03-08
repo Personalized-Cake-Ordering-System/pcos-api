@@ -4,6 +4,7 @@ namespace CusCake.Application;
 
 public interface IUnitOfWork
 {
+    IAuthRepository AuthRepository { get; }
     IAdminRepository AdminRepository { get; }
     IBakeryRepository BakeryRepository { get; }
     IAvailableCakeRepository AvailableCakeRepository { get; }

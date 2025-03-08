@@ -4,25 +4,21 @@ using FluentValidation;
 
 namespace CusCake.Application.ViewModels.CustomerModels;
 
-public class CustomerCreateModel
+public class CustomerBaseActionModel
 {
     [JsonPropertyName("name")]
     public string Name { get; set; } = default!;
     [JsonPropertyName("email")]
-    public string Email { get; set; } = default!;
-    [JsonPropertyName("phone")]
     public string Phone { get; set; } = default!;
     [JsonPropertyName("address")]
     public string Address { get; set; } = default!;
     [JsonPropertyName("password")]
     public string Password { get; set; } = default!;
-
 }
 
-
-public class CustomerCreateModelValidator : AbstractValidator<CustomerCreateModel>
+public class CustomerBaseActionModelValidator : AbstractValidator<CustomerBaseActionModel>
 {
-    public CustomerCreateModelValidator()
+    public CustomerBaseActionModelValidator()
     {
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Customer name is required.")
@@ -32,12 +28,7 @@ public class CustomerCreateModelValidator : AbstractValidator<CustomerCreateMode
             .NotEmpty().WithMessage("Password name is required.")
             .MaximumLength(30)
             .MinimumLength(8)
-            .WithMessage("Password cannot exceed 30 characters.");
-
-        RuleFor(x => x.Email)
-            .NotEmpty().WithMessage("Email is required.")
-            .EmailAddress().WithMessage("Invalid email format.")
-            .MaximumLength(255).WithMessage("Email cannot exceed 255 characters.");
+            .WithMessage("Password must be between 8 - 30.");
 
         RuleFor(x => x.Phone)
             .NotEmpty().WithMessage("Phone number is required.")
@@ -51,4 +42,31 @@ public class CustomerCreateModelValidator : AbstractValidator<CustomerCreateMode
             .Matches(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$")
             .WithMessage("Password must contain at least one uppercase letter, one lowercase letter, and one number.");
     }
+}
+public class CustomerCreateModel : CustomerBaseActionModel
+{
+
+    [JsonPropertyName("email")]
+    public string Email { get; set; } = default!;
+
+}
+
+
+public class CustomerCreateModelValidator : AbstractValidator<CustomerCreateModel>
+{
+    public CustomerCreateModelValidator()
+    {
+
+        Include(new CustomerBaseActionModelValidator());
+
+        RuleFor(x => x.Email)
+            .NotEmpty().WithMessage("Email is required.")
+            .EmailAddress().WithMessage("Invalid email format.")
+            .MaximumLength(255).WithMessage("Email cannot exceed 255 characters.");
+
+    }
+}
+
+public class CustomerUpdateModel : CustomerBaseActionModel
+{
 }

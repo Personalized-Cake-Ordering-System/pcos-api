@@ -10,8 +10,6 @@ public class BakeryBaseActionModel
     [JsonPropertyName("bakery_name")]
     public string BakeryName { get; set; } = default!;
 
-    [JsonPropertyName("email")]
-    public string Email { get; set; } = default!;
 
     [JsonPropertyName("password")]
     public string Password { get; set; } = default!;
@@ -51,11 +49,6 @@ public class BakeryBaseActionModelValidator : AbstractValidator<BakeryBaseAction
             .NotEmpty().WithMessage("Bakery name is required.")
             .MaximumLength(100).WithMessage("Bakery name cannot exceed 100 characters.");
 
-        RuleFor(x => x.Email)
-            .NotEmpty().WithMessage("Email is required.")
-            .EmailAddress().WithMessage("Invalid email format.")
-            .MaximumLength(255).WithMessage("Email cannot exceed 255 characters.");
-
         RuleFor(x => x.Phone)
             .NotEmpty().WithMessage("Phone number is required.")
             .Matches(@"^(?:\+84|0)(3[2-9]|5[2-9]|7[0|6-9]|8[1-9]|9[0-9])\d{7}$")
@@ -88,14 +81,16 @@ public class BakeryBaseActionModelValidator : AbstractValidator<BakeryBaseAction
 
 public class BakeryCreateModel : BakeryBaseActionModel
 {
-    [JsonPropertyName("avatar")]
-    public IFormFile? Avatar { get; set; } = default!;
+    [JsonPropertyName("email")]
+    public string Email { get; set; } = default!;
+    [JsonPropertyName("avatar_file_id")]
+    public Guid AvatarFileId { get; set; } = default!;
 
-    [JsonPropertyName("front_card_image")]
-    public IFormFile? FrontCardImage { get; set; } = default!;
+    [JsonPropertyName("front_card_file_id")]
+    public Guid FrontCardFileId { get; set; } = default!;
 
-    [JsonPropertyName("back_card_image")]
-    public IFormFile? BackCardImage { get; set; } = default!;
+    [JsonPropertyName("back_card_file_id")]
+    public Guid BackCardFileId { get; set; } = default!;
 }
 
 public class BakeryCreateModelValidator : AbstractValidator<BakeryCreateModel>
@@ -105,56 +100,22 @@ public class BakeryCreateModelValidator : AbstractValidator<BakeryCreateModel>
 
         Include(new BakeryBaseActionModelValidator());
 
-        RuleFor(x => x.Avatar)
-            .NotNull().WithMessage("Avatar image is required.")
-            .Must(ValidationUtils.BeAValidImage).WithMessage("Avatar must be a valid image file (jpg, png, jpeg) under 5MB.");
-
-
-        RuleFor(x => x.FrontCardImage)
-            .NotNull().WithMessage("Front card image is required.")
-            .Must(ValidationUtils.BeAValidImage).WithMessage("Front card image must be a valid image file (jpg, png, jpeg) under 5MB.");
-
-        RuleFor(x => x.BackCardImage)
-            .NotNull().WithMessage("Back card image is required.")
-            .Must(ValidationUtils.BeAValidImage).WithMessage("Back card image must be a valid image file (jpg, png, jpeg) under 5MB.");
+        RuleFor(x => x.Email)
+            .NotEmpty().WithMessage("Email is required.")
+            .EmailAddress().WithMessage("Invalid email format.")
+            .MaximumLength(255).WithMessage("Email cannot exceed 255 characters.");
 
     }
 }
 
 public class BakeryUpdateModel : BakeryBaseActionModel
 {
+    [JsonPropertyName("avatar_file_id")]
+    public Guid AvatarFileId { get; set; }
 
-    [JsonPropertyName("avatar")]
-    public IFormFile? Avatar { get; set; }
+    [JsonPropertyName("front_card_file_id")]
+    public Guid FrontCardFileId { get; set; }
 
-    [JsonPropertyName("front_card_image")]
-    public IFormFile? FrontCardImage { get; set; }
-
-    [JsonPropertyName("back_card_image")]
-    public IFormFile? BackCardImage { get; set; }
-}
-
-public class BakeryUpdateModelValidator : AbstractValidator<BakeryUpdateModel>
-{
-    public BakeryUpdateModelValidator()
-    {
-
-        Include(new BakeryBaseActionModelValidator());
-
-        RuleFor(x => x.Avatar)
-            .Must(ValidationUtils.BeAValidImage)
-            .WithMessage("Avatar must be a valid image file (jpg, png, jpeg) under 5MB.")
-            .When(x => x.Avatar != null);
-
-        RuleFor(x => x.FrontCardImage)
-            .Must(ValidationUtils.BeAValidImage).WithMessage("Front card image must be a valid image file (jpg, png, jpeg) under 5MB.")
-            .When(x => x.FrontCardImage != null)
-            .OverridePropertyName("FrontCardImage");
-
-        RuleFor(x => x.BackCardImage)
-            .Must(ValidationUtils.BeAValidImage).WithMessage("Back card image must be a valid image file (jpg, png, jpeg) under 5MB.")
-            .When(x => x.BackCardImage != null)
-            .OverridePropertyName("BackCardImage");
-    }
-
+    [JsonPropertyName("back_card_file_id")]
+    public Guid BackCardFileId { get; set; }
 }

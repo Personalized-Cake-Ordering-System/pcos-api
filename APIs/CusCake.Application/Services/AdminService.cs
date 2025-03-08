@@ -1,5 +1,7 @@
 using AutoMapper;
 using CusCake.Application.ViewModels.AdminModels;
+using CusCake.Application.ViewModels.AuthModels;
+using CusCake.Domain.Constants;
 using CusCake.Domain.Entities;
 
 namespace CusCake.Application.Services;
@@ -13,22 +15,28 @@ public interface IAdminService
 }
 
 
-public class AdminService : IAdminService
+public class AdminService(IUnitOfWork unitOfWork, IMapper mapper, IAuthService authService) : IAdminService
 {
 
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
-    public AdminService(IUnitOfWork unitOfWork, IMapper mapper)
-    {
-        _unitOfWork = unitOfWork;
-        _mapper = mapper;
-    }
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IMapper _mapper = mapper;
+    private readonly IAuthService _authService = authService;
 
     public async Task<Admin> CreateAsync(AdminCreateModel model)
     {
         var admin = _mapper.Map<Admin>(model);
+
         var result = await _unitOfWork.AdminRepository.AddAsync(admin);
+
         await _unitOfWork.SaveChangesAsync();
+
+        await _authService.CreateAsync(new AuthCreateModel
+        {
+            Email = model.Email,
+            Password = model.Password,
+            EntityId = admin.Id,
+            Role = RoleConstants.ADMIN
+        });
         return result;
     }
 
