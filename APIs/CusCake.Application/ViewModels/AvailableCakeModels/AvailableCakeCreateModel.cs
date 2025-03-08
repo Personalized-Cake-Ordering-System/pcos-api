@@ -1,3 +1,4 @@
+using AutoMapper.Configuration.Annotations;
 using CusCake.Application.Validators;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
@@ -68,8 +69,8 @@ public class AvailableCakeBaseActionModelValidator : AbstractValidator<Available
 
 public class AvailableCakeCreateModel : AvailableCakeBaseActionModel
 {
-    [JsonPropertyName("available_cake_file_image")]
-    public IFormFile AvailableCakeFileImage { get; set; } = default!;
+    [JsonPropertyName("available_main_image_id")]
+    public Guid AvailableCakeMainImageId { get; set; } = default!;
 }
 
 public class AvailableCakeCreateModelValidator : AbstractValidator<AvailableCakeCreateModel>
@@ -79,17 +80,14 @@ public class AvailableCakeCreateModelValidator : AbstractValidator<AvailableCake
 
         Include(new AvailableCakeBaseActionModelValidator());
 
-        RuleFor(x => x.AvailableCakeFileImage)
-            .NotNull().WithMessage("Main image is required.")
-            .Must(ValidationUtils.BeAValidImage).WithMessage("Main image must be a valid image file (jpg, png, jpeg) under 5MB.");
     }
 }
 
 
 public class AvailableCakeUpdateModel : AvailableCakeBaseActionModel
 {
-    [JsonPropertyName("available_cake_file_image")]
-    public IFormFile? AvailableCakeFileImage { get; set; }
+    [JsonPropertyName("available_main_image_id")]
+    public Guid AvailableCakeMainImageId { get; set; }
 
 }
 
@@ -98,10 +96,6 @@ public class AvailableCakeUpdateModelValidator : AbstractValidator<AvailableCake
     public AvailableCakeUpdateModelValidator()
     {
         Include(new AvailableCakeBaseActionModelValidator());
-
-        RuleFor(x => x.AvailableCakeFileImage)
-            .Must(ValidationUtils.BeAValidImage).WithMessage("Main image must be a valid image file (jpg, png, jpeg) under 5MB.")
-            .When(x => x.AvailableCakeFileImage != null);
 
     }
 }

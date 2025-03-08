@@ -3,7 +3,6 @@ using AutoMapper;
 using CusCake.Application.GlobalExceptionHandling.Exceptions;
 using CusCake.Application.Utils;
 using CusCake.Application.ViewModels.AvailableCakeModels;
-using CusCake.Domain.Constants;
 using CusCake.Domain.Entities;
 
 namespace CusCake.Application.Services;
@@ -32,9 +31,6 @@ public class AvailableCakeService(IUnitOfWork unitOfWork, IMapper mapper, IFileS
     public async Task<AvailableCake> CreateAsync(AvailableCakeCreateModel model)
     {
         var cake = _mapper.Map<AvailableCake>(model);
-
-
-        cake.AvailableCakeMainImageId = (await _fileService.UploadFileAsync(model.AvailableCakeFileImage, FolderConstants.AVAILABLE_CAKE_IMAGES)).Id;
 
 
         var result = await _unitOfWork.AvailableCakeRepository.AddAsync(cake);
@@ -73,12 +69,6 @@ public class AvailableCakeService(IUnitOfWork unitOfWork, IMapper mapper, IFileS
         var cake = await GetByIdAsync(id);
 
         _mapper.Map(model, cake);
-
-
-        if (model.AvailableCakeFileImage != null)
-        {
-            cake.AvailableCakeMainImageId = (await _fileService.UploadFileAsync(model.AvailableCakeFileImage, FolderConstants.AVAILABLE_CAKE_IMAGES)).Id;
-        }
 
         _unitOfWork.AvailableCakeRepository.Update(cake);
 

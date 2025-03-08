@@ -3,6 +3,7 @@ using AutoMapper;
 using CusCake.Application.Extensions;
 using CusCake.Application.GlobalExceptionHandling.Exceptions;
 using CusCake.Application.Utils;
+using CusCake.Application.ViewModels.AuthModels;
 using CusCake.Application.ViewModels.BakeryModels;
 using CusCake.Domain.Constants;
 using CusCake.Domain.Entities;
@@ -21,11 +22,17 @@ public interface IBakeryService
     Task<bool> ApproveBakeryAsync(Guid id, bool isApprove = true);
 }
 
-public class BakeryService(IUnitOfWork unitOfWork, IFileService fileService, IMapper mapper, ICurrentTime currentTime) : IBakeryService
+public class BakeryService(
+    IUnitOfWork unitOfWork,
+    IFileService fileService,
+    IMapper mapper,
+    ICurrentTime currentTime,
+    IAuthService authService) : IBakeryService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IFileService _fileService = fileService;
     private readonly IMapper _mapper = mapper;
+    private readonly IAuthService _authService = authService;
 
     private readonly ICurrentTime _currentTime = currentTime;
 
@@ -45,14 +52,19 @@ public class BakeryService(IUnitOfWork unitOfWork, IFileService fileService, IMa
 
         var bakery = _mapper.Map<Bakery>(model);
 
-        bakery.AvatarFileId = (await _fileService.UploadFileAsync(model.Avatar!, FolderConstants.AVATAR)).Id;
-        bakery.FrontCardFileId = (await _fileService.UploadFileAsync(model.FrontCardImage!, FolderConstants.IDENTITY_CARD)).Id;
-        bakery.BackCardFileId = (await _fileService.UploadFileAsync(model.BackCardImage!, FolderConstants.IDENTITY_CARD)).Id;
-
         bakery.Status = BakeryStatusConstants.PENDING;
 
         var result = await _unitOfWork.BakeryRepository.AddAsync(bakery);
         await _unitOfWork.SaveChangesAsync();
+
+        await _authService.CreateAsync(new AuthCreateModel
+        {
+            Email = result.Email,
+            Password = result.Password,
+            Role = RoleConstants.BAKERY,
+            EntityId = result.Id
+        });
+
         return result;
     }
 
@@ -63,6 +75,8 @@ public class BakeryService(IUnitOfWork unitOfWork, IFileService fileService, IMa
         _unitOfWork.BakeryRepository.SoftRemove(bakery);
 
         await _unitOfWork.SaveChangesAsync();
+
+        await _authService.DeleteAsync(bakery.Id);
     }
 
     public async Task<(Pagination<Bakery>, List<Bakery>)> GetAllAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<Bakery, bool>>? filter = null)
@@ -114,7 +128,6 @@ public class BakeryService(IUnitOfWork unitOfWork, IFileService fileService, IMa
         if (bakery.BakeryName != model.BakeryName)
             await ValidateBakery(
                 model.BakeryName == bakery.BakeryName ? model.BakeryName : "",
-                model.Email == bakery.Email ? model.Email : "",
                 model.Phone == bakery.Phone ? model.Phone : "",
                 model.TaxCode == bakery.TaxCode ? model.TaxCode : "",
                 model.IdentityCardNumber == bakery.IdentityCardNumber ? model.IdentityCardNumber : ""
@@ -122,18 +135,14 @@ public class BakeryService(IUnitOfWork unitOfWork, IFileService fileService, IMa
 
         _mapper.Map(model, bakery);
 
-        if (model.Avatar != null)
-            bakery.AvatarFileId = (await _fileService.UploadFileAsync(model.Avatar, FolderConstants.AVATAR)).Id;
-
-        if (model.FrontCardImage != null)
-            bakery.FrontCardFileId = (await _fileService.UploadFileAsync(model.FrontCardImage, FolderConstants.IDENTITY_CARD)).Id;
-
-        if (model.BackCardImage != null)
-            bakery.BackCardFileId = (await _fileService.UploadFileAsync(model.BackCardImage, FolderConstants.IDENTITY_CARD)).Id;
-
-
         _unitOfWork.BakeryRepository.Update(bakery);
         await _unitOfWork.SaveChangesAsync();
+
+        await _authService.UpdateAsync(new AuthUpdateModel
+        {
+            EntityId = id,
+            Password = bakery.Password
+        });
 
         return bakery;
     }

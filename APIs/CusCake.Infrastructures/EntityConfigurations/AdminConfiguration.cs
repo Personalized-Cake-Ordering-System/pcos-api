@@ -12,3 +12,10 @@ public class AdminConfiguration : IEntityTypeConfiguration<Admin>
         builder.HasIndex(x => x.Email).IsUnique();
     }
 }
+
+public class AuthConfiguration : IEntityTypeConfiguration<Auth>
+{
+    public void Configure(EntityTypeBuilder<Auth> builder)
+    {
+    }
+}

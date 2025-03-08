@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using CusCake.Application.Annotations;
 using CusCake.Application.ViewModels.AdminModels;
+using CusCake.Application.ViewModels.AuthModels;
 using CusCake.Application.ViewModels.AvailableCakeModels;
 using CusCake.Application.ViewModels.BakeryModels;
 using CusCake.Application.ViewModels.CakeDecorationModels;
@@ -31,7 +33,11 @@ namespace CusCake.Infrastructures.Mappers
 
             #region Available Cakes
             CreateMap<AvailableCakeCreateModel, AvailableCake>().ReverseMap();
+
             CreateMap<AvailableCakeUpdateModel, AvailableCake>().ReverseMap();
+            // CreateMap<AvailableCakeUpdateModel, AvailableCake>()
+            //     .ConvertUsing<IgnoreNullValuesConverter<AvailableCakeUpdateModel, AvailableCake>>();
+
             #endregion
 
             #region Cake Parts
@@ -64,6 +70,12 @@ namespace CusCake.Infrastructures.Mappers
             #region CustomCake
             CreateMap<CustomCakeCreateModel, CustomCake>().ReverseMap();
             CreateMap<CakeMessageCreateDetail, CakeMessageDetail>().ReverseMap();
+            #endregion
+
+            #region Auth
+            CreateMap<AuthCreateModel, Auth>().ReverseMap();
+            CreateMap<AuthUpdateModel, Auth>().ReverseMap();
+            CreateMap<AuthViewModel, Auth>().ReverseMap();
             #endregion
 
 

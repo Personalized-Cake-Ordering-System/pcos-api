@@ -11,4 +11,13 @@ namespace CusCake.Infrastructures.Repositories
         {
         }
     }
+
+
+
+    public class AuthRepository : GenericRepository<Auth>, IAuthRepository
+    {
+        public AuthRepository(AppDbContext context, ICurrentTime currentTime, IClaimsService claimsService) : base(context, currentTime, claimsService)
+        {
+        }
+    }
 }
