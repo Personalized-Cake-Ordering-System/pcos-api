@@ -43,7 +43,20 @@ public class BakeryService(
         bakery.ConfirmedAt = _currentTime.GetCurrentTime();
 
         _unitOfWork.BakeryRepository.Update(bakery);
-        return await _unitOfWork.SaveChangesAsync();
+        var result = await _unitOfWork.SaveChangesAsync();
+
+        if (isApprove)
+        {
+            await _authService.CreateAsync(new AuthCreateModel
+            {
+                Email = bakery.Email,
+                Password = bakery.Password,
+                Role = RoleConstants.BAKERY,
+                EntityId = bakery.Id
+            });
+
+        }
+        return result;
     }
 
     public async Task<Bakery> CreateAsync(BakeryCreateModel model)
@@ -56,14 +69,6 @@ public class BakeryService(
 
         var result = await _unitOfWork.BakeryRepository.AddAsync(bakery);
         await _unitOfWork.SaveChangesAsync();
-
-        await _authService.CreateAsync(new AuthCreateModel
-        {
-            Email = result.Email,
-            Password = result.Password,
-            Role = RoleConstants.BAKERY,
-            EntityId = result.Id
-        });
 
         return result;
     }
