@@ -11,6 +11,7 @@ public class AppSettings
 public class ConnectionStrings
 {
     public string MySqlString { get; set; } = default!;
+    public string SQLServerString { get; set; } = default!;
     public string MyVerifyToken { get; set; } = default!;
 }
 
