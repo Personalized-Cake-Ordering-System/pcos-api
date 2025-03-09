@@ -32,3 +32,4 @@ public enum CakeMessageTypeEnum
     Text,
     Image
 }
+

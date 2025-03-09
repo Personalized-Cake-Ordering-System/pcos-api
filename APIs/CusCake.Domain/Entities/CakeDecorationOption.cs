@@ -37,6 +37,11 @@ public class CakeDecorationOption : BaseEntity
     [JsonPropertyName("type")]
     public string Type { get; set; } = default!;
 
+    [Column("bakery_id")]
+    [JsonPropertyName("bakery_id")]
+    public Guid BakeryId { get; set; } = default!;
+
+
     // [Column("decoration_type_id")]
     // [JsonPropertyName("decoration_type_id")]
     // public Guid DecorationTypeId { get; set; }

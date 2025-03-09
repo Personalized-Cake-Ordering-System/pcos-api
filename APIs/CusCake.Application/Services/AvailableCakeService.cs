@@ -17,7 +17,7 @@ public interface IAvailableCakeService
 
     public Task DeleteAsync(Guid id);
 
-    public Task<(Pagination<AvailableCake>, List<AvailableCake>)> GetAllAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<AvailableCake, bool>>? filter = null);
+    public Task<(Pagination, List<AvailableCake>)> GetAllAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<AvailableCake, bool>>? filter = null);
 }
 
 public class AvailableCakeService(IUnitOfWork unitOfWork, IMapper mapper, IFileService fileService) : IAvailableCakeService
@@ -50,7 +50,7 @@ public class AvailableCakeService(IUnitOfWork unitOfWork, IMapper mapper, IFileS
         await _unitOfWork.SaveChangesAsync();
     }
 
-    public async Task<(Pagination<AvailableCake>, List<AvailableCake>)> GetAllAsync(
+    public async Task<(Pagination, List<AvailableCake>)> GetAllAsync(
         int pageIndex = 0,
         int pageSize = 10,
         Expression<Func<AvailableCake, bool>>? filter = null)

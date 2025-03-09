@@ -2,7 +2,7 @@
 
 namespace CusCake.Application.Utils
 {
-    public class Pagination<T>
+    public class Pagination
     {
         [JsonPropertyName("total_items_count")]
         public int TotalItemsCount { get; set; }
