@@ -122,7 +122,7 @@ public class BakeryService(
             if (!string.IsNullOrEmpty(phone) && existBakeries.Any(x => x.Phone == phone))
                 throw new BadRequestException($"Phone '{phone}' already exists.");
             if (!string.IsNullOrEmpty(cardNumber) && existBakeries.Any(x => x.IdentityCardNumber == cardNumber))
-                throw new BadRequestException($"Phone '{cardNumber}' already exists.");
+                throw new BadRequestException($"IdentityCardNumber '{cardNumber}' already exists.");
         }
     }
 

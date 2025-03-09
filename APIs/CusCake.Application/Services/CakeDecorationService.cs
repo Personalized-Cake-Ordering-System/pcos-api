@@ -72,6 +72,8 @@ public class CakeDecorationService(IUnitOfWork unitOfWork,
     {
         var decoration = await GetByIdAsync(id);
 
+        if (decoration.BakeryId != _claimsService.GetCurrentUser) throw new BadRequestException("No permission to delete");
+
         _unitOfWork.CakeDecorationOptionRepository.SoftRemove(decoration);
         await _unitOfWork.SaveChangesAsync();
 
@@ -91,7 +93,7 @@ public class CakeDecorationService(IUnitOfWork unitOfWork,
     {
         var decoration = await GetByIdAsync(id);
 
-        if (decoration.BakeryId != _claimsService.GetCurrentUser) throw new BadRequestException("No permission to edit!");
+        if (decoration.BakeryId != _claimsService.GetCurrentUser) throw new BadRequestException("No permission to update!");
 
         _mapper.Map(model, decoration);
 

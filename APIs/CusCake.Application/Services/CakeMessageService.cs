@@ -43,6 +43,8 @@ public class CakeMessageService(IUnitOfWork unitOfWork, IMapper mapper, IClaimsS
     {
         var cakeMessage = await GetByIdAsync(id) ?? throw new BadRequestException("Id is not found!");
 
+        if (cakeMessage.BakeryId != _claimsService.GetCurrentUser) throw new BadRequestException("No permission to delete");
+
         _unitOfWork.CakeMessageOptionRepository.SoftRemove(cakeMessage);
 
         await _unitOfWork.SaveChangesAsync();
@@ -65,8 +67,7 @@ public class CakeMessageService(IUnitOfWork unitOfWork, IMapper mapper, IClaimsS
     {
         var cakeMessage = await GetByIdAsync(id);
 
-        if (cakeMessage.BakeryId != _claimsService.GetCurrentUser) throw new BadRequestException("No permission to edit!");
-
+        if (cakeMessage.BakeryId != _claimsService.GetCurrentUser) throw new BadRequestException("No permission to update!");
 
         _mapper.Map(model, cakeMessage);
 

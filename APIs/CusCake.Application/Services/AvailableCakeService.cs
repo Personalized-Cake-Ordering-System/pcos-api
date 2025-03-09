@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using AutoMapper;
 using CusCake.Application.GlobalExceptionHandling.Exceptions;
+using CusCake.Application.Services.IServices;
 using CusCake.Application.Utils;
 using CusCake.Application.ViewModels.AvailableCakeModels;
 using CusCake.Domain.Entities;
@@ -20,7 +21,7 @@ public interface IAvailableCakeService
     public Task<(Pagination, List<AvailableCake>)> GetAllAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<AvailableCake, bool>>? filter = null);
 }
 
-public class AvailableCakeService(IUnitOfWork unitOfWork, IMapper mapper, IFileService fileService) : IAvailableCakeService
+public class AvailableCakeService(IUnitOfWork unitOfWork, IMapper mapper, IFileService fileService, IClaimsService claimsService) : IAvailableCakeService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
@@ -28,10 +29,13 @@ public class AvailableCakeService(IUnitOfWork unitOfWork, IMapper mapper, IFileS
 
     private readonly IFileService _fileService = fileService;
 
+    private readonly IClaimsService _claimsService = claimsService;
+
     public async Task<AvailableCake> CreateAsync(AvailableCakeCreateModel model)
     {
         var cake = _mapper.Map<AvailableCake>(model);
 
+        cake.BakeryId = _claimsService.GetCurrentUser;
 
         var result = await _unitOfWork.AvailableCakeRepository.AddAsync(cake);
 
@@ -44,6 +48,8 @@ public class AvailableCakeService(IUnitOfWork unitOfWork, IMapper mapper, IFileS
     public async Task DeleteAsync(Guid id)
     {
         var cake = await GetByIdAsync(id);
+
+        if (cake.BakeryId != _claimsService.GetCurrentUser) throw new BadRequestException("No permission to delete");
 
         _unitOfWork.AvailableCakeRepository.SoftRemove(cake);
 
@@ -68,6 +74,7 @@ public class AvailableCakeService(IUnitOfWork unitOfWork, IMapper mapper, IFileS
     {
         var cake = await GetByIdAsync(id);
 
+        if (cake.BakeryId != _claimsService.GetCurrentUser) throw new BadRequestException("No permission to update");
         _mapper.Map(model, cake);
 
         _unitOfWork.AvailableCakeRepository.Update(cake);

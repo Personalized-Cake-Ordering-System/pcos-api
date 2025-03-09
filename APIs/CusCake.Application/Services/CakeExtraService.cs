@@ -65,6 +65,7 @@ public class CakeExtraService(IUnitOfWork unitOfWork,
     public async Task DeleteAsync(Guid id)
     {
         var extra = await GetByIdAsync(id);
+        if (extra.BakeryId != _claimsService.GetCurrentUser) throw new BadRequestException("No permission to delete");
 
         _unitOfWork.CakeExtraOptionRepository.SoftRemove(extra);
         await _unitOfWork.SaveChangesAsync();
@@ -86,7 +87,7 @@ public class CakeExtraService(IUnitOfWork unitOfWork,
     {
 
         var extra = await GetByIdAsync(id);
-        if (extra.BakeryId != _claimsService.GetCurrentUser) throw new BadRequestException("No permission to edit!");
+        if (extra.BakeryId != _claimsService.GetCurrentUser) throw new BadRequestException("No permission to update!");
 
         _mapper.Map(model, extra);
 
