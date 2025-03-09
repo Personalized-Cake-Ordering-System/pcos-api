@@ -37,6 +37,11 @@ public class CakeExtraOption : BaseEntity
     [JsonPropertyName("type")]
     public string Type { get; set; } = default!;
 
+    [Column("bakery_id")]
+    [JsonPropertyName("bakery_id")]
+    public Guid BakeryId { get; set; } = default!;
+
+
     // [Column("extra_type_id")]
     // [JsonPropertyName("extra_type_id")]
     // public Guid ExtraTypeId { get; set; }

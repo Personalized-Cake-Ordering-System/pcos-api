@@ -16,7 +16,7 @@ public interface IBakeryService
     Task<Bakery> CreateAsync(BakeryCreateModel model);
     Task<Bakery> UpdateAsync(Guid id, BakeryUpdateModel model);
     Task<Bakery> GetByIdAsync(Guid id);
-    Task<(Pagination<Bakery>, List<Bakery>)> GetAllAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<Bakery, bool>>? filter = null);
+    Task<(Pagination, List<Bakery>)> GetAllAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<Bakery, bool>>? filter = null);
     Task DeleteAsync(Guid id);
 
     Task<bool> ApproveBakeryAsync(Guid id, bool isApprove = true);
@@ -84,7 +84,7 @@ public class BakeryService(
         await _authService.DeleteAsync(bakery.Id);
     }
 
-    public async Task<(Pagination<Bakery>, List<Bakery>)> GetAllAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<Bakery, bool>>? filter = null)
+    public async Task<(Pagination, List<Bakery>)> GetAllAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<Bakery, bool>>? filter = null)
     {
         var includes = QueryHelper.Includes<Bakery>(x => x.AvatarFile!, x => x.FrontCardFile!, x => x.BackCardFile);
         return await _unitOfWork.BakeryRepository.ToPagination(pageIndex, pageSize, filter: filter, includes: includes);
@@ -122,7 +122,7 @@ public class BakeryService(
             if (!string.IsNullOrEmpty(phone) && existBakeries.Any(x => x.Phone == phone))
                 throw new BadRequestException($"Phone '{phone}' already exists.");
             if (!string.IsNullOrEmpty(cardNumber) && existBakeries.Any(x => x.IdentityCardNumber == cardNumber))
-                throw new BadRequestException($"Phone '{cardNumber}' already exists.");
+                throw new BadRequestException($"IdentityCardNumber '{cardNumber}' already exists.");
         }
     }
 

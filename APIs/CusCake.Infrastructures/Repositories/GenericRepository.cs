@@ -68,7 +68,7 @@ public class GenericRepository<TEntity>(AppDbContext context, ICurrentTime curre
         _dbSet.UpdateRange(entities);
     }
 
-    public async Task<(Pagination<TEntity>, List<TEntity>)> ToPagination(
+    public async Task<(Pagination, List<TEntity>)> ToPagination(
         int pageIndex = 0,
         int pageSize = 10,
         bool withDeleted = false,
@@ -88,7 +88,7 @@ public class GenericRepository<TEntity>(AppDbContext context, ICurrentTime curre
 
         var paginatedItems = items.Skip(pageIndex * pageSize).Take(pageSize).ToList();
 
-        var pagination = new Pagination<TEntity>
+        var pagination = new Pagination
         {
             PageIndex = pageIndex,
             PageSize = pageSize,

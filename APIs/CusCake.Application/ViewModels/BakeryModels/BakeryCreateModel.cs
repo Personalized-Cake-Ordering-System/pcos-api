@@ -56,7 +56,7 @@ public class BakeryBaseActionModelValidator : AbstractValidator<BakeryBaseAction
 
         RuleFor(x => x.Address)
             .NotEmpty().WithMessage("Address is required.")
-            .MaximumLength(500).WithMessage("Address cannot exceed 500 characters.");
+            .MaximumLength(100).WithMessage("Address cannot exceed 500 characters.");
 
         RuleFor(x => x.OwnerName)
             .NotEmpty().WithMessage("Owner name is required.")

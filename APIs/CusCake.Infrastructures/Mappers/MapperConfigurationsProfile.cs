@@ -41,26 +41,25 @@ namespace CusCake.Infrastructures.Mappers
             #endregion
 
             // #region Cake Parts
-            // CreateMap<CakePartCreateModel, CakePart>().ReverseMap();
-            // CreateMap<CakePartUpdateModel, CakePart>().ReverseMap();
+            CreateMap<CakePartCreateModel, CakePartOption>().ReverseMap();
+            CreateMap<CakePartUpdateModel, CakePartOption>().ReverseMap();
             // #endregion
 
-            // #region Cake Decorations
-            // CreateMap<CakeDecorationCreateModel, CakeDecoration>().ReverseMap();
-            // CreateMap<CakeDecorationUpdateModel, CakeDecoration>().ReverseMap();
-            // #endregion
+            #region Cake Decorations
+            CreateMap<CakeDecorationCreateModel, CakeDecorationOption>().ReverseMap();
+            CreateMap<CakeDecorationUpdateModel, CakeDecorationOption>().ReverseMap();
+            #endregion
 
-            // #region Cake Extras
-            // CreateMap<CakeExtraCreateModel, CakeExtra>().ReverseMap();
-            // CreateMap<CakeExtraUpdateModel, CakeExtra>().ReverseMap();
-            // #endregion
+            #region Cake Extras
+            CreateMap<CakeExtraCreateModel, CakeExtraOption>().ReverseMap();
+            CreateMap<CakeExtraUpdateModel, CakeExtraOption>().ReverseMap();
+            #endregion
 
-            // #region Cake Messages
-            // CreateMap<CakeMessageCreateModel, CakeMessage>().ReverseMap();
-            // CreateMap<CakeMessageUpdateModel, CakeMessage>().ReverseMap();
+            #region Cake Messages
+            CreateMap<CakeMessageOptionCreateModel, CakeMessageOption>().ReverseMap();
+            CreateMap<CakeMessageOptionUpdateModel, CakeMessageOption>().ReverseMap();
 
-            // CreateMap<CakeMessageTypeModel, CakeMessageType>().ReverseMap();
-            // #endregion
+            #endregion
 
             #region Cake Extras
             CreateMap<OrderCreateModel, Order>().ReverseMap();

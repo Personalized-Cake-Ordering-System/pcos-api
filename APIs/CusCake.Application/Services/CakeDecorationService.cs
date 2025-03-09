@@ -1,109 +1,111 @@
-// using System.Linq.Expressions;
-// using AutoMapper;
-// using CusCake.Application.GlobalExceptionHandling.Exceptions;
-// using CusCake.Application.Services.IServices;
-// using CusCake.Application.Utils;
-// using CusCake.Application.ViewModels.CakeDecorationModels;
-// using CusCake.Domain.Entities;
+using System.Linq.Expressions;
+using AutoMapper;
+using CusCake.Application.GlobalExceptionHandling.Exceptions;
+using CusCake.Application.Services.IServices;
+using CusCake.Application.Utils;
+using CusCake.Application.ViewModels.CakeDecorationModels;
+using CusCake.Domain.Entities;
 
-// namespace CusCake.Application.Services;
+namespace CusCake.Application.Services;
 
-// public interface ICakeDecorationService
-// {
-//     Task<List<CakeDecoration>> CreateAsync(List<CakeDecorationCreateModel> models);
-//     Task<CakeDecoration> UpdateAsync(Guid id, CakeDecorationUpdateModel model);
-//     Task<CakeDecoration> GetByIdAsync(Guid id);
-//     Task<(Pagination<CakeDecoration>, List<CakeDecoration>)> GetAllAsync(
-//         int pageIndex = 0,
-//         int pageSize = 10,
-//         Expression<Func<CakeDecoration, bool>>? filter = null
-//     );
-//     Task DeleteAsync(Guid id);
-// }
+public interface ICakeDecorationService
+{
+    Task<List<CakeDecorationOption>> CreateAsync(List<CakeDecorationCreateModel> models);
+    Task<CakeDecorationOption> UpdateAsync(Guid id, CakeDecorationUpdateModel model);
+    Task<CakeDecorationOption> GetByIdAsync(Guid id);
+    Task<(Pagination, List<CakeDecorationOption>)> GetAllAsync(
+        int pageIndex = 0,
+        int pageSize = 10,
+        Expression<Func<CakeDecorationOption, bool>>? filter = null
+    );
+    Task DeleteAsync(Guid id);
+}
 
-// public class CakeDecorationService(IUnitOfWork unitOfWork,
-//                             IMapper mapper,
-//                             IClaimsService claimsService,
-//                             IFileService fileService
-//                         ) : ICakeDecorationService
-// {
-//     private readonly IUnitOfWork _unitOfWork = unitOfWork;
-//     private readonly IMapper _mapper = mapper;
-//     private readonly IFileService _fileService = fileService;
-//     private readonly IClaimsService _claimsService = claimsService;
-
-
-//     private async Task<List<CakeDecoration>?> GetListDefaultAsync(List<string> types)
-//     {
-//         var cake_decorations = await _unitOfWork.CakeDecorationRepository
-//                     .WhereAsync(x =>
-//                         x.IsDefault &&
-//                         types.Contains(x.DecorationType) &&
-//                         x.BakeryId == _claimsService.GetCurrentUser
-//                     );
-
-//         return cake_decorations.Count != 0 ? cake_decorations : null;
-//     }
+public class CakeDecorationService(IUnitOfWork unitOfWork,
+                            IMapper mapper,
+                            IClaimsService claimsService,
+                            IFileService fileService
+                        ) : ICakeDecorationService
+{
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IMapper _mapper = mapper;
+    private readonly IFileService _fileService = fileService;
+    private readonly IClaimsService _claimsService = claimsService;
 
 
+    private async Task<List<CakeDecorationOption>?> GetListDefaultAsync(List<string> types)
+    {
+        var cake_decorations = await _unitOfWork.CakeDecorationOptionRepository
+                    .WhereAsync(x =>
+                        x.IsDefault &&
+                        types.Contains(x.Type) &&
+                        x.BakeryId == _claimsService.GetCurrentUser
+                    );
 
-//     public async Task<List<CakeDecoration>> CreateAsync(List<CakeDecorationCreateModel> models)
-//     {
-//         var decorations = _mapper.Map<List<CakeDecoration>>(models);
+        return cake_decorations.Count != 0 ? cake_decorations : null;
+    }
 
-//         var default_decorations = await GetListDefaultAsync([.. models.Select(x => x.DecorationType)]);
 
-//         foreach (var decoration in decorations)
-//         {
-//             if (default_decorations != null && default_decorations.Any(x => x.DecorationType == decoration.DecorationType))
-//                 throw new BadRequestException($"Type {decoration.DecorationType} already has default value!");
 
-//             decoration.BakeryId = _claimsService.GetCurrentUser;
-//         }
+    public async Task<List<CakeDecorationOption>> CreateAsync(List<CakeDecorationCreateModel> models)
+    {
+        var decorations = _mapper.Map<List<CakeDecorationOption>>(models);
 
-//         await _unitOfWork.CakeDecorationRepository.AddRangeAsync(decorations);
+        var default_decorations = await GetListDefaultAsync([.. models.Select(x => x.Type)]);
 
-//         await _unitOfWork.SaveChangesAsync();
+        foreach (var decoration in decorations)
+        {
+            if (default_decorations != null && (default_decorations.Any(x => x.Type == decoration.Type) && decoration.IsDefault))
+                throw new BadRequestException($"Type {decoration.Type} already has default value!");
 
-//         return decorations;
-//     }
+            decoration.BakeryId = _claimsService.GetCurrentUser;
+        }
 
-//     public async Task DeleteAsync(Guid id)
-//     {
-//         var decoration = await GetByIdAsync(id);
+        await _unitOfWork.CakeDecorationOptionRepository.AddRangeAsync(decorations);
 
-//         _unitOfWork.CakeDecorationRepository.SoftRemove(decoration);
-//         await _unitOfWork.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync();
 
-//     }
+        return decorations;
+    }
 
-//     public async Task<(Pagination<CakeDecoration>, List<CakeDecoration>)> GetAllAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<CakeDecoration, bool>>? filter = null)
-//     {
-//         return await _unitOfWork.CakeDecorationRepository.ToPagination(pageIndex, pageSize, includes: x => x.DecorationImage!, filter: filter);
-//     }
+    public async Task DeleteAsync(Guid id)
+    {
+        var decoration = await GetByIdAsync(id);
 
-//     public async Task<CakeDecoration> GetByIdAsync(Guid id)
-//     {
-//         return await _unitOfWork.CakeDecorationRepository.GetByIdAsync(id, includes: x => x.DecorationImage!) ?? throw new BadRequestException("Id not found!");
-//     }
+        if (decoration.BakeryId != _claimsService.GetCurrentUser) throw new BadRequestException("No permission to delete");
 
-//     public async Task<CakeDecoration> UpdateAsync(Guid id, CakeDecorationUpdateModel model)
-//     {
-//         var decoration = await GetByIdAsync(id);
+        _unitOfWork.CakeDecorationOptionRepository.SoftRemove(decoration);
+        await _unitOfWork.SaveChangesAsync();
 
-//         if (decoration.BakeryId != _claimsService.GetCurrentUser) throw new BadRequestException("No permission to edit!");
+    }
 
-//         _mapper.Map(model, decoration);
+    public async Task<(Pagination, List<CakeDecorationOption>)> GetAllAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<CakeDecorationOption, bool>>? filter = null)
+    {
+        return await _unitOfWork.CakeDecorationOptionRepository.ToPagination(pageIndex, pageSize, includes: x => x.Image!, filter: filter);
+    }
 
-//         var default_decorations = await GetListDefaultAsync([decoration.DecorationType]);
+    public async Task<CakeDecorationOption> GetByIdAsync(Guid id)
+    {
+        return await _unitOfWork.CakeDecorationOptionRepository.GetByIdAsync(id, includes: x => x.Image!) ?? throw new BadRequestException("Id not found!");
+    }
 
-//         if (default_decorations != null && default_decorations[0].Id != decoration.Id)
-//             throw new BadRequestException($"Type {decoration.DecorationType} already has default value!");
+    public async Task<CakeDecorationOption> UpdateAsync(Guid id, CakeDecorationUpdateModel model)
+    {
+        var decoration = await GetByIdAsync(id);
 
-//         _unitOfWork.CakeDecorationRepository.Update(decoration);
+        if (decoration.BakeryId != _claimsService.GetCurrentUser) throw new BadRequestException("No permission to update!");
 
-//         await _unitOfWork.SaveChangesAsync();
+        _mapper.Map(model, decoration);
 
-//         return decoration;
-//     }
-// }
+        var default_decorations = await GetListDefaultAsync([decoration.Type]);
+
+        if (default_decorations != null && (default_decorations[0].Id != decoration.Id && decoration.IsDefault))
+            throw new BadRequestException($"Type {decoration.Type} already has default value!");
+
+        _unitOfWork.CakeDecorationOptionRepository.Update(decoration);
+
+        await _unitOfWork.SaveChangesAsync();
+
+        return decoration;
+    }
+}

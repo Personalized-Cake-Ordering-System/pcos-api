@@ -8,26 +8,25 @@ namespace CusCake.Application.ViewModels.CakeDecorationModels;
 
 public class CakeDecorationCreateModel
 {
-    [JsonPropertyName("decoration_name")]
-    public string DecorationName { get; set; } = default!;
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = default!;
 
-    [JsonPropertyName("decoration_price")]
-    public double DecorationPrice { get; set; } = 0;
+    [JsonPropertyName("price")]
+    public double Price { get; set; } = 0;
 
-    [JsonPropertyName("decoration_type")]
-    public string DecorationType { get; set; } = default!;
-
-    [JsonPropertyName("decoration_description")]
-    public string? DecorationDescription { get; set; }
-
-    [JsonPropertyName("decoration_color")]
-    public string? DecorationColor { get; set; }
-
+    [JsonPropertyName("color")]
+    public string? Color { get; set; }
     [JsonPropertyName("is_default")]
     public bool IsDefault { get; set; } = false;
 
-    [JsonPropertyName("decoration_image_id")]
-    public Guid? DecorationImageId { get; set; }
+    [JsonPropertyName("description")]
+    public string? Description { get; set; }
+
+    [JsonPropertyName("image_id")]
+    public Guid? ImageId { get; set; }
+
+    [JsonPropertyName("type")]
+    public string Type { get; set; } = default!;
 }
 
 public class ListCakeDecorationCreateModelValidator : AbstractValidator<List<CakeDecorationCreateModel>>
@@ -42,27 +41,27 @@ public class CakeDecorationCreateModelValidator : AbstractValidator<CakeDecorati
 {
     public CakeDecorationCreateModelValidator()
     {
-        RuleFor(x => x.DecorationName)
+        RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Name is required.")
             .MaximumLength(100).WithMessage("Extra name cannot exceed 100 characters.");
 
-        RuleFor(x => x.DecorationPrice)
+        RuleFor(x => x.Price)
             .GreaterThanOrEqualTo(0).WithMessage("Price must be greater than or equal to 0.");
 
-        RuleFor(x => x.DecorationType)
+        RuleFor(x => x.Type)
              .NotNull().WithMessage("Decoration type is required.")
              .Must(value => Enum.IsDefined(typeof(CakeDecorationTypeEnum), value))
              .WithMessage($"Invalid Decoration type. Must be one of: {string.Join(", ", Enum.GetNames(typeof(CakeDecorationTypeEnum)))}");
 
-        RuleFor(x => x.DecorationDescription)
+        RuleFor(x => x.Description)
             .MaximumLength(500).WithMessage("Description cannot exceed 500 characters.")
-            .When(x => x.DecorationDescription != null);
+            .When(x => x.Description != null);
 
 
-        RuleFor(x => x.DecorationImageId)
+        RuleFor(x => x.ImageId)
             .Must(x => x != Guid.Empty)
             .WithMessage("DecorationImageId must different empty Guid")
-            .When(x => x.DecorationImageId != null);
+            .When(x => x.ImageId != null);
     }
 }
 

@@ -12,7 +12,7 @@ public interface ICustomerService
 {
     Task<Customer> CreateAsync(CustomerCreateModel model);
     Task<Customer> GetByIdAsync(Guid id);
-    Task<(Pagination<Customer>, List<Customer>)> GetAllAsync(int pageIndex = 0, int pageSize = 10);
+    Task<(Pagination, List<Customer>)> GetAllAsync(int pageIndex = 0, int pageSize = 10);
     Task<Customer> UpdateAsync(Guid id, CustomerUpdateModel model);
     Task DeleteAsync(Guid id);
 }
@@ -58,7 +58,7 @@ public class CustomerService(IUnitOfWork unitOfWork, IMapper mapper, IAuthServic
         await _authService.DeleteAsync(customer.Id);
     }
 
-    public async Task<(Pagination<Customer>, List<Customer>)> GetAllAsync(int pageIndex = 0, int pageSize = 10)
+    public async Task<(Pagination, List<Customer>)> GetAllAsync(int pageIndex = 0, int pageSize = 10)
     {
         var result = await _unitOfWork.CustomerRepository.ToPagination(pageIndex, pageSize);
         // var customers = await _unitOfWork.CustomerRepository.GetAllAsync(includes: QueryHelper.Includes<Customer>(x => x.CustomCakes!, x => x.Orders!));

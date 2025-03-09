@@ -1,3 +1,4 @@
+using CusCake.Domain.Constants;
 using CusCake.Domain.Enums;
 using FluentValidation;
 using System.Text.Json.Serialization;
@@ -7,26 +8,26 @@ namespace CusCake.Application.ViewModels.CakePartModels;
 
 public class CakePartCreateModel
 {
-    [JsonPropertyName("part_name")]
-    public string PartName { get; set; } = default!;
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = default!;
 
-    [JsonPropertyName("part_price")]
-    public double PartPrice { get; set; } = 0;
+    [JsonPropertyName("price")]
+    public decimal Price { get; set; }
 
-    [JsonPropertyName("part_type")]
-    public string PartType { get; set; } = default!;
+    [JsonPropertyName("color")]
+    public string Color { get; set; } = default!;
 
-    [JsonPropertyName("part_color")]
-    public string? PartColor { get; set; }
-
-    [JsonPropertyName("part_description")]
-    public string? PartDescription { get; set; }
+    [JsonPropertyName("description")]
+    public string? Description { get; set; }
 
     [JsonPropertyName("is_default")]
     public bool IsDefault { get; set; } = false;
 
-    [JsonPropertyName("part_image_id")]
-    public Guid? PartImageId { get; set; }
+    [JsonPropertyName("image_id")]
+    public Guid? ImageId { get; set; }
+
+    [JsonPropertyName("type")]
+    public string Type { get; set; } = default!;
 }
 
 public class ListCakePartCreateModelValidator : AbstractValidator<List<CakePartCreateModel>>
@@ -34,34 +35,36 @@ public class ListCakePartCreateModelValidator : AbstractValidator<List<CakePartC
     public ListCakePartCreateModelValidator()
     {
         RuleForEach(x => x).SetValidator(new CakePartCreateModelValidator());
+
     }
 }
+
 
 public class CakePartCreateModelValidator : AbstractValidator<CakePartCreateModel>
 {
     public CakePartCreateModelValidator()
     {
-        RuleFor(x => x.PartName)
+        RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Part name is required.")
             .MaximumLength(100).WithMessage("Part name cannot exceed 100 characters.");
 
-        RuleFor(x => x.PartPrice)
+        RuleFor(x => x.Price)
             .GreaterThanOrEqualTo(0).WithMessage("Part price must be greater than or equal to 0.");
 
-        RuleFor(x => x.PartType)
+        RuleFor(x => x.Type)
            .NotNull().WithMessage("Part type is required.")
            .Must(value => Enum.IsDefined(typeof(CakePartTypeEnum), value))
            .WithMessage($"Invalid Part type. Must be one of: {string.Join(", ", Enum.GetNames(typeof(CakePartTypeEnum)))}");
 
-        RuleFor(x => x.PartDescription)
+        RuleFor(x => x.Description)
             .MaximumLength(500).WithMessage("Description cannot exceed 500 characters.")
-            .When(x => x.PartDescription != null);
+            .When(x => x.Description != null);
 
 
-        RuleFor(x => x.PartImageId)
+        RuleFor(x => x.ImageId)
             .Must(x => x != Guid.Empty)
             .WithMessage("PartImageId must different empty Guid.")
-            .When(x => x.PartImageId != null);
+            .When(x => x.ImageId != null);
     }
 }
 

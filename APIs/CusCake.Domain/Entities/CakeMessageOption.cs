@@ -18,6 +18,10 @@ public class CakeMessageOption : BaseEntity
     [JsonPropertyName("color")]
     public string Color { get; set; } = default!;
 
+    [Column("bakery_id")]
+    [JsonPropertyName("bakery_id")]
+    public Guid BakeryId { get; set; } = default!;
+
     // [Column("message_type_id")]
     // [JsonPropertyName("message_type_id")]
     // public Guid MessageTypeId { get; set; }
