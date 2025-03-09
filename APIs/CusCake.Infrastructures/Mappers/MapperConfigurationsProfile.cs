@@ -41,8 +41,8 @@ namespace CusCake.Infrastructures.Mappers
             #endregion
 
             // #region Cake Parts
-            // CreateMap<CakePartCreateModel, CakePart>().ReverseMap();
-            // CreateMap<CakePartUpdateModel, CakePart>().ReverseMap();
+            CreateMap<CakePartCreateModel, CakePartOption>().ReverseMap();
+            CreateMap<CakePartUpdateModel, CakePartOption>().ReverseMap();
             // #endregion
 
             #region Cake Decorations
