@@ -9,9 +9,6 @@ namespace CusCake.Application.ViewModels.AvailableCakeModels;
 
 public class AvailableCakeBaseActionModel
 {
-    [JsonPropertyName("bakery_id")]
-    public Guid BakeryId { get; set; }
-
     [JsonPropertyName("available_cake_price")]
     public double AvailableCakePrice { get; set; } = 0;
 
@@ -36,10 +33,6 @@ public class AvailableCakeBaseActionModelValidator : AbstractValidator<Available
 {
     public AvailableCakeBaseActionModelValidator()
     {
-        RuleFor(x => x.BakeryId)
-            .NotEmpty().WithMessage("Bakery ID is required.")
-            .NotEqual(Guid.Empty).WithMessage("Bakery ID must be a valid GUID.");
-
         RuleFor(x => x.AvailableCakePrice)
             .GreaterThanOrEqualTo(0).WithMessage("Price must be greater than or equal to 0.");
 
