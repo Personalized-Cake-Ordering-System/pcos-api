@@ -36,17 +36,21 @@ public class CustomCake : BaseEntity
     [JsonPropertyName("bakery")]
     public Bakery Bakery { get; set; } = default!;
 
-    [JsonPropertyName("cake_message_details")]
-    public ICollection<CakeMessageDetail>? CakeMessageDetails { get; set; }
+    [Column("message_selection_id")]
+    [JsonPropertyName("message_selection_id")]
+    public Guid MessageSelectionId { get; set; }
 
-    [JsonPropertyName("cake_part_details")]
-    public ICollection<CakePartDetail>? CakePartDetails { get; set; }
+    [JsonPropertyName("message_selection")]
+    public CakeMessageSelection MessageSelection { get; set; } = default!;
 
-    [JsonPropertyName("cake_extra_details")]
-    public ICollection<CakeExtraDetail>? CakeExtraDetails { get; set; }
+    [JsonPropertyName("part_selections")]
+    public ICollection<CakePartSelection>? PartSelections { get; set; }
 
-    [JsonPropertyName("cake_decoration_details")]
-    public ICollection<CakeDecorationDetail>? CakeDecorationDetails { get; set; }
+    [JsonPropertyName("extra_selections")]
+    public ICollection<CakeExtraSelection>? ExtraSelections { get; set; }
+
+    [JsonPropertyName("decoration_selections")]
+    public ICollection<CakeDecorationSelection>? DecorationSelections { get; set; }
 
     [JsonPropertyName("order_details")]
     public ICollection<OrderDetail>? OrderDetails { get; set; } = default!;

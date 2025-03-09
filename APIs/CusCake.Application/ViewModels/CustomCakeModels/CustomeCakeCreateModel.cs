@@ -39,8 +39,6 @@ public class CakeMessageCreateDetail
     public string? Message { get; set; }
     [JsonPropertyName("message_type")]
     public string MessageType { get; set; } = default!;
-    [JsonPropertyName("message_type_details")]
-    public List<CakeMessageTypeDetail>? MessageTypeDetails { get; set; }
 }
 public class CustomCakeCreateModelValidator : AbstractValidator<CustomCakeCreateModel>
 {
@@ -84,10 +82,6 @@ public class CakeMessageCreateDetailValidator : AbstractValidator<CakeMessageCre
             .NotEmpty().WithMessage("Message type is required.")
             .Must(type => type == "text" || type == "image")
             .WithMessage("Message type must be either 'text' or 'image'.");
-
-        RuleFor(x => x.MessageTypeDetails)
-            .NotEmpty().WithMessage("Message type details are required for text messages.")
-            .When(x => x.MessageType == "text");
 
         RuleFor(x => x.MessageImageId)
             .NotNull().WithMessage("Message image ID is required for image messages.")

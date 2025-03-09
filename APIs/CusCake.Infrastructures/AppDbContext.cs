@@ -15,15 +15,18 @@ namespace CusCake.Infrastructures
         public DbSet<Bakery> Bakeries { get; set; }
         public DbSet<AvailableCake> AvailableCakes { get; set; }
         public DbSet<BankEvent> BankEvents { get; set; }
-        public DbSet<CakeDecoration> CakeDecorations { get; set; }
-        public DbSet<CakeDecorationDetail> CakeDecorationDetails { get; set; }
-        public DbSet<CakeExtra> CakeExtras { get; set; }
-        public DbSet<CakeExtraDetail> CakeExtraDetails { get; set; }
-        public DbSet<CakeMessage> CakeMessages { get; set; }
-        public DbSet<CakeMessageDetail> CakeMessageDetails { get; set; }
-        public DbSet<CakeMessageType> CakeMessageTypes { get; set; }
-        public DbSet<CakePart> CakeParts { get; set; }
-        public DbSet<CakePartDetail> CakePartDetails { get; set; }
+        public DbSet<CakeDecorationOption> CakeDecorationOptions { get; set; }
+        public DbSet<CakeDecorationSelection> CakeDecorationSelections { get; set; }
+        // public DbSet<CakeDecorationType> CakeDecorationTypes { get; set; }
+        // public DbSet<CakeExtraType> CakeExtraTypes { get; set; }
+        public DbSet<CakeExtraOption> CakeExtraOptions { get; set; }
+        public DbSet<CakeExtraSelection> CakeExtraSelections { get; set; }
+        public DbSet<CakeMessageOption> CakeMessageOptions { get; set; }
+        public DbSet<CakeMessageSelection> CakeMessageSelections { get; set; }
+        // public DbSet<CakeMessageType> CakeMessageTypes { get; set; }
+        public DbSet<CakePartOption> CakePartOptions { get; set; }
+        // public DbSet<CakePartType> CakePartTypes { get; set; }
+        public DbSet<CakePartSelection> CakePartSelections { get; set; }
         public DbSet<CakeReview> CakeReviews { get; set; }
         public DbSet<CustomCake> CustomCakes { get; set; }
         public DbSet<Notification> Notifications { get; set; }

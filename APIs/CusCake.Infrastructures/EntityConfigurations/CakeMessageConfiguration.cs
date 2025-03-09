@@ -5,48 +5,54 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace CusCake.Infrastructures.EntityConfigurations;
 
-public class CakeMessageConfiguration : IEntityTypeConfiguration<CakeMessage>
+// public class CakeMessageTypeConfiguration : IEntityTypeConfiguration<CakeMessageType>
+// {
+//     public void Configure(EntityTypeBuilder<CakeMessageType> builder)
+//     {
+//         builder
+//             .HasMany(x => x.Options)
+//             .WithOne(x => x.MessageType)
+//             .HasForeignKey(x => x.MessageTypeId)
+//             .OnDelete(DeleteBehavior.Cascade);
+
+//     }
+// }
+
+
+public class CakeMessageOptionConfiguration : IEntityTypeConfiguration<CakeMessageOption>
 {
-    public void Configure(EntityTypeBuilder<CakeMessage> builder)
+    public void Configure(EntityTypeBuilder<CakeMessageOption> builder)
     {
-        builder.HasMany(x => x.CakeMessageDetails).WithOne(x => x.CakeMessage).HasForeignKey(x => x.CakeMessageId).OnDelete(DeleteBehavior.Cascade);
-        builder.HasMany(x => x.CakeMessageTypes).WithOne(x => x.CakeMessage).HasForeignKey(x => x.CakeMessageId).OnDelete(DeleteBehavior.Cascade);
-        builder
-            .HasOne(c => c.MessageImage)
-            .WithMany()
-            .HasForeignKey(c => c.MessageImageId)
-            .OnDelete(DeleteBehavior.SetNull);
+        // builder
+        //     .HasOne(x => x.MessageType)
+        //     .WithMany(x => x.Options)
+        //     .HasForeignKey(x => x.MessageTypeId)
+        //     .OnDelete(DeleteBehavior.Cascade);
     }
 }
 
 
-public class CakeMessageTypeConfiguration : IEntityTypeConfiguration<CakeMessageType>
+public class CakeMessageSelectionConfiguration : IEntityTypeConfiguration<CakeMessageSelection>
 {
-    public void Configure(EntityTypeBuilder<CakeMessageType> builder)
+    public void Configure(EntityTypeBuilder<CakeMessageSelection> builder)
     {
-        builder.HasOne(x => x.CakeMessage).WithMany(x => x.CakeMessageTypes).HasForeignKey(x => x.CakeMessageId).OnDelete(DeleteBehavior.Cascade);
-    }
-}
-
-
-public class CakeMessageDetailConfiguration : IEntityTypeConfiguration<CakeMessageDetail>
-{
-    public void Configure(EntityTypeBuilder<CakeMessageDetail> builder)
-    {
-        builder.Property(b => b.MessageTypeDetails)
+        builder.Property(b => b.MessageOptions)
                 .HasConversion(
                     v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null), // Serialize to JSON
-                    v => JsonSerializer.Deserialize<List<CakeMessageTypeDetail>>(v, (JsonSerializerOptions?)null) ?? new() // Deserialize from JSON
+                    v => JsonSerializer.Deserialize<List<CakeMessageOption>>(v, (JsonSerializerOptions?)null) ?? new() // Deserialize from JSON
                 )
                 .HasColumnType("json");
 
-        builder.HasOne(x => x.CakeMessage).WithMany(x => x.CakeMessageDetails).HasForeignKey(x => x.CakeMessageId).OnDelete(DeleteBehavior.Cascade);
-        builder.HasOne(x => x.CustomCake).WithMany(x => x.CakeMessageDetails).HasForeignKey(x => x.CustomCakeId).OnDelete(DeleteBehavior.Cascade);
-        builder.HasOne(x => x.CustomCake).WithMany(x => x.CakeMessageDetails).HasForeignKey(x => x.CustomCakeId).OnDelete(DeleteBehavior.Cascade);
+        // builder
+        //     .HasOne(x => x.MessageType)
+        //     .WithMany()
+        //     .HasForeignKey(x => x.MessageTypeId)
+        //     .OnDelete(DeleteBehavior.Cascade);
+
         builder
-            .HasOne(c => c.MessageImageFile)
-            .WithMany()
-            .HasForeignKey(c => c.MessageImageId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .HasOne(c => c.CustomCake)
+            .WithOne(x => x.MessageSelection)
+            .HasForeignKey<CakeMessageSelection>(c => c.CustomCakeId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

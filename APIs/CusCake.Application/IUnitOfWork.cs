@@ -9,13 +9,18 @@ public interface IUnitOfWork
     IBakeryRepository BakeryRepository { get; }
     IAvailableCakeRepository AvailableCakeRepository { get; }
     IBankEventRepository BankEventRepository { get; }
-    ICakeDecorationDetailRepository CakeDecorationDetailRepository { get; }
-    ICakeDecorationRepository CakeDecorationRepository { get; }
-    ICakeExtraDetailRepository CakeExtraDetailRepository { get; }
-    ICakeExtraRepository CakeExtraRepository { get; }
-    ICakeMessageRepository CakeMessageRepository { get; }
-    ICakePartDetailRepository CakePartDetailRepository { get; }
-    ICakePartRepository CakePartRepository { get; }
+    ICakeDecorationOptionRepository CakeDecorationOptionRepository { get; }
+    // ICakeDecorationTypeRepository CakeDecorationTypeRepository { get; }
+    ICakeDecorationSelectionRepository CakeDecorationSelectionRepository { get; }
+    ICakeExtraOptionRepository CakeExtraOptionRepository { get; }
+    ICakeExtraSelectionRepository CakeExtraSelectionRepository { get; }
+    // ICakeExtraTypeRepository CakeExtraTypeRepository { get; }
+    // ICakeMessageTypeRepository CakeMessageTypeRepository { get; }
+    ICakeMessageOptionRepository CakeMessageOptionRepository { get; }
+    ICakeMessageSelectionRepository CakeMessageSelectionRepository { get; }
+    ICakePartSelectionRepository CakePartSelectionRepository { get; }
+    // ICakePartTypeRepository CakePartTypeRepository { get; }
+    ICakePartOptionRepository CakePartOptionRepository { get; }
     ICakeReviewRepository CakeReviewRepository { get; }
     ICustomCakeRepository CustomCakeRepository { get; }
     ICustomerRepository CustomerRepository { get; }
@@ -27,7 +32,5 @@ public interface IUnitOfWork
     IStorageRepository StorageRepository { get; }
     ITransactionRepository TransactionRepository { get; }
     IVoucherRepository VoucherRepository { get; }
-    ICakeMessageTypeRepository CakeMessageTypeRepository { get; }
-    ICakeMessageDetailRepository CakeMessageDetailRepository { get; }
     Task<bool> SaveChangesAsync();
 }

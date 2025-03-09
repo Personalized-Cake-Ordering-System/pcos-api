@@ -5,15 +5,56 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace CusCake.Infrastructures.EntityConfigurations;
 
-public class CakePartConfiguration : IEntityTypeConfiguration<CakePart>
+// public class CakePartTypeConfiguration : IEntityTypeConfiguration<CakePartType>
+// {
+//     public void Configure(EntityTypeBuilder<CakePartType> builder)
+//     {
+//         builder
+//             .HasMany(x => x.Options)
+//             .WithOne(x => x.CakePartType)
+//             .HasForeignKey(o => o.CakePartTypeId)
+//             .OnDelete(DeleteBehavior.Cascade);
+//     }
+// }
+
+public class CakePartOptionConfiguration : IEntityTypeConfiguration<CakePartOption>
 {
-    public void Configure(EntityTypeBuilder<CakePart> builder)
+    public void Configure(EntityTypeBuilder<CakePartOption> builder)
     {
-        builder.HasMany(x => x.CakePartDetails).WithOne(x => x.CakePart).HasForeignKey(x => x.CakePartId).OnDelete(DeleteBehavior.Cascade);
+        // builder
+        //     .HasOne(x => x.CakePartType)
+        //     .WithMany(x => x.Options)
+        //     .HasForeignKey(o => o.CakePartTypeId)
+        //     .OnDelete(DeleteBehavior.Cascade);
+
         builder
-            .HasOne(c => c.PartImage)
+            .HasOne(c => c.Image)
             .WithMany()
-            .HasForeignKey(c => c.PartImageId)
+            .HasForeignKey(c => c.ImageId)
             .OnDelete(DeleteBehavior.SetNull);
+    }
+}
+
+public class CakePartSelectionConfiguration : IEntityTypeConfiguration<CakePartSelection>
+{
+    public void Configure(EntityTypeBuilder<CakePartSelection> builder)
+    {
+        builder
+            .HasOne(s => s.PartOption)
+            .WithMany()
+            .HasForeignKey(s => s.PartOptionId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // builder
+        //     .HasOne(c => c.PartType)
+        //     .WithMany()
+        //     .HasForeignKey(c => c.PartTypeId)
+        //     .OnDelete(DeleteBehavior.Cascade);
+
+        builder
+            .HasOne(c => c.CustomCake)
+            .WithMany()
+            .HasForeignKey(c => c.CustomCakeId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

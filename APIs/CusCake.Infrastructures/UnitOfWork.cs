@@ -1,5 +1,6 @@
 ﻿using CusCake.Application;
 using CusCake.Application.Repositories;
+using CusCake.Domain.Entities;
 
 namespace CusCake.Infrastructures
 {
@@ -16,13 +17,23 @@ namespace CusCake.Infrastructures
             IStorageRepository storageRepository,
             IAvailableCakeRepository availableCakeRepository,
             IBankEventRepository bankEventRepository,
-            ICakeDecorationDetailRepository cakeDecorationDetailRepository,
-            ICakeDecorationRepository cakeDecorationRepository,
-            ICakeExtraDetailRepository cakeExtraDetailRepository,
-            ICakeExtraRepository cakeExtraRepository,
-            ICakeMessageRepository cakeMessageRepository,
-            ICakePartDetailRepository cakePartDetailRepository,
-            ICakePartRepository cakePartRepository,
+
+            ICakeDecorationOptionRepository cakeDecorationOptionRepository,
+            // ICakeDecorationTypeRepository cakeDecorationTypeRepository,
+            ICakeDecorationSelectionRepository cakeDecorationSelectionRepository,
+
+            ICakeExtraOptionRepository cakeExtraOptionRepository,
+            ICakeExtraSelectionRepository cakeExtraSelectionRepository,
+            // ICakeExtraTypeRepository cakeExtraTypeRepository,
+
+            ICakeMessageOptionRepository cakeMessageOptionRepository,
+            ICakeMessageSelectionRepository cakeMessageSelectionRepository,
+            // ICakeMessageTypeRepository cakeMessageTypeRepository,
+
+            ICakePartOptionRepository cakePartOptionRepository,
+            ICakePartSelectionRepository cakePartSelectionRepository,
+            // ICakePartTypeRepository cakePartTypeRepository,
+
             ICakeReviewRepository cakeReviewRepository,
             ICustomCakeRepository customCakeRepository,
             ICustomerVoucherRepository customerVoucherRepository,
@@ -32,8 +43,6 @@ namespace CusCake.Infrastructures
             IOrderSupportRepository orderSupportRepository,
             ITransactionRepository transactionRepository,
             IVoucherRepository voucherRepository,
-            ICakeMessageTypeRepository cakeMessageTypeRepository,
-            ICakeMessageDetailRepository cakeMessageDetailRepository,
             IAuthRepository authRepository
         )
         {
@@ -43,13 +52,23 @@ namespace CusCake.Infrastructures
             StorageRepository = storageRepository;
             AvailableCakeRepository = availableCakeRepository;
             BankEventRepository = bankEventRepository;
-            CakeDecorationDetailRepository = cakeDecorationDetailRepository;
-            CakeDecorationRepository = cakeDecorationRepository;
-            CakeExtraDetailRepository = cakeExtraDetailRepository;
-            CakeExtraRepository = cakeExtraRepository;
-            CakeMessageRepository = cakeMessageRepository;
-            CakePartDetailRepository = cakePartDetailRepository;
-            CakePartRepository = cakePartRepository;
+
+            CakeExtraOptionRepository = cakeExtraOptionRepository;
+            CakeExtraSelectionRepository = cakeExtraSelectionRepository;
+            // CakeExtraTypeRepository = cakeExtraTypeRepository;
+
+            CakeDecorationOptionRepository = cakeDecorationOptionRepository;
+            CakeDecorationSelectionRepository = cakeDecorationSelectionRepository;
+            // CakeDecorationTypeRepository = cakeDecorationTypeRepository;
+
+            // CakeMessageTypeRepository = cakeMessageTypeRepository;
+            CakeMessageOptionRepository = cakeMessageOptionRepository;
+            CakeMessageSelectionRepository = cakeMessageSelectionRepository;
+
+            CakePartSelectionRepository = cakePartSelectionRepository;
+            CakePartOptionRepository = cakePartOptionRepository;
+            // CakePartTypeRepository = cakePartTypeRepository;
+
             CakeReviewRepository = cakeReviewRepository;
             CustomCakeRepository = customCakeRepository;
             CustomerVoucherRepository = customerVoucherRepository;
@@ -60,8 +79,6 @@ namespace CusCake.Infrastructures
             TransactionRepository = transactionRepository;
             VoucherRepository = voucherRepository;
             AdminRepository = adminRepository;
-            CakeMessageDetailRepository = cakeMessageDetailRepository;
-            CakeMessageTypeRepository = cakeMessageTypeRepository;
             AuthRepository = authRepository;
         }
 
@@ -74,20 +91,6 @@ namespace CusCake.Infrastructures
         public IAvailableCakeRepository AvailableCakeRepository { get; }
 
         public IBankEventRepository BankEventRepository { get; }
-
-        public ICakeDecorationDetailRepository CakeDecorationDetailRepository { get; }
-
-        public ICakeDecorationRepository CakeDecorationRepository { get; }
-
-        public ICakeExtraDetailRepository CakeExtraDetailRepository { get; }
-
-        public ICakeExtraRepository CakeExtraRepository { get; }
-
-        public ICakeMessageRepository CakeMessageRepository { get; }
-
-        public ICakePartDetailRepository CakePartDetailRepository { get; }
-
-        public ICakePartRepository CakePartRepository { get; }
 
         public ICakeReviewRepository CakeReviewRepository { get; }
 
@@ -103,11 +106,31 @@ namespace CusCake.Infrastructures
         public IVoucherRepository VoucherRepository { get; }
         public IAdminRepository AdminRepository { get; }
 
-        public ICakeMessageTypeRepository CakeMessageTypeRepository { get; }
-
-        public ICakeMessageDetailRepository CakeMessageDetailRepository { get; }
+        // public ICakeMessageTypeRepository CakeMessageTypeRepository { get; }
 
         public IAuthRepository AuthRepository { get; }
+
+        public ICakePartSelectionRepository CakePartSelectionRepository { get; }
+
+        // public ICakePartTypeRepository CakePartTypeRepository { get; }
+
+        public ICakePartOptionRepository CakePartOptionRepository { get; }
+
+        public ICakeDecorationOptionRepository CakeDecorationOptionRepository { get; }
+
+        // public ICakeDecorationTypeRepository CakeDecorationTypeRepository { get; }
+
+        public ICakeDecorationSelectionRepository CakeDecorationSelectionRepository { get; }
+
+        public ICakeMessageOptionRepository CakeMessageOptionRepository { get; }
+
+        public ICakeMessageSelectionRepository CakeMessageSelectionRepository { get; }
+
+        public ICakeExtraOptionRepository CakeExtraOptionRepository { get; }
+
+        public ICakeExtraSelectionRepository CakeExtraSelectionRepository { get; }
+
+        // public ICakeExtraTypeRepository CakeExtraTypeRepository { get; }
 
         public async Task<bool> SaveChangesAsync() => (await _appDbContext.SaveChangesAsync()) > 0;
     }
