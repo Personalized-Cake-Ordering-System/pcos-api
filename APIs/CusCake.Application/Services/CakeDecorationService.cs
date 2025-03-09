@@ -55,7 +55,7 @@ public class CakeDecorationService(IUnitOfWork unitOfWork,
 
         foreach (var decoration in decorations)
         {
-            if (default_decorations != null && default_decorations.Any(x => x.Type == decoration.Type))
+            if (default_decorations != null && (default_decorations.Any(x => x.Type == decoration.Type) && decoration.IsDefault))
                 throw new BadRequestException($"Type {decoration.Type} already has default value!");
 
             decoration.BakeryId = _claimsService.GetCurrentUser;
