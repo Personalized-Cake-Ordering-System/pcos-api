@@ -67,6 +67,8 @@ public class BakeryService(
 
         bakery.Status = BakeryStatusConstants.PENDING;
 
+        bakery.ShopImageFiles = await _unitOfWork.StorageRepository.WhereAsync(s => model.ShopImageFileIds.Contains(s.Id));
+
         var result = await _unitOfWork.BakeryRepository.AddAsync(bakery);
         await _unitOfWork.SaveChangesAsync();
 
@@ -86,13 +88,13 @@ public class BakeryService(
 
     public async Task<(Pagination, List<Bakery>)> GetAllAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<Bakery, bool>>? filter = null)
     {
-        var includes = QueryHelper.Includes<Bakery>(x => x.AvatarFile!, x => x.FrontCardFile!, x => x.BackCardFile);
+        var includes = QueryHelper.Includes<Bakery>(x => x.AvatarFile!, x => x.FrontCardFile!, x => x.BackCardFile, x => x.ShopImageFiles!);
         return await _unitOfWork.BakeryRepository.ToPagination(pageIndex, pageSize, filter: filter, includes: includes);
     }
 
     public async Task<Bakery> GetByIdAsync(Guid id)
     {
-        var includes = QueryHelper.Includes<Bakery>(x => x.AvatarFile!, x => x.FrontCardFile!, x => x.BackCardFile);
+        var includes = QueryHelper.Includes<Bakery>(x => x.AvatarFile!, x => x.FrontCardFile!, x => x.BackCardFile, x => x.ShopImageFiles!);
 
         return await _unitOfWork.BakeryRepository.GetByIdAsync(id, includes: includes) ?? throw new BadRequestException("Id is not exist!");
 
@@ -139,6 +141,8 @@ public class BakeryService(
             );
 
         _mapper.Map(model, bakery);
+
+        bakery.ShopImageFiles = await _unitOfWork.StorageRepository.WhereAsync(s => model.ShopImageFileIds.Contains(s.Id));
 
         _unitOfWork.BakeryRepository.Update(bakery);
         await _unitOfWork.SaveChangesAsync();

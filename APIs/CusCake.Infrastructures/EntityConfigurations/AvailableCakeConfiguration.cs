@@ -19,5 +19,9 @@ public class AvailableCakeConfiguration : IEntityTypeConfiguration<AvailableCake
            .HasForeignKey(c => c.AvailableCakeMainImageId)
            .OnDelete(DeleteBehavior.Cascade);
 
+        builder
+                  .HasMany(c => c.AvailableCakeImageFiles)
+                  .WithOne()
+                  .OnDelete(DeleteBehavior.Cascade);
     }
 }

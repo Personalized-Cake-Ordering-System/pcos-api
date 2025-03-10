@@ -1,7 +1,5 @@
 using System.Text.Json.Serialization;
-using CusCake.Application.Validators;
 using FluentValidation;
-using Microsoft.AspNetCore.Http;
 
 namespace CusCake.Application.ViewModels.BakeryModels;
 
@@ -29,8 +27,17 @@ public class BakeryBaseActionModel
     [JsonPropertyName("identity_card_number")]
     public string IdentityCardNumber { get; set; } = default!;
 
-    [JsonPropertyName("shop_image_files")]
-    public List<Guid> ShopImageFiles { get; set; } = new List<Guid>()!;
+    [JsonPropertyName("shop_image_file_ids")]
+    public List<Guid> ShopImageFileIds { get; set; } = new List<Guid>()!;
+
+    [JsonPropertyName("avatar_file_id")]
+    public Guid AvatarFileId { get; set; }
+
+    [JsonPropertyName("front_card_file_id")]
+    public Guid FrontCardFileId { get; set; }
+
+    [JsonPropertyName("back_card_file_id")]
+    public Guid BackCardFileId { get; set; }
 }
 
 
@@ -73,9 +80,9 @@ public class BakeryBaseActionModelValidator : AbstractValidator<BakeryBaseAction
             .WithMessage("Identity card number must be 9 or 12 digits.");
 
 
-        RuleFor(x => x.ShopImageFiles)
+        RuleFor(x => x.ShopImageFileIds)
             .Must(files => files!.All(file => file != Guid.Empty)).WithMessage("ShopImageFiles contains an invalid GUID.")
-            .When(x => x.ShopImageFiles != null && x.ShopImageFiles.Count != 0);
+            .When(x => x.ShopImageFileIds != null && x.ShopImageFileIds.Count != 0);
     }
 }
 
@@ -83,14 +90,6 @@ public class BakeryCreateModel : BakeryBaseActionModel
 {
     [JsonPropertyName("email")]
     public string Email { get; set; } = default!;
-    [JsonPropertyName("avatar_file_id")]
-    public Guid AvatarFileId { get; set; } = default!;
-
-    [JsonPropertyName("front_card_file_id")]
-    public Guid FrontCardFileId { get; set; } = default!;
-
-    [JsonPropertyName("back_card_file_id")]
-    public Guid BackCardFileId { get; set; } = default!;
 }
 
 public class BakeryCreateModelValidator : AbstractValidator<BakeryCreateModel>
@@ -110,12 +109,4 @@ public class BakeryCreateModelValidator : AbstractValidator<BakeryCreateModel>
 
 public class BakeryUpdateModel : BakeryBaseActionModel
 {
-    [JsonPropertyName("avatar_file_id")]
-    public Guid AvatarFileId { get; set; }
-
-    [JsonPropertyName("front_card_file_id")]
-    public Guid FrontCardFileId { get; set; }
-
-    [JsonPropertyName("back_card_file_id")]
-    public Guid BackCardFileId { get; set; }
 }

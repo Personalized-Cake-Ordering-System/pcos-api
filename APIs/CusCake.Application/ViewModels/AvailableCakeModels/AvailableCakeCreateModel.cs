@@ -24,8 +24,11 @@ public class AvailableCakeBaseActionModel
     [JsonPropertyName("available_cake_quantity")]
     public int AvailableCakeQuantity { get; set; } = 0;
 
-    [JsonPropertyName("available_cake_image_files")]
-    public List<Guid> AvailableCakeImageFiles { get; set; } = default!;
+    [JsonPropertyName("available_cake_image_file_ids")]
+    public List<Guid> AvailableCakeImageFileIds { get; set; } = default!;
+
+    [JsonPropertyName("available_main_image_id")]
+    public Guid AvailableCakeMainImageId { get; set; } = default!;
 }
 
 
@@ -51,7 +54,7 @@ public class AvailableCakeBaseActionModelValidator : AbstractValidator<Available
         RuleFor(x => x.AvailableCakeQuantity)
             .GreaterThanOrEqualTo(0).WithMessage("Quantity must be greater than or equal to 0.");
 
-        RuleFor(x => x.AvailableCakeImageFiles)
+        RuleFor(x => x.AvailableCakeImageFileIds)
             .NotNull().WithMessage("AvailableCakeImageFiles cannot be null")
             .NotEmpty().WithMessage("AvailableCakeImageFiles cannot be empty")
             .Must(files => files.All(file => file != Guid.Empty))
@@ -62,8 +65,7 @@ public class AvailableCakeBaseActionModelValidator : AbstractValidator<Available
 
 public class AvailableCakeCreateModel : AvailableCakeBaseActionModel
 {
-    [JsonPropertyName("available_main_image_id")]
-    public Guid AvailableCakeMainImageId { get; set; } = default!;
+
 }
 
 public class AvailableCakeCreateModelValidator : AbstractValidator<AvailableCakeCreateModel>
@@ -79,8 +81,6 @@ public class AvailableCakeCreateModelValidator : AbstractValidator<AvailableCake
 
 public class AvailableCakeUpdateModel : AvailableCakeBaseActionModel
 {
-    [JsonPropertyName("available_main_image_id")]
-    public Guid AvailableCakeMainImageId { get; set; }
 
 }
 

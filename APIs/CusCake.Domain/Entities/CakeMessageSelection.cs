@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace CusCake.Domain.Entities;
 
+[Table("cake_message_selections")]
 public class CakeMessageSelection : BaseEntity
 {
     [Column("custom_cake_id")]

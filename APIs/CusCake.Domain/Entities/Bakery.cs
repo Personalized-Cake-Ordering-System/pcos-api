@@ -69,7 +69,7 @@ namespace CusCake.Domain.Entities
 
         [Column("shop_image_files")]
         [JsonPropertyName("shop_image_files")]
-        public List<Guid> ShopImageFiles { get; set; } = new List<Guid>()!;
+        public List<Storage>? ShopImageFiles { get; set; }
 
         [JsonPropertyName("notifications")]
         public ICollection<Notification>? Notifications { get; set; }
