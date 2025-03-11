@@ -29,7 +29,8 @@ public enum CakeExtraTypeEnum
 }
 public enum CakeMessageTypeEnum
 {
-    Text,
-    Image
+    NONE,
+    TEXT,
+    IMAGE
 }
 

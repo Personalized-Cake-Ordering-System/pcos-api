@@ -6,24 +6,28 @@ namespace CusCake.Domain.Entities;
 [Table("cake_message_selections")]
 public class CakeMessageSelection : BaseEntity
 {
-    [Column("custom_cake_id")]
-    [JsonPropertyName("custom_cake_id")]
-    public Guid CustomCakeId { get; set; }
+    [Column("text")]
+    [JsonPropertyName("text")]
+    public string? Text { get; set; } = default!;
 
     [Column("message_type")]
-    [JsonPropertyName("message_type")]
+    [JsonPropertyName("message")]
     public string MessageType { get; set; } = default!;
 
-    // [Column("message_type_id")]
-    // [JsonPropertyName("message_type_id")]
-    // public Guid MessageTypeId { get; set; }
+    [Column("image_id")]
+    [JsonPropertyName("image_id")]
+    public Guid? ImageId { get; set; }
+
+    [JsonPropertyName("image")]
+    public Storage? Image { get; set; }
 
     [Column("message_options")]
     [JsonPropertyName("message_options")]
     public List<CakeMessageOption>? MessageOptions { get; set; }
 
-    [JsonPropertyName("custom_cake")]
-    public CustomCake CustomCake { get; set; } = default!;
+    // [Column("message_type_id")]
+    // [JsonPropertyName("message_type_id")]
+    // public Guid MessageTypeId { get; set; }
 
     // [JsonPropertyName("message_type")]
     // public CakeMessageType MessageType { get; set; } = default!;

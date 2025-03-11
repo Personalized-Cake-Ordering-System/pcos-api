@@ -31,8 +31,8 @@ public class CustomCakeConfiguration : IEntityTypeConfiguration<CustomCake>
 
         builder
             .HasOne(x => x.MessageSelection)
-            .WithOne(x => x.CustomCake)
-            .HasForeignKey<CustomCake>(x => x.MessageSelectionId)
+            .WithMany()
+            .HasForeignKey(x => x.MessageSelectionId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasMany(x => x.OrderDetails).WithOne(x => x.CustomCake).HasForeignKey(x => x.CustomCakeId).OnDelete(DeleteBehavior.Cascade);
