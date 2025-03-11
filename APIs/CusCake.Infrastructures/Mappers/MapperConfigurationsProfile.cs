@@ -68,6 +68,7 @@ namespace CusCake.Infrastructures.Mappers
 
             #region CustomCake
             CreateMap<CustomCakeCreateModel, CustomCake>().ReverseMap();
+            CreateMap<CakeMessageSelection, MessageSelection>().ReverseMap();
             // CreateMap<CakeMessageCreateDetail, CakeMessageDetail>().ReverseMap();
             #endregion
 
