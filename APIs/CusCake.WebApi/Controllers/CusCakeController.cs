@@ -26,9 +26,10 @@ public class CusCakeController(ICustomCakeService customCakeService) : Controlle
     }
 
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> GetAllAsync(
          [FromQuery] Guid? bakeryId,
-         [FromBody] Guid? customerId,
+         [FromQuery] Guid? customerId,
         int pageIndex = 0,
         int pageSize = 10)
     {
