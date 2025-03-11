@@ -18,7 +18,7 @@ public class CusCakeController(ICustomCakeService customCakeService) : Controlle
 
 
     [HttpPost]
-    [Authorize(Roles = RoleConstants.BAKERY)]
+    [Authorize(Roles = RoleConstants.CUSTOMER)]
     public async Task<IActionResult> CreateAsync([FromBody] CustomCakeCreateModel model)
     {
         var cake = await _customCakeService.CreateAsync(model);
