@@ -54,7 +54,8 @@ public class BakeryService(
                 Email = bakery.Email,
                 Password = bakery.Password,
                 Role = RoleConstants.BAKERY,
-                EntityId = bakery.Id
+                EntityId = bakery.Id,
+                BakeryId = bakery.Id
             });
 
         }

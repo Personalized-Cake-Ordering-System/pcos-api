@@ -32,6 +32,12 @@ public class CakePartOptionConfiguration : IEntityTypeConfiguration<CakePartOpti
             .WithMany()
             .HasForeignKey(c => c.ImageId)
             .OnDelete(DeleteBehavior.SetNull);
+
+        builder
+            .HasOne(c => c.Bakery)
+            .WithMany()
+            .HasForeignKey(c => c.BakeryId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
 

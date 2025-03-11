@@ -35,7 +35,8 @@ public class AdminService(IUnitOfWork unitOfWork, IMapper mapper, IAuthService a
             Email = model.Email,
             Password = model.Password,
             EntityId = admin.Id,
-            Role = RoleConstants.ADMIN
+            Role = RoleConstants.ADMIN,
+            AdminId = admin.Id
         });
         return result;
     }

@@ -22,4 +22,26 @@ public class Auth : BaseEntity
     [JsonPropertyName("entity_id")]
     public Guid EntityId { get; set; } = default!;
 
+    [Column("bakery_id")]
+    [JsonPropertyName("bakery_id")]
+    public Guid? BakeryId { get; set; } = default!;
+
+    [JsonPropertyName("bakery")]
+    public Bakery? Bakery { get; set; }
+
+    [Column("customer_id")]
+    [JsonPropertyName("customer_id")]
+    public Guid? CustomerId { get; set; } = default!;
+    [JsonPropertyName("customer")]
+    public Customer? Customer { get; set; }
+
+    [Column("admin_id")]
+    [JsonPropertyName("admin_id")]
+    public Guid? AdminId { get; set; } = default!;
+
+    [JsonPropertyName("admin")]
+    public Admin? Admin { get; set; } = default!;
+
+
+
 }

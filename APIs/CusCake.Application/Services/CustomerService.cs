@@ -42,7 +42,8 @@ public class CustomerService(IUnitOfWork unitOfWork, IMapper mapper, IAuthServic
             Email = model.Email,
             Password = model.Password,
             EntityId = customer.Id,
-            Role = RoleConstants.CUSTOMER
+            Role = RoleConstants.CUSTOMER,
+            CustomerId = customer.Id
         });
 
         return result;

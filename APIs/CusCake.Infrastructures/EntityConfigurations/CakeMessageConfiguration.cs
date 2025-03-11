@@ -29,6 +29,12 @@ public class CakeMessageOptionConfiguration : IEntityTypeConfiguration<CakeMessa
         //     .WithMany(x => x.Options)
         //     .HasForeignKey(x => x.MessageTypeId)
         //     .OnDelete(DeleteBehavior.Cascade);
+
+        builder
+            .HasOne(c => c.Bakery)
+            .WithMany()
+            .HasForeignKey(c => c.BakeryId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
 

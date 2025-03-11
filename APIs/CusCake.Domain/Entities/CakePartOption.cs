@@ -41,7 +41,8 @@ public class CakePartOption : BaseEntity
     [JsonPropertyName("bakery_id")]
     public Guid BakeryId { get; set; } = default!;
 
-
+    [JsonPropertyName("bakery")]
+    public Bakery Bakery { get; set; } = default!;
     // [Column("part_type_id")]
     // [JsonPropertyName("cake_part_type_id")]
     // public Guid CakePartTypeId { get; set; }

@@ -22,6 +22,9 @@ public class CakeMessageOption : BaseEntity
     [JsonPropertyName("bakery_id")]
     public Guid BakeryId { get; set; } = default!;
 
+    [JsonPropertyName("bakery")]
+    public Bakery Bakery { get; set; } = default!;
+
     // [Column("message_type_id")]
     // [JsonPropertyName("message_type_id")]
     // public Guid MessageTypeId { get; set; }

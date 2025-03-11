@@ -52,6 +52,9 @@ public class AuthCreateModel
     public string Password { get; set; } = default!;
     public string Role { get; set; } = default!;
     public Guid EntityId { get; set; } = default!;
+    public Guid? BakeryId { get; set; } = default!;
+    public Guid? CustomerId { get; set; } = default!;
+    public Guid? AdminId { get; set; } = default!;
 
 }
 

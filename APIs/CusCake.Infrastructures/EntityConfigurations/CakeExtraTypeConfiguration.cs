@@ -26,7 +26,11 @@ public class CakeExtraOptionConfiguration : IEntityTypeConfiguration<CakeExtraOp
         //     .HasForeignKey(x => x.ExtraTypeId)
         //     .OnDelete(DeleteBehavior.Cascade);
 
-
+        builder
+            .HasOne(c => c.Bakery)
+            .WithMany()
+            .HasForeignKey(c => c.BakeryId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
 public class CakeExtraSelectionConfiguration : IEntityTypeConfiguration<CakeExtraSelection>

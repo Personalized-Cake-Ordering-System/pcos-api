@@ -28,6 +28,12 @@ public class CakeDecorationOptionConfiguration : IEntityTypeConfiguration<CakeDe
         //     .HasForeignKey(x => x.DecorationTypeId)
         //     .OnDelete(DeleteBehavior.Cascade);
 
+
+        builder
+            .HasOne(c => c.Bakery)
+            .WithMany()
+            .HasForeignKey(c => c.BakeryId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
 public class CakeDecorationSelectionConfiguration : IEntityTypeConfiguration<CakeDecorationSelection>
