@@ -2,6 +2,7 @@ using System.Linq.Expressions;
 using AutoMapper;
 using CusCake.Application.Extensions;
 using CusCake.Application.GlobalExceptionHandling.Exceptions;
+using CusCake.Application.Services.IServices;
 using CusCake.Application.Utils;
 using CusCake.Application.ViewModels.AuthModels;
 using CusCake.Application.ViewModels.BakeryModels;
@@ -27,13 +28,14 @@ public class BakeryService(
     IFileService fileService,
     IMapper mapper,
     ICurrentTime currentTime,
-    IAuthService authService) : IBakeryService
+    IAuthService authService,
+    IClaimsService claimsService) : IBakeryService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IFileService _fileService = fileService;
     private readonly IMapper _mapper = mapper;
     private readonly IAuthService _authService = authService;
-
+    private readonly IClaimsService _claimsService = claimsService;
     private readonly ICurrentTime _currentTime = currentTime;
 
     public async Task<bool> ApproveBakeryAsync(Guid id, bool isApprove = false)
@@ -66,6 +68,8 @@ public class BakeryService(
         var bakery = _mapper.Map<Bakery>(model);
 
         bakery.Status = BakeryStatusConstants.PENDING;
+
+        bakery.ShopImageFiles = await _unitOfWork.StorageRepository.WhereAsync(s => model.ShopImageFileIds.Contains(s.Id));
 
         var result = await _unitOfWork.BakeryRepository.AddAsync(bakery);
         await _unitOfWork.SaveChangesAsync();
@@ -128,7 +132,12 @@ public class BakeryService(
 
     public async Task<Bakery> UpdateAsync(Guid id, BakeryUpdateModel model)
     {
-        var bakery = await _unitOfWork.BakeryRepository.FirstOrDefaultAsync(x => x.Status == BakeryStatusConstants.CONFIRMED & x.Id == id) ?? throw new BadRequestException("Id is not found!");
+        var bakery = await _unitOfWork.BakeryRepository
+            .FirstOrDefaultAsync(x =>
+                x.Status == BakeryStatusConstants.CONFIRMED &&
+                x.Id == id &&
+                x.CreatedBy == _claimsService.GetCurrentUser
+                ) ?? throw new BadRequestException("Id is not found!");
 
         if (bakery.BakeryName != model.BakeryName)
             await ValidateBakery(
@@ -139,6 +148,8 @@ public class BakeryService(
             );
 
         _mapper.Map(model, bakery);
+
+        bakery.ShopImageFiles = await _unitOfWork.StorageRepository.WhereAsync(s => model.ShopImageFileIds.Contains(s.Id));
 
         _unitOfWork.BakeryRepository.Update(bakery);
         await _unitOfWork.SaveChangesAsync();

@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace CusCake.Domain.Entities;
 
+[Table("cake_message_selections")]
 public class CakeMessageSelection : BaseEntity
 {
     [Column("custom_cake_id")]
@@ -19,7 +20,7 @@ public class CakeMessageSelection : BaseEntity
 
     [Column("message_options")]
     [JsonPropertyName("message_options")]
-    public ICollection<CakeMessageOption>? MessageOptions { get; set; }
+    public List<CakeMessageOption>? MessageOptions { get; set; }
 
     [JsonPropertyName("custom_cake")]
     public CustomCake CustomCake { get; set; } = default!;

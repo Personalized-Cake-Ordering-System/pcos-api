@@ -37,6 +37,8 @@ public class AvailableCakeService(IUnitOfWork unitOfWork, IMapper mapper, IFileS
 
         cake.BakeryId = _claimsService.GetCurrentUser;
 
+        cake.AvailableCakeImageFiles = await _unitOfWork.StorageRepository.WhereAsync(x => model.AvailableCakeImageFileIds.Contains(x.Id));
+
         var result = await _unitOfWork.AvailableCakeRepository.AddAsync(cake);
 
         await _unitOfWork.SaveChangesAsync();
@@ -76,6 +78,8 @@ public class AvailableCakeService(IUnitOfWork unitOfWork, IMapper mapper, IFileS
 
         if (cake.BakeryId != _claimsService.GetCurrentUser) throw new BadRequestException("No permission to update");
         _mapper.Map(model, cake);
+
+        cake.AvailableCakeImageFiles = await _unitOfWork.StorageRepository.WhereAsync(x => model.AvailableCakeImageFileIds.Contains(x.Id));
 
         _unitOfWork.AvailableCakeRepository.Update(cake);
 

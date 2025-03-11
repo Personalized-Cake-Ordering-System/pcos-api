@@ -4,6 +4,7 @@ using CusCake.Infrastructures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CusCake.Infrastructures.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250310165830_update_bakery_image")]
+    partial class update_bakery_image
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -157,12 +160,6 @@ namespace CusCake.Infrastructures.Migrations
                         .HasColumnType("longtext")
                         .HasColumnName("available_cake_description")
                         .HasAnnotation("Relational:JsonPropertyName", "available_cake_description");
-
-                    b.Property<string>("AvailableCakeImageFiles")
-                        .IsRequired()
-                        .HasColumnType("json")
-                        .HasColumnName("available_cake_image_files")
-                        .HasAnnotation("Relational:JsonPropertyName", "available_cake_image_files");
 
                     b.Property<Guid?>("AvailableCakeMainImageId")
                         .HasColumnType("char(36)")
@@ -315,11 +312,6 @@ namespace CusCake.Infrastructures.Migrations
                         .HasColumnType("longtext")
                         .HasColumnName("phone")
                         .HasAnnotation("Relational:JsonPropertyName", "phone");
-
-                    b.Property<string>("ShopImageFiles")
-                        .HasColumnType("json")
-                        .HasColumnName("shop_image_files")
-                        .HasAnnotation("Relational:JsonPropertyName", "shop_image_files");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -1694,6 +1686,12 @@ namespace CusCake.Infrastructures.Migrations
                         .HasColumnName("id")
                         .HasAnnotation("Relational:JsonPropertyName", "id");
 
+                    b.Property<Guid?>("AvailableCakeId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid?>("BakeryId")
+                        .HasColumnType("char(36)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("created_at")
@@ -1732,6 +1730,10 @@ namespace CusCake.Infrastructures.Migrations
                         .HasAnnotation("Relational:JsonPropertyName", "updated_by");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AvailableCakeId");
+
+                    b.HasIndex("BakeryId");
 
                     b.ToTable("storages");
 
@@ -1901,7 +1903,7 @@ namespace CusCake.Infrastructures.Migrations
                     b.HasOne("CusCake.Domain.Entities.Storage", "AvailableCakeMainImage")
                         .WithMany()
                         .HasForeignKey("AvailableCakeMainImageId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("CusCake.Domain.Entities.Bakery", "Bakery")
                         .WithMany("AvailableCakes")
@@ -1919,18 +1921,18 @@ namespace CusCake.Infrastructures.Migrations
                     b.HasOne("CusCake.Domain.Entities.Storage", "AvatarFile")
                         .WithMany()
                         .HasForeignKey("AvatarFileId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("CusCake.Domain.Entities.Storage", "BackCardFile")
                         .WithMany()
                         .HasForeignKey("BackCardFileId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("CusCake.Domain.Entities.Storage", "FrontCardFile")
                         .WithMany()
                         .HasForeignKey("FrontCardFileId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("AvatarFile");
@@ -2218,6 +2220,19 @@ namespace CusCake.Infrastructures.Migrations
                     b.Navigation("Order");
                 });
 
+            modelBuilder.Entity("CusCake.Domain.Entities.Storage", b =>
+                {
+                    b.HasOne("CusCake.Domain.Entities.AvailableCake", null)
+                        .WithMany("AvailableCakeImageFiles")
+                        .HasForeignKey("AvailableCakeId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("CusCake.Domain.Entities.Bakery", null)
+                        .WithMany("ShopImageFiles")
+                        .HasForeignKey("BakeryId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("CusCake.Domain.Entities.Transaction", b =>
                 {
                     b.HasOne("CusCake.Domain.Entities.Order", "Order")
@@ -2242,6 +2257,8 @@ namespace CusCake.Infrastructures.Migrations
 
             modelBuilder.Entity("CusCake.Domain.Entities.AvailableCake", b =>
                 {
+                    b.Navigation("AvailableCakeImageFiles");
+
                     b.Navigation("CakeReviews");
 
                     b.Navigation("OrderDetails");
@@ -2260,6 +2277,8 @@ namespace CusCake.Infrastructures.Migrations
                     b.Navigation("OrderSupports");
 
                     b.Navigation("Orders");
+
+                    b.Navigation("ShopImageFiles");
 
                     b.Navigation("Vouchers");
                 });

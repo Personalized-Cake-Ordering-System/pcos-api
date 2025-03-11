@@ -35,7 +35,7 @@ public class AvailableCake : BaseEntity
 
     [Column("available_cake_image_files")]
     [JsonPropertyName("available_cake_image_files")]
-    public List<Guid> AvailableCakeImageFiles { get; set; } = [];
+    public List<Storage> AvailableCakeImageFiles { get; set; } = [];
 
     [Column("bakery_id")]
     [JsonPropertyName("bakery_id")]
