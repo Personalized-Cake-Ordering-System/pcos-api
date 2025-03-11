@@ -8,7 +8,7 @@ public class CustomerBaseActionModel
 {
     [JsonPropertyName("name")]
     public string Name { get; set; } = default!;
-    [JsonPropertyName("email")]
+    [JsonPropertyName("phone")]
     public string Phone { get; set; } = default!;
     [JsonPropertyName("address")]
     public string Address { get; set; } = default!;
