@@ -81,8 +81,11 @@ public class BakeryBaseActionModelValidator : AbstractValidator<BakeryBaseAction
 
 
         RuleFor(x => x.ShopImageFileIds)
+            .NotNull().WithMessage("ShopImageFileIds is required.")
+            .NotEmpty().WithMessage("ShopImageFileIds is required.")
             .Must(files => files!.All(file => file != Guid.Empty)).WithMessage("ShopImageFiles contains an invalid GUID.")
-            .When(x => x.ShopImageFileIds != null && x.ShopImageFileIds.Count != 0);
+            .Must(files => files.Distinct().Count() == files.Count).WithMessage("ShopImageFileIds must be unique.");
+
     }
 }
 

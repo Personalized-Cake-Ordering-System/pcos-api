@@ -2,6 +2,7 @@ using System.Linq.Expressions;
 using AutoMapper;
 using CusCake.Application.Extensions;
 using CusCake.Application.GlobalExceptionHandling.Exceptions;
+using CusCake.Application.Services.IServices;
 using CusCake.Application.Utils;
 using CusCake.Application.ViewModels.AuthModels;
 using CusCake.Application.ViewModels.BakeryModels;
@@ -27,13 +28,14 @@ public class BakeryService(
     IFileService fileService,
     IMapper mapper,
     ICurrentTime currentTime,
-    IAuthService authService) : IBakeryService
+    IAuthService authService,
+    IClaimsService claimsService) : IBakeryService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IFileService _fileService = fileService;
     private readonly IMapper _mapper = mapper;
     private readonly IAuthService _authService = authService;
-
+    private readonly IClaimsService _claimsService = claimsService;
     private readonly ICurrentTime _currentTime = currentTime;
 
     public async Task<bool> ApproveBakeryAsync(Guid id, bool isApprove = false)
@@ -88,13 +90,13 @@ public class BakeryService(
 
     public async Task<(Pagination, List<Bakery>)> GetAllAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<Bakery, bool>>? filter = null)
     {
-        var includes = QueryHelper.Includes<Bakery>(x => x.AvatarFile!, x => x.FrontCardFile!, x => x.BackCardFile, x => x.ShopImageFiles!);
+        var includes = QueryHelper.Includes<Bakery>(x => x.AvatarFile!, x => x.FrontCardFile!, x => x.BackCardFile);
         return await _unitOfWork.BakeryRepository.ToPagination(pageIndex, pageSize, filter: filter, includes: includes);
     }
 
     public async Task<Bakery> GetByIdAsync(Guid id)
     {
-        var includes = QueryHelper.Includes<Bakery>(x => x.AvatarFile!, x => x.FrontCardFile!, x => x.BackCardFile, x => x.ShopImageFiles!);
+        var includes = QueryHelper.Includes<Bakery>(x => x.AvatarFile!, x => x.FrontCardFile!, x => x.BackCardFile);
 
         return await _unitOfWork.BakeryRepository.GetByIdAsync(id, includes: includes) ?? throw new BadRequestException("Id is not exist!");
 
@@ -130,7 +132,12 @@ public class BakeryService(
 
     public async Task<Bakery> UpdateAsync(Guid id, BakeryUpdateModel model)
     {
-        var bakery = await _unitOfWork.BakeryRepository.FirstOrDefaultAsync(x => x.Status == BakeryStatusConstants.CONFIRMED & x.Id == id) ?? throw new BadRequestException("Id is not found!");
+        var bakery = await _unitOfWork.BakeryRepository
+            .FirstOrDefaultAsync(x =>
+                x.Status == BakeryStatusConstants.CONFIRMED &&
+                x.Id == id &&
+                x.CreatedBy == _claimsService.GetCurrentUser
+                ) ?? throw new BadRequestException("Id is not found!");
 
         if (bakery.BakeryName != model.BakeryName)
             await ValidateBakery(

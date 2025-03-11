@@ -58,7 +58,9 @@ public class AvailableCakeBaseActionModelValidator : AbstractValidator<Available
             .NotNull().WithMessage("AvailableCakeImageFiles cannot be null")
             .NotEmpty().WithMessage("AvailableCakeImageFiles cannot be empty")
             .Must(files => files.All(file => file != Guid.Empty))
-            .WithMessage("AvailableCakeImageFiles contains an invalid GUID");
+            .WithMessage("AvailableCakeImageFiles contains an invalid GUID")
+            .Must(files => files.Distinct().Count() == files.Count).WithMessage("ShopImageFileIds must be unique.");
+
 
     }
 }
