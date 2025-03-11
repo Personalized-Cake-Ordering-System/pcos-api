@@ -18,16 +18,16 @@ public class CustomCakeCreateModel
     public Guid BakeryId { get; set; }
 
     [JsonPropertyName("message_selection")]
-    public MessageSelection MessageSelection { get; set; } = default!;
+    public MessageSelection MessageSelectionModel { get; set; } = default!;
 
     [JsonPropertyName("part_selections")]
-    public List<PartSelection>? PartSelections { get; set; }
+    public List<PartSelection>? PartSelectionModels { get; set; }
 
     [JsonPropertyName("decoration_selections")]
-    public List<DecorationSelection>? DecorationSelections { get; set; }
+    public List<DecorationSelection>? DecorationSelectionModels { get; set; }
 
     [JsonPropertyName("extra_selections")]
-    public List<ExtraSelection>? ExtraSelections { get; set; }
+    public List<ExtraSelection>? ExtraSelectionModels { get; set; }
 }
 
 public class PartSelection
@@ -62,7 +62,7 @@ public class MessageSelection
     [JsonPropertyName("text")]
     public string? Text { get; set; } = default!;
 
-    [JsonPropertyName("message")]
+    [JsonPropertyName("message_type")]
     public string MessageType { get; set; } = default!;
 
     [JsonPropertyName("image_id")]
@@ -84,25 +84,25 @@ public class CustomCakeCreateModelValidator : AbstractValidator<CustomCakeCreate
         RuleFor(x => x.BakeryId)
             .NotEmpty().WithMessage("Bakery ID is required.");
 
-        RuleFor(x => x.MessageSelection)
+        RuleFor(x => x.MessageSelectionModel)
             .NotEmpty()
             .NotNull()
             .SetValidator(new MessageCreateDetailValidator()!);
 
-        RuleFor(x => x.PartSelections)
+        RuleFor(x => x.PartSelectionModels)
             .Must(types => types!.DistinctBy(x => x.Type).ToList().Count == types!.Count)
             .WithMessage("Cake part IDs must be unique.")
-            .When(x => x.PartSelections != null && x.PartSelections.Count != 0);
+            .When(x => x.PartSelectionModels != null && x.PartSelectionModels.Count != 0);
 
-        RuleFor(x => x.DecorationSelections)
+        RuleFor(x => x.DecorationSelectionModels)
             .Must(types => types!.DistinctBy(x => x.Type).ToList().Count == types!.Count)
             .WithMessage("Cake part IDs must be unique.")
-            .When(x => x.DecorationSelections != null && x.DecorationSelections.Count != 0);
+            .When(x => x.DecorationSelectionModels != null && x.DecorationSelectionModels.Count != 0);
 
-        RuleFor(x => x.ExtraSelections)
+        RuleFor(x => x.ExtraSelectionModels)
             .Must(types => types!.DistinctBy(x => x.Type).ToList().Count == types!.Count)
             .WithMessage("Cake part IDs must be unique.")
-            .When(x => x.ExtraSelections != null && x.ExtraSelections.Count != 0);
+            .When(x => x.ExtraSelectionModels != null && x.ExtraSelectionModels.Count != 0);
     }
 }
 
@@ -113,7 +113,7 @@ public class MessageCreateDetailValidator : AbstractValidator<MessageSelection>
         RuleFor(x => x.MessageType)
             .NotEmpty().WithMessage("Message type is required.")
             .Must(type => type == "TEXT" || type == "IMAGE" || type == "NONE")
-            .WithMessage("Message type must be either 'text', 'image' or 'none'.");
+            .WithMessage("Message type must be either 'TEXT', 'IMAGE' or 'NONE'.");
 
         RuleFor(x => x.Text)
             .NotEmpty()

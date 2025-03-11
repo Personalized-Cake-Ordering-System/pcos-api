@@ -35,12 +35,12 @@ public class CustomCakeService(IUnitOfWork unitOfWork, IMapper mapper, IClaimsSe
 
         var custom_cake = _mapper.Map<CustomCake>(model);
 
-        var messageSelection = await HandleMessageSelection(custom_cake.Id, model.MessageSelection!);
+        var messageSelection = await HandleMessageSelection(custom_cake.Id, model.MessageSelectionModel!);
         custom_cake.MessageSelectionId = messageSelection.Item2.Id;
         custom_cake.Price += messageSelection.Item1;
-        custom_cake.Price += await HandlePartSelection(custom_cake.Id, custom_cake.BakeryId, model.PartSelections!);
-        custom_cake.Price += await HandleDecorationSelection(custom_cake.Id, custom_cake.BakeryId, model.DecorationSelections!);
-        custom_cake.Price += await HandleExtraSelection(custom_cake.Id, custom_cake.BakeryId, model.ExtraSelections!);
+        custom_cake.Price += await HandlePartSelection(custom_cake.Id, custom_cake.BakeryId, model.PartSelectionModels!);
+        custom_cake.Price += await HandleDecorationSelection(custom_cake.Id, custom_cake.BakeryId, model.DecorationSelectionModels!);
+        custom_cake.Price += await HandleExtraSelection(custom_cake.Id, custom_cake.BakeryId, model.ExtraSelectionModels!);
 
         custom_cake.CustomerId = _claimsService.GetCurrentUser;
 
