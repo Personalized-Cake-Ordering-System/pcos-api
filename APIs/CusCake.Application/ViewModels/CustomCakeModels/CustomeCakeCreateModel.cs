@@ -125,6 +125,7 @@ public class MessageCreateDetailValidator : AbstractValidator<MessageSelection>
             .When(x => x.MessageType == "TEXT")
             .WithMessage("CakeMessageOptionIds is required when MessageType is TEXT.")
             .Must(ids => ids.Distinct().Count() == ids.Count)
+            .When(x => x.MessageType == "TEXT")
             .WithMessage("CakeMessageOptionIds must contain unique values.");
 
         RuleFor(x => x.ImageId)

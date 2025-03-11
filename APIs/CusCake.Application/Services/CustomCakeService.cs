@@ -57,6 +57,8 @@ public class CustomCakeService(IUnitOfWork unitOfWork, IMapper mapper, IClaimsSe
         {
             var price = CakeMessageTypeConstants.GetPrice(messageType);
             var message = _mapper.Map<CakeMessageSelection>(selection);
+            if (selection.CakeMessageOptionIds != null && selection.CakeMessageOptionIds.Count != 0)
+                message.MessageOptions = await _unitOfWork.CakeMessageOptionRepository.WhereAsync(x => selection.CakeMessageOptionIds.Contains(x.Id));
             await _unitOfWork.CakeMessageSelectionRepository.AddAsync(message);
             return (price, message);
         }
