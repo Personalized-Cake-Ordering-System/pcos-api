@@ -63,9 +63,9 @@ public class CakeMessageSelectionConfiguration : IEntityTypeConfiguration<CakeMe
         //     .OnDelete(DeleteBehavior.Cascade);
 
         builder
-            .HasOne(c => c.CustomCake)
-            .WithOne(x => x.MessageSelection)
-            .HasForeignKey<CakeMessageSelection>(c => c.CustomCakeId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .HasOne(c => c.Image)
+            .WithMany()
+            .HasForeignKey(c => c.ImageId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

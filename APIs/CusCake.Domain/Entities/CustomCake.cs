@@ -8,7 +8,7 @@ public class CustomCake : BaseEntity
 {
     [Column("total_price")]
     [JsonPropertyName("total_price")]
-    public double Price { get; set; }
+    public double Price { get; set; } = 0;
 
     [Column("custom_cake_name")]
     [JsonPropertyName("custom_cake_name")]

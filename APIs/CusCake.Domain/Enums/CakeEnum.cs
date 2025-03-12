@@ -29,7 +29,13 @@ public enum CakeExtraTypeEnum
 }
 public enum CakeMessageTypeEnum
 {
-    Text,
-    Image
+    NONE,
+    TEXT,
+    IMAGE
 }
 
+public enum CakeMessageOptionTypeEnum
+{
+    PIPING_COLOUR,
+    PLAQUE_COLOUR
+}

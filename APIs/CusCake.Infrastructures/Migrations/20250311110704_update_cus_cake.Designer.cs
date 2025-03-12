@@ -4,6 +4,7 @@ using CusCake.Infrastructures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CusCake.Infrastructures.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250311110704_update_cus_cake")]
+    partial class update_cus_cake
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -81,7 +84,7 @@ namespace CusCake.Infrastructures.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("admins", (string)null);
+                    b.ToTable("admins");
 
                     b.HasAnnotation("Relational:JsonPropertyName", "admin");
                 });
@@ -165,7 +168,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("auths", (string)null);
+                    b.ToTable("auths");
                 });
 
             modelBuilder.Entity("CusCake.Domain.Entities.AvailableCake", b =>
@@ -249,7 +252,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasIndex("BakeryId");
 
-                    b.ToTable("available_cakes", (string)null);
+                    b.ToTable("available_cakes");
 
                     b.HasAnnotation("Relational:JsonPropertyName", "available_cake");
                 });
@@ -374,7 +377,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasIndex("FrontCardFileId");
 
-                    b.ToTable("bakeries", (string)null);
+                    b.ToTable("bakeries");
 
                     b.HasAnnotation("Relational:JsonPropertyName", "bakery");
                 });
@@ -493,7 +496,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasIndex("TransactionId");
 
-                    b.ToTable("bank_events", (string)null);
+                    b.ToTable("bank_events");
 
                     b.HasAnnotation("Relational:JsonPropertyName", "bank_events");
                 });
@@ -579,7 +582,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasIndex("ImageId");
 
-                    b.ToTable("cake_decoration_options", (string)null);
+                    b.ToTable("cake_decoration_options");
 
                     b.HasAnnotation("Relational:JsonPropertyName", "decoration_option");
                 });
@@ -639,7 +642,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasIndex("DecorationOptionId");
 
-                    b.ToTable("cake_decoration_selections", (string)null);
+                    b.ToTable("cake_decoration_selections");
 
                     b.HasAnnotation("Relational:JsonPropertyName", "decoration_selections");
                 });
@@ -725,7 +728,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasIndex("ImageId");
 
-                    b.ToTable("cake_extra_options", (string)null);
+                    b.ToTable("cake_extra_options");
 
                     b.HasAnnotation("Relational:JsonPropertyName", "extra_option");
                 });
@@ -785,7 +788,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasIndex("ExtraOptionId");
 
-                    b.ToTable("cake_extra_selections", (string)null);
+                    b.ToTable("cake_extra_selections");
 
                     b.HasAnnotation("Relational:JsonPropertyName", "extra_selections");
                 });
@@ -850,7 +853,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasIndex("BakeryId");
 
-                    b.ToTable("cake_message_options", (string)null);
+                    b.ToTable("cake_message_options");
 
                     b.HasAnnotation("Relational:JsonPropertyName", "message_options");
                 });
@@ -913,7 +916,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasIndex("ImageId");
 
-                    b.ToTable("cake_message_selections", (string)null);
+                    b.ToTable("cake_message_selections");
 
                     b.HasAnnotation("Relational:JsonPropertyName", "message_selection");
                 });
@@ -1000,7 +1003,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasIndex("ImageId");
 
-                    b.ToTable("cake_part_options", (string)null);
+                    b.ToTable("cake_part_options");
 
                     b.HasAnnotation("Relational:JsonPropertyName", "part_option");
                 });
@@ -1060,7 +1063,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasIndex("PartOptionId");
 
-                    b.ToTable("cake_part_selections", (string)null);
+                    b.ToTable("cake_part_selections");
 
                     b.HasAnnotation("Relational:JsonPropertyName", "part_selections");
                 });
@@ -1141,7 +1144,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("cake_reviews", (string)null);
+                    b.ToTable("cake_reviews");
 
                     b.HasAnnotation("Relational:JsonPropertyName", "cake_review");
                 });
@@ -1223,7 +1226,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasIndex("MessageSelectionId");
 
-                    b.ToTable("custom_cakes", (string)null);
+                    b.ToTable("custom_cakes");
 
                     b.HasAnnotation("Relational:JsonPropertyName", "custom_cake");
                 });
@@ -1300,7 +1303,7 @@ namespace CusCake.Infrastructures.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("customers", (string)null);
+                    b.ToTable("customers");
 
                     b.HasAnnotation("Relational:JsonPropertyName", "customer");
                 });
@@ -1362,7 +1365,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasIndex("VoucherId");
 
-                    b.ToTable("customer_vouchers", (string)null);
+                    b.ToTable("customer_vouchers");
 
                     b.HasAnnotation("Relational:JsonPropertyName", "customer_vouchers");
                 });
@@ -1450,7 +1453,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("notifications", (string)null);
+                    b.ToTable("notifications");
 
                     b.HasAnnotation("Relational:JsonPropertyName", "notifications");
                 });
@@ -1568,7 +1571,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasIndex("VoucherId");
 
-                    b.ToTable("orders", (string)null);
+                    b.ToTable("orders");
 
                     b.HasAnnotation("Relational:JsonPropertyName", "order");
                 });
@@ -1647,7 +1650,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("order_detail", (string)null);
+                    b.ToTable("order_detail");
 
                     b.HasAnnotation("Relational:JsonPropertyName", "order_detail");
                 });
@@ -1718,7 +1721,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("order_supports", (string)null);
+                    b.ToTable("order_supports");
 
                     b.HasAnnotation("Relational:JsonPropertyName", "order_supports");
                 });
@@ -1770,7 +1773,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("storages", (string)null);
+                    b.ToTable("storages");
 
                     b.HasAnnotation("Relational:JsonPropertyName", "image");
                 });
@@ -1823,7 +1826,7 @@ namespace CusCake.Infrastructures.Migrations
                     b.HasIndex("OrderId")
                         .IsUnique();
 
-                    b.ToTable("transactions", (string)null);
+                    b.ToTable("transactions");
 
                     b.HasAnnotation("Relational:JsonPropertyName", "transaction");
                 });
@@ -1928,7 +1931,7 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasIndex("BakeryId");
 
-                    b.ToTable("vouchers", (string)null);
+                    b.ToTable("vouchers");
 
                     b.HasAnnotation("Relational:JsonPropertyName", "voucher");
                 });

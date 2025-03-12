@@ -16,9 +16,9 @@ public class AvailableCakeConfiguration : IEntityTypeConfiguration<AvailableCake
             c => c.ToList()
         );
 
-        builder.HasOne(x => x.Bakery).WithMany(x => x.AvailableCakes).HasForeignKey(x => x.BakeryId).OnDelete(DeleteBehavior.Cascade);
-        builder.HasMany(x => x.OrderDetails).WithOne(x => x.AvailableCake).HasForeignKey(x => x.AvailableCakeId).OnDelete(DeleteBehavior.Cascade);
-        builder.HasMany(x => x.CakeReviews).WithOne(x => x.AvailableCake).HasForeignKey(x => x.AvailableCakeId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(x => x.Bakery).WithMany().HasForeignKey(x => x.BakeryId).OnDelete(DeleteBehavior.Cascade);
+        // builder.HasMany(x => x.OrderDetails).WithOne(x => x.AvailableCake).HasForeignKey(x => x.AvailableCakeId).OnDelete(DeleteBehavior.Cascade);
+        // builder.HasMany(x => x.CakeReviews).WithOne(x => x.AvailableCake).HasForeignKey(x => x.AvailableCakeId).OnDelete(DeleteBehavior.Cascade);
         builder
            .HasOne(c => c.AvailableCakeMainImage)
            .WithMany()
