@@ -41,7 +41,15 @@ public class CakeExtraController(ICakeExtraService cakeExtraService) : Controlle
         Expression<Func<CakeExtraOption, bool>> filter = x =>
                   (bakeryId == null || x.BakeryId == bakeryId);
         var result = await _cakeExtraService.GetAllAsync(pageIndex, pageSize, filter);
-        return Ok(ResponseModel<object, object>.Success(result.Item2, result.Item1));
+        var groupedOptions = result.Item2
+               .GroupBy(option => option.Type)
+               .Select(group => new
+               {
+                   Name = group.Key,
+                   Items = group.ToList()
+               })
+               .ToList();
+        return Ok(ResponseModel<object, object>.Success(groupedOptions, result.Item1));
     }
 
     [HttpPut("{id}")]
