@@ -18,7 +18,7 @@ public class CustomCakeCreateModel
     public Guid BakeryId { get; set; }
 
     [JsonPropertyName("message_selection")]
-    public MessageSelection MessageSelectionModel { get; set; } = default!;
+    public MessageSelection? MessageSelectionModel { get; set; } = default!;
 
     [JsonPropertyName("part_selections")]
     public List<PartSelection>? PartSelectionModels { get; set; }
@@ -85,8 +85,6 @@ public class CustomCakeCreateModelValidator : AbstractValidator<CustomCakeCreate
             .NotEmpty().WithMessage("Bakery ID is required.");
 
         RuleFor(x => x.MessageSelectionModel)
-            .NotEmpty()
-            .NotNull()
             .SetValidator(new MessageCreateDetailValidator()!);
 
         RuleFor(x => x.PartSelectionModels)

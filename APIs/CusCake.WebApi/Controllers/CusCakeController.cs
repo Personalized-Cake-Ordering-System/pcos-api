@@ -26,7 +26,7 @@ public class CusCakeController(ICustomCakeService customCakeService) : Controlle
     }
 
     [HttpGet]
-    // [Authorize]
+    [Authorize]
     public async Task<IActionResult> GetAllAsync(
          [FromQuery] Guid? bakeryId,
          [FromQuery] Guid? customerId,
@@ -48,12 +48,19 @@ public class CusCakeController(ICustomCakeService customCakeService) : Controlle
     //     return Ok(ResponseModel<object, object>.Success(await _cakePartService.UpdateAsync(id, model)));
     // }
 
-    // [HttpDelete("{id}")]
-    // [Authorize(Roles = RoleConstants.BAKERY)]
-    // public async Task<IActionResult> DeleteAsync(Guid id)
-    // {
-    //     await _cakePartService.DeleteAsync(id);
+    [HttpGet("{id}")]
+    [Authorize]
+    public async Task<IActionResult> GetAsync(Guid id)
+    {
+        return Ok(ResponseModel<object, object>.Success(await _customCakeService.GetByIdAsync(id)));
+    }
 
-    //     return StatusCode(204, new ResponseModel<object, object> { StatusCode = 204 });
-    // }
+    [HttpDelete("{id}")]
+    [Authorize(Roles = RoleConstants.CUSTOMER)]
+    public async Task<IActionResult> DeleteAsync(Guid id)
+    {
+        await _customCakeService.DeleteAsync(id);
+
+        return StatusCode(204, new ResponseModel<object, object> { StatusCode = 204 });
+    }
 }

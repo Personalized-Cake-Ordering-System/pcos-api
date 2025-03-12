@@ -19,6 +19,9 @@ public interface ICustomCakeService
 
     Task<(Pagination, List<CustomCake>)> GetAllAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<CustomCake, bool>>? filter = null);
 
+    Task<CustomCake> GetByIdAsync(Guid id);
+
+    Task DeleteAsync(Guid id);
 }
 
 public class CustomCakeService(IUnitOfWork unitOfWork, IMapper mapper, IClaimsService claimsService) : ICustomCakeService
@@ -32,10 +35,12 @@ public class CustomCakeService(IUnitOfWork unitOfWork, IMapper mapper, IClaimsSe
 
     public async Task<CustomCake> CreateAsync(CustomCakeCreateModel model)
     {
+        var bakery = await _unitOfWork.BakeryRepository.FirstOrDefaultAsync(x => x.Id == model.BakeryId && x.Status == BakeryStatusConstants.CONFIRMED)
+                                ?? throw new BadRequestException("Bakery not found");
 
         var custom_cake = _mapper.Map<CustomCake>(model);
 
-        var messageSelection = await HandleMessageSelection(custom_cake.Id, model.MessageSelectionModel!);
+        var messageSelection = await HandleMessageSelection(model.MessageSelectionModel!);
         custom_cake.MessageSelectionId = messageSelection.Item2.Id;
         custom_cake.Price += messageSelection.Item1;
         custom_cake.Price += await HandlePartSelection(custom_cake.Id, custom_cake.BakeryId, model.PartSelectionModels!);
@@ -51,8 +56,16 @@ public class CustomCakeService(IUnitOfWork unitOfWork, IMapper mapper, IClaimsSe
         return result;
     }
 
-    private async Task<(double, CakeMessageSelection)> HandleMessageSelection(Guid cusCakeId, MessageSelection selection)
+    private async Task<(double, CakeMessageSelection)> HandleMessageSelection(MessageSelection selection)
     {
+        selection ??= new MessageSelection
+        {
+            Text = null,
+            MessageType = nameof(CakeMessageTypeEnum.NONE),
+            ImageId = null,
+            CakeMessageOptionIds = null
+        };
+
         if (Enum.TryParse(selection.MessageType, out CakeMessageTypeEnum messageType))
         {
             var price = CakeMessageTypeConstants.GetPrice(messageType);
@@ -60,6 +73,7 @@ public class CustomCakeService(IUnitOfWork unitOfWork, IMapper mapper, IClaimsSe
             if (selection.CakeMessageOptionIds != null && selection.CakeMessageOptionIds.Count != 0)
                 message.MessageOptions = await _unitOfWork.CakeMessageOptionRepository.WhereAsync(x => selection.CakeMessageOptionIds.Contains(x.Id));
             await _unitOfWork.CakeMessageSelectionRepository.AddAsync(message);
+
             return (price, message);
         }
 
@@ -306,5 +320,26 @@ public class CustomCakeService(IUnitOfWork unitOfWork, IMapper mapper, IClaimsSe
                             x => x.Bakery);
 
         return await _unitOfWork.CustomCakeRepository.ToPagination(pageIndex, pageSize, filter: filter, includes: includes);
+    }
+
+    public async Task<CustomCake> GetByIdAsync(Guid id)
+    {
+        var includes = QueryHelper.Includes<CustomCake>(x =>
+                           x.MessageSelection!,
+                           x => x.PartSelections!,
+                           x => x.DecorationSelections!,
+                           x => x.ExtraSelections!,
+                           x => x.Customer,
+                           x => x.Bakery);
+
+        return await _unitOfWork.CustomCakeRepository.GetByIdAsync(id, includes: includes)
+                ?? throw new BadRequestException("Custom cake is not exist!");
+    }
+
+    public async Task DeleteAsync(Guid id)
+    {
+        var custom_cake = await GetByIdAsync(id);
+        _unitOfWork.CustomCakeRepository.SoftRemove(custom_cake);
+        await _unitOfWork.SaveChangesAsync();
     }
 }
