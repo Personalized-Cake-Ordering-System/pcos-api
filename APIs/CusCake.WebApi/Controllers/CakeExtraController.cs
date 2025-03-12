@@ -45,7 +45,7 @@ public class CakeExtraController(ICakeExtraService cakeExtraService) : Controlle
                .GroupBy(option => option.Type)
                .Select(group => new
                {
-                   Name = group.Key,
+                   Type = group.Key,
                    Items = group.ToList()
                })
                .ToList();

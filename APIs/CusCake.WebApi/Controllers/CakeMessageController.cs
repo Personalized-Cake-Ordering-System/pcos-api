@@ -46,7 +46,7 @@ public class CakeMessageController(ICakeMessageService cakeMessageService) : Con
                 .GroupBy(option => option.Name)
                 .Select(group => new
                 {
-                    Name = group.Key,
+                    Type = group.Key,
                     Items = group.ToList()
                 })
                 .ToList();

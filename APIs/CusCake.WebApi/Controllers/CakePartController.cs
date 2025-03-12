@@ -46,7 +46,7 @@ public class CakePartController(ICakePartService cakePartService) : ControllerBa
                .GroupBy(option => option.Type)
                .Select(group => new
                {
-                   Name = group.Key,
+                   Type = group.Key,
                    Items = group.ToList()
                })
                .ToList();

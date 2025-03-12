@@ -47,7 +47,7 @@ public class CakeDecorationController(ICakeDecorationService service) : Controll
                .GroupBy(option => option.Type)
                .Select(group => new
                {
-                   Name = group.Key,
+                   Type = group.Key,
                    Items = group.ToList()
                })
                .ToList();
