@@ -161,6 +161,19 @@ public class CustomCakeService(IUnitOfWork unitOfWork, IMapper mapper, IClaimsSe
     {
         double total_price = 0;
         var list_options = new List<CakeExtraSelection>();
+
+        List<string> extraTypes = [.. Enum.GetNames(typeof(CakeExtraTypeEnum))];
+
+        if (selections == null || selections.Count == 0)
+        {
+            return await HandleDefaultExtraSelection(cusCakeId, bakeryId, extraTypes);
+        }
+
+        List<string> missingTypes = [.. extraTypes.Except(selections.Select(s => s.Type))];
+
+        total_price += missingTypes.Count > 0 ?
+                                      await HandleDefaultExtraSelection(cusCakeId, bakeryId, missingTypes) : 0;
+
         var optionIds = selections.Select(x => x.OptionId).ToList();
 
         var options = await _unitOfWork
@@ -185,10 +198,50 @@ public class CustomCakeService(IUnitOfWork unitOfWork, IMapper mapper, IClaimsSe
         return total_price;
     }
 
+    private async Task<double> HandleDefaultExtraSelection(Guid cusCakeId, Guid bakeryId, List<string> types)
+    {
+        double total_price = 0;
+        var list_options = new List<CakeExtraSelection>();
+
+        var options = await _unitOfWork
+                    .CakeExtraOptionRepository.WhereAsync(x =>
+                        types.Contains(x.Type) &&
+                        x.IsDefault &&
+                        x.BakeryId == bakeryId
+                    );
+
+        foreach (var option in options)
+        {
+            list_options.Add(new CakeExtraSelection
+            {
+                CustomCakeId = cusCakeId,
+                ExtraOptionId = option.Id,
+                ExtraType = option.Type,
+            });
+
+            total_price += (double)option.Price;
+        }
+        await _unitOfWork.CakeExtraSelectionRepository.AddRangeAsync(list_options);
+
+        return total_price;
+    }
+
     private async Task<double> HandleDecorationSelection(Guid cusCakeId, Guid bakeryId, List<DecorationSelection> selections)
     {
         double total_price = 0;
         var list_options = new List<CakeDecorationSelection>();
+        List<string> decorationTypes = [.. Enum.GetNames(typeof(CakeDecorationTypeEnum))];
+
+        if (selections == null || selections.Count == 0)
+        {
+            return await HandleDefaultDecorationSelection(cusCakeId, bakeryId, decorationTypes);
+        }
+
+        List<string> missingTypes = [.. decorationTypes.Except(selections.Select(s => s.Type))];
+
+        total_price += missingTypes.Count > 0 ?
+                               await HandleDefaultDecorationSelection(cusCakeId, bakeryId, missingTypes) : 0;
+
         var optionIds = selections.Select(x => x.OptionId).ToList();
 
         var options = await _unitOfWork
@@ -196,6 +249,35 @@ public class CustomCakeService(IUnitOfWork unitOfWork, IMapper mapper, IClaimsSe
                         optionIds.Contains(x.Id) &&
                         x.BakeryId == bakeryId
                     );
+
+        foreach (var option in options)
+        {
+            list_options.Add(new CakeDecorationSelection
+            {
+                CustomCakeId = cusCakeId,
+                DecorationOptionId = option.Id,
+                DecorationType = option.Type,
+            });
+
+            total_price += (double)option.Price;
+        }
+
+        await _unitOfWork.CakeDecorationSelectionRepository.AddRangeAsync(list_options);
+
+        return total_price;
+    }
+
+    private async Task<double> HandleDefaultDecorationSelection(Guid cusCakeId, Guid bakeryId, List<string> types)
+    {
+        double total_price = 0;
+
+        var list_options = new List<CakeDecorationSelection>();
+        var options = await _unitOfWork
+                   .CakeDecorationOptionRepository.WhereAsync(x =>
+                       types.Contains(x.Type) &&
+                       x.IsDefault &&
+                       x.BakeryId == bakeryId
+                   );
 
         foreach (var option in options)
         {

@@ -26,7 +26,7 @@ public class CusCakeController(ICustomCakeService customCakeService) : Controlle
     }
 
     [HttpGet]
-    [Authorize]
+    // [Authorize]
     public async Task<IActionResult> GetAllAsync(
          [FromQuery] Guid? bakeryId,
          [FromQuery] Guid? customerId,

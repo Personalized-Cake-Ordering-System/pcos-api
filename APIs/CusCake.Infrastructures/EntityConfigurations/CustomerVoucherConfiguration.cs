@@ -8,7 +8,7 @@ public class CustomerVoucherConfiguration : IEntityTypeConfiguration<CustomerVou
 {
     public void Configure(EntityTypeBuilder<CustomerVoucher> builder)
     {
-        builder.HasOne(x => x.Customer).WithMany(x => x.CustomerVouchers).HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(x => x.Customer).WithMany().HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(x => x.Voucher).WithMany(x => x.CustomerVouchers).HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(x => x.Order).WithOne(x => x.CustomerVoucher).OnDelete(DeleteBehavior.Cascade);
 

@@ -71,25 +71,22 @@ namespace CusCake.Domain.Entities
         [JsonPropertyName("shop_image_files")]
         public List<Storage>? ShopImageFiles { get; set; }
 
-        [JsonPropertyName("notifications")]
-        public ICollection<Notification>? Notifications { get; set; }
+        // [JsonPropertyName("notifications")]
+        // public ICollection<Notification>? Notifications { get; set; }
 
-        [JsonPropertyName("custom_cakes")]
-        public ICollection<CustomCake>? CustomCakes { get; set; }
+        // [JsonPropertyName("available_cakes")]
+        // public ICollection<AvailableCake>? AvailableCakes { get; set; }
 
-        [JsonPropertyName("available_cakes")]
-        public ICollection<AvailableCake>? AvailableCakes { get; set; }
+        // [JsonPropertyName("orders")]
+        // public ICollection<Order>? Orders { get; set; }
 
-        [JsonPropertyName("orders")]
-        public ICollection<Order>? Orders { get; set; }
+        // [JsonPropertyName("cake_reviews")]
+        // public ICollection<CakeReview>? CakeReviews { get; set; }
 
-        [JsonPropertyName("cake_reviews")]
-        public ICollection<CakeReview>? CakeReviews { get; set; }
+        // [JsonPropertyName("order_supports")]
+        // public ICollection<OrderSupport>? OrderSupports { get; set; }
 
-        [JsonPropertyName("order_supports")]
-        public ICollection<OrderSupport>? OrderSupports { get; set; }
-
-        [JsonPropertyName("vouchers")]
-        public ICollection<Voucher>? Vouchers { get; set; }
+        // [JsonPropertyName("vouchers")]
+        // public ICollection<Voucher>? Vouchers { get; set; }
     }
 }

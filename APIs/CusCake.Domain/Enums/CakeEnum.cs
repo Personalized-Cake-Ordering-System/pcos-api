@@ -34,3 +34,8 @@ public enum CakeMessageTypeEnum
     IMAGE
 }
 
+public enum CakeMessageOptionTypeEnum
+{
+    PIPING_COLOUR,
+    PLAQUE_COLOUR
+}

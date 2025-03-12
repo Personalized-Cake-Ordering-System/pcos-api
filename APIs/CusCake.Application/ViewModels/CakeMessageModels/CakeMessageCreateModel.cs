@@ -29,14 +29,19 @@ public class CakeMessageCreateModelValidator : AbstractValidator<CakeMessageOpti
 {
     public CakeMessageCreateModelValidator()
     {
+
+        RuleFor(x => x.Type)
+            .Must(x => x == "TEXT")
+            .WithMessage($"Invalid Message type. Type must be TEXT");
+
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("MessageName is required.")
             .MaximumLength(100).WithMessage("MessageName cannot exceed 100 characters.");
 
-        // RuleFor(x => x.Type)
-        //     .NotNull().WithMessage("Message type is required.")
-        //     .Must(value => Enum.IsDefined(typeof(CakeMessageTypeEnum), value))
-        //     .WithMessage($"Invalid Message type. Must be one of: {string.Join(", ", Enum.GetNames(typeof(CakeMessageTypeEnum)))}");
+        RuleFor(x => x.Name)
+            .NotNull().WithMessage("Message type is required.")
+            .Must(value => Enum.IsDefined(typeof(CakeMessageOptionTypeEnum), value))
+            .WithMessage($"Invalid Message type. Must be one of: {string.Join(", ", Enum.GetNames(typeof(CakeMessageOptionTypeEnum)))}");
 
     }
 }

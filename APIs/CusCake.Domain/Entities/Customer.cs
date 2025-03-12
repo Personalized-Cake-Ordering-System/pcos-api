@@ -30,22 +30,19 @@ namespace CusCake.Domain.Entities
         [JsonPropertyName("account_type")]
         public string AccountType { get; set; } = default!;
 
-        [JsonPropertyName("notifications")]
-        public ICollection<Notification>? Notifications { get; set; }
+        // [JsonPropertyName("notifications")]
+        // public ICollection<Notification>? Notifications { get; set; }
 
-        [JsonPropertyName("custom_cakes")]
-        public ICollection<CustomCake>? CustomCakes { get; set; }
+        // [JsonPropertyName("orders")]
+        // public ICollection<Order>? Orders { get; set; }
 
-        [JsonPropertyName("orders")]
-        public ICollection<Order>? Orders { get; set; }
+        // [JsonPropertyName("cake_reviews")]
+        // public ICollection<CakeReview>? CakeReviews { get; set; }
 
-        [JsonPropertyName("cake_reviews")]
-        public ICollection<CakeReview>? CakeReviews { get; set; }
+        // [JsonPropertyName("order_supports")]
+        // public ICollection<OrderSupport>? OrderSupports { get; set; }
 
-        [JsonPropertyName("order_supports")]
-        public ICollection<OrderSupport>? OrderSupports { get; set; }
-
-        [JsonPropertyName("customer_vouchers")]
-        public ICollection<CustomerVoucher>? CustomerVouchers { get; set; }
+        // [JsonPropertyName("customer_vouchers")]
+        // public ICollection<CustomerVoucher>? CustomerVouchers { get; set; }
     }
 }

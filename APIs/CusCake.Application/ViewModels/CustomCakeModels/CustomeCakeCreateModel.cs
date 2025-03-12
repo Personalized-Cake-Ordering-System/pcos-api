@@ -41,19 +41,19 @@ public class PartSelection
 
 public class ExtraSelection
 {
-    [JsonPropertyName("part_type")]
+    [JsonPropertyName("extra_type")]
     public string Type { get; set; } = default!;
 
-    [JsonPropertyName("part_option_id")]
+    [JsonPropertyName("extra_option_id")]
     public Guid OptionId { get; set; }
 }
 
 public class DecorationSelection
 {
-    [JsonPropertyName("part_type")]
+    [JsonPropertyName("decoration_type")]
     public string Type { get; set; } = default!;
 
-    [JsonPropertyName("part_option_id")]
+    [JsonPropertyName("decoration_option_id")]
     public Guid OptionId { get; set; }
 }
 
@@ -69,7 +69,7 @@ public class MessageSelection
     public Guid? ImageId { get; set; }
 
     [JsonPropertyName("cake_message_option_ids")]
-    public List<Guid> CakeMessageOptionIds { get; set; } = default!;
+    public List<Guid>? CakeMessageOptionIds { get; set; }
 }
 
 
@@ -120,13 +120,10 @@ public class MessageCreateDetailValidator : AbstractValidator<MessageSelection>
             .When(x => x.MessageType == "TEXT")
             .WithMessage("Text is required when MessageType is TEXT.");
 
-        RuleFor(x => x.CakeMessageOptionIds)
-            .NotEmpty()
-            .When(x => x.MessageType == "TEXT")
-            .WithMessage("CakeMessageOptionIds is required when MessageType is TEXT.")
-            .Must(ids => ids.Distinct().Count() == ids.Count)
-            .When(x => x.MessageType == "TEXT")
-            .WithMessage("CakeMessageOptionIds must contain unique values.");
+        // RuleFor(x => x.CakeMessageOptionIds)
+        //     .Must(x => x.Distinct().Count() == x.Count)
+        //     .When(x => x.MessageType == "TEXT")
+        //     .WithMessage("CakeMessageOptionIds must contain unique values.");
 
         RuleFor(x => x.ImageId)
             .NotNull()

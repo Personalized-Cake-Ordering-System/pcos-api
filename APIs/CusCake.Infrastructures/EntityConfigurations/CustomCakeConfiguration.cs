@@ -8,8 +8,8 @@ public class CustomCakeConfiguration : IEntityTypeConfiguration<CustomCake>
 {
     public void Configure(EntityTypeBuilder<CustomCake> builder)
     {
-        builder.HasOne(x => x.Bakery).WithMany(x => x.CustomCakes).HasForeignKey(x => x.BakeryId).OnDelete(DeleteBehavior.Cascade);
-        builder.HasOne(x => x.Customer).WithMany(x => x.CustomCakes).HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(x => x.Bakery).WithMany().HasForeignKey(x => x.BakeryId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(x => x.Customer).WithMany().HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Cascade);
 
         builder
             .HasMany(c => c.PartSelections)

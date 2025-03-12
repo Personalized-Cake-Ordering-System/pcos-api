@@ -9,7 +9,7 @@ public static class CakePartTypeConstants
         {
             { CakePartTypeEnum.Size, (true, "Cake Size") },
             { CakePartTypeEnum.Sponge, (true, "Sponge Type") },
-            { CakePartTypeEnum.Filling, (false, "Cake Filling") },
+            { CakePartTypeEnum.Filling, (true, "Cake Filling") },
             { CakePartTypeEnum.Icing, (true, "Icing Type") },
             { CakePartTypeEnum.Goo, (true, "Goo Topping") },
             { CakePartTypeEnum.Extras, (false, "Extra Decorations") }
