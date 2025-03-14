@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using CusCake.Domain.Constants;
@@ -9,9 +7,49 @@ namespace CusCake.Domain.Entities;
 [Table("orders")]
 public class Order : BaseEntity
 {
-    [JsonPropertyName("total_price")]
-    [Column("total_price")]
-    public double TotalPrice { get; set; }
+    [JsonPropertyName("total_product_price")]
+    [Column("total_product_price")]
+    public double TotalProductPrice { get; set; } = 0;
+
+    [JsonPropertyName("total_customer_paid")]
+    [Column("total_customer_paid")]
+    public double TotalCustomerPaid { get; set; } = 0;
+
+    [JsonPropertyName("shipping_distance")]
+    [Column("shipping_distance")]
+    public double ShippingDistance { get; set; } = 0;
+
+    [JsonPropertyName("discount_amount")]
+    [Column("discount_amount")]
+    public double DiscountAmount { get; set; } = 0;
+
+    [JsonPropertyName("shipping_fee")]
+    [Column("shipping_fee")]
+    public double ShippingFee { get; set; } = 0;
+
+    [JsonPropertyName("shipping_time")]
+    [Column("shipping_time")]
+    public DateTime? ShippingTime { get; set; }
+
+    [JsonPropertyName("shipping_type")]
+    [Column("shipping_type")]
+    public string ShippingType { get; set; } = ShippingTypeConstants.PICK_UP;
+
+    [JsonPropertyName("commission_rate")]
+    [Column("commission_rate")]
+    public double CommissionRate { get; set; } = OrderConstants.COMMISSION_RATE;
+
+    [JsonPropertyName("app_commission_fee")]
+    [Column("app_commission_fee")]
+    public double AppCommissionFee { get; set; }
+
+    [JsonPropertyName("shop_revenue")]
+    [Column("shop_revenue")]
+    public double ShopRevenue { get; set; }
+
+    [JsonPropertyName("voucher_code")]
+    [Column("voucher_code")]
+    public string? VoucherCode { get; set; }
 
     [JsonPropertyName("order_note")]
     [Column("order_note")]
@@ -20,10 +58,6 @@ public class Order : BaseEntity
     [JsonPropertyName("pickup_time")]
     [Column("pickup_time")]
     public DateTime? PickUpTime { get; set; } = DateTime.Now;
-
-    [JsonPropertyName("shipping_type")]
-    [Column("shipping_type")]
-    public string ShippingType { get; set; } = default!;
 
     [JsonPropertyName("payment_type")]
     [Column("payment_type")]
@@ -37,9 +71,9 @@ public class Order : BaseEntity
     [Column("phone_number")]
     public string? PhoneNumber { get; set; }
 
-    [JsonPropertyName("order_address")]
-    [Column("order_address")]
-    public string? OrderAddress { get; set; }
+    [JsonPropertyName("shipping_address")]
+    [Column("shipping_address")]
+    public string? ShippingAddress { get; set; }
 
     [JsonPropertyName("latitude")]
     [Column("latitude")]
@@ -52,6 +86,14 @@ public class Order : BaseEntity
     [JsonPropertyName("order_status")]
     [Column("order_status")]
     public string? OrderStatus { get; set; } = OrderStatusConstants.PENDING;
+
+    [JsonPropertyName("cancel_by")]
+    [Column("cancel_by")]
+    public string? CancelBy { get; set; }
+
+    public List<OrderDetail>? OrderDetails { get; set; }
+
+    #region RELATION
 
     [JsonPropertyName("customer_id")]
     [Column("customer_id")]
@@ -87,5 +129,7 @@ public class Order : BaseEntity
 
     [JsonPropertyName("customer_voucher")]
     public CustomerVoucher? CustomerVoucher { get; set; }
+
+    #endregion
 
 }

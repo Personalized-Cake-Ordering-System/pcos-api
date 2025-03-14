@@ -12,14 +12,17 @@ public static class OrderStatusConstants
     public const string SHIPPING = "SHIPPING";                  // Đang giao hàng
     public const string COMPLETED = "COMPLETED";                // Khách hàng đã xác nhận DONE
     public const string AUTO_COMPLETED = "AUTO_COMPLETED";      // Tự động hoàn thành nếu khách không xác nhận sau X phút
-    public const string CANCELED_BY_CUSTOMER = "CANCELED_BY_CUSTOMER"; // Khách hàng hủy đơn
-    public const string CANCELED_BY_BAKERY = "CANCELED_BY_BAKERY";     // Bakery hủy đơn
-
+    public const string CANCELED = "CANCELED";                  // Hủy đơn
 }
 
 public static class OrderConstants
 {
-    public const double TAX_RATE = 0.08;
+    public const double COMMISSION_RATE = 0.08;
 
+}
 
+public static class ShippingTypeConstants
+{
+    public const string DELIVERY = "DELIVERY";
+    public const string PICK_UP = "PICKUP";
 }

@@ -1,7 +1,6 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using CusCake.Domain.Constants;
 
 namespace CusCake.Domain.Entities;
 
@@ -18,10 +17,6 @@ public class Voucher : BaseEntity
     [JsonPropertyName("code")]
     [Column("code")]
     public string Code { get; set; } = default!;
-
-    [JsonPropertyName("discount_amount")]
-    [Column("discount_amount")]
-    public double DiscountAmount { get; set; }
 
     [JsonPropertyName("discount_percentage")]
     [Column("discount_percentage")]
@@ -43,10 +38,6 @@ public class Voucher : BaseEntity
     [Column("quantity")]
     public int Quantity { get; set; }
 
-    [JsonPropertyName("usage_limit")]
-    [Column("usage_limit")]
-    public int UsageLimit { get; set; }
-
     [JsonPropertyName("usage_count")]
     [Column("usage_count")]
     public int UsageCount { get; set; }
@@ -57,11 +48,6 @@ public class Voucher : BaseEntity
 
     [JsonPropertyName("voucher_type")]
     [Column("voucher_type")]
-    public string VoucherType { get; set; } = default!;
+    public string VoucherType { get; set; } = VoucherTypeConstants.GLOBAL;
 
-    [JsonPropertyName("orders")]
-    public ICollection<Order>? Orders { get; set; }
-
-    [JsonPropertyName("customer_vouchers")]
-    public ICollection<CustomerVoucher>? CustomerVouchers { get; set; }
 }
