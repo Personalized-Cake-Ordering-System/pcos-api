@@ -11,7 +11,17 @@ public class CustomerBaseActionModel
     [JsonPropertyName("phone")]
     public string Phone { get; set; } = default!;
     [JsonPropertyName("address")]
-    public string Address { get; set; } = default!;
+    public string? Address { get; set; } = default!;
+
+    [JsonPropertyName("latitude")]
+    public string? Latitude { get; set; } = default!;
+
+    [JsonPropertyName("longitude")]
+    public string? Longitude { get; set; } = default!;
+
+    [JsonPropertyName("bank_account")]
+    public string BankAccount { get; set; } = default!;
+
     [JsonPropertyName("password")]
     public string Password { get; set; } = default!;
 }
@@ -41,6 +51,14 @@ public class CustomerBaseActionModelValidator : AbstractValidator<CustomerBaseAc
             .MaximumLength(50).WithMessage("Password cannot exceed 50 characters.")
             .Matches(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$")
             .WithMessage("Password must contain at least one uppercase letter, one lowercase letter, and one number.");
+
+        RuleFor(x => x.Latitude)
+        .NotEmpty().WithMessage("Latitude must not null if Address is not null.")
+        .When(x => !string.IsNullOrEmpty(x.Address));
+
+        RuleFor(x => x.Longitude)
+            .NotEmpty().WithMessage("Longitude must not null if Address is not null.")
+            .When(x => !string.IsNullOrEmpty(x.Address));
     }
 }
 public class CustomerCreateModel : CustomerBaseActionModel

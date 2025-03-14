@@ -13,7 +13,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.HasOne(x => x.Transaction).WithOne(x => x.Order).HasForeignKey<Transaction>(e => e.OrderId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(x => x.Voucher).WithMany(x => x.Orders).HasForeignKey(x => x.VoucherId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(x => x.CustomerVoucher).WithOne(x => x.Order).HasForeignKey<CustomerVoucher>(e => e.OrderId).OnDelete(DeleteBehavior.Cascade);
-        builder.HasMany(x => x.OrderDetails).WithOne(x => x.Order).HasForeignKey(x => x.OrderId).OnDelete(DeleteBehavior.Cascade);
-        builder.HasMany(x => x.OrderSupports).WithOne(x => x.Order).HasForeignKey(x => x.OrderId).OnDelete(DeleteBehavior.Cascade);
+        // builder.HasMany(x => x.OrderDetails).WithOne(x => x.Order).HasForeignKey(x => x.OrderId).OnDelete(DeleteBehavior.Cascade);
+        // builder.HasMany(x => x.OrderSupports).WithOne(x => x.Order).HasForeignKey(x => x.OrderId).OnDelete(DeleteBehavior.Cascade);
     }
 }

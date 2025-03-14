@@ -49,19 +49,23 @@ public class OrderService : IOrderService
         var customer = await _customerService.GetByIdAsync(_claimsService.GetCurrentUser);
         model.PhoneNumber ??= customer.Phone;
         model.OrderAddress ??= customer.Address;
-
-        var getOrderDetail = await GetOrderDetails(model.OrderDetailCreateModels);
-
         var order = _mapper.Map<Order>(model);
+
+        var getOrderDetail = await GetOrderDetails(order.Id, model.OrderDetailCreateModels);
+
         order.TotalPrice = getOrderDetail.Item2;
-        order.OrderDetails = getOrderDetail.Item1;
         order.CustomerId = _claimsService.GetCurrentUser;
 
 
         return null;
     }
 
-    private async Task<(List<OrderDetail>, double)> GetOrderDetails(List<OrderDetailCreateModel> orderDetails)
+    private double CalculateDistance(string origin, string destination)
+    {
+        return 0;
+    }
+
+    private async Task<(List<OrderDetail>, double)> GetOrderDetails(Guid orderId, List<OrderDetailCreateModel> orderDetails)
     {
         var details = _mapper.Map<List<OrderDetail>>(orderDetails);
         double total = 0;
@@ -69,18 +73,26 @@ public class OrderService : IOrderService
         {
             var available_cake_id = orderDetails[i].AvailableCakeId;
             var customer_cake_id = orderDetails[i].CustomCakeId;
+            details[i].OrderId = orderId;
+
             if (available_cake_id.HasValue)
             {
-                var availableCake = await _availableCakeService.GetByIdAsync(available_cake_id.Value);
-                total += availableCake.AvailableCakePrice;
+                var availableCake = await _unitOfWork.AvailableCakeRepository.GetByIdAsync(available_cake_id.Value); ;
+                total += availableCake!.AvailableCakePrice;
                 details[i].SubTotalPrice = availableCake.AvailableCakePrice;
             }
-            else
+            if (customer_cake_id.HasValue)
             {
-                // handle custom cake
+                var customCake = await _unitOfWork.CustomCakeRepository.GetByIdAsync(customer_cake_id.Value);
+                total += customCake!.Price;
+                details[i].SubTotalPrice = customCake.Price;
             }
         }
 
+        await _unitOfWork.OrderDetailRepository.AddRangeAsync(details);
+
         return (details, total);
     }
+
+
 }

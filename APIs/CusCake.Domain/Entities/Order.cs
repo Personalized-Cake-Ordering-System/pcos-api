@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using CusCake.Domain.Constants;
 
 namespace CusCake.Domain.Entities;
 
@@ -40,9 +41,17 @@ public class Order : BaseEntity
     [Column("order_address")]
     public string? OrderAddress { get; set; }
 
+    [JsonPropertyName("latitude")]
+    [Column("latitude")]
+    public string? Latitude { get; set; }
+
+    [JsonPropertyName("longitude")]
+    [Column("longitude")]
+    public string? Longitude { get; set; }
+
     [JsonPropertyName("order_status")]
     [Column("order_status")]
-    public string? OrderStatus { get; set; }
+    public string? OrderStatus { get; set; } = OrderStatusConstants.PENDING;
 
     [JsonPropertyName("customer_id")]
     [Column("customer_id")]
@@ -79,9 +88,4 @@ public class Order : BaseEntity
     [JsonPropertyName("customer_voucher")]
     public CustomerVoucher? CustomerVoucher { get; set; }
 
-    [JsonPropertyName("order_details")]
-    public ICollection<OrderDetail> OrderDetails { get; set; } = default!;
-
-    [JsonPropertyName("order_supports")]
-    public ICollection<OrderSupport>? OrderSupports { get; set; }
 }

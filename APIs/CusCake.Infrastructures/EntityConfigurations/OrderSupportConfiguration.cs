@@ -10,6 +10,6 @@ public class OrderSupportConfiguration : IEntityTypeConfiguration<OrderSupport>
     {
         builder.HasOne(x => x.Customer).WithMany().HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(x => x.Bakery).WithMany().HasForeignKey(x => x.BakeryId).OnDelete(DeleteBehavior.Cascade);
-        builder.HasOne(x => x.Order).WithMany(x => x.OrderSupports).HasForeignKey(x => x.OrderId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(x => x.Order).WithMany().HasForeignKey(x => x.OrderId).OnDelete(DeleteBehavior.Cascade);
     }
 }

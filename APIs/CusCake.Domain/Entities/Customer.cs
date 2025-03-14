@@ -18,6 +18,14 @@ namespace CusCake.Domain.Entities
         [JsonPropertyName("address")]
         public string? Address { get; set; } = default!;
 
+        [JsonPropertyName("latitude")]
+        [Column("latitude")]
+        public string? Latitude { get; set; }
+
+        [JsonPropertyName("longitude")]
+        [Column("longitude")]
+        public string? Longitude { get; set; }
+
         [Column("email")]
         [JsonPropertyName("email")]
         public string Email { get; set; } = default!;
