@@ -5,7 +5,7 @@ namespace CusCake.Application.Services;
 
 public interface IGoongService
 {
-    public Task<(double distanceKm, DateTime estimatedDeliveryTime)> GetShippingInfoAsync(
+    public Task<(double distanceKm, double estimatedDeliveryTime)> GetShippingInfoAsync(
         string orgLat, string orgLng, string destLat, string destLng, string travelMode = "car");
 }
 
@@ -14,11 +14,11 @@ public class GoongService(AppSettings appSettings) : IGoongService
     private const string BASE_URL = "https://rsapi.goong.io";
     private readonly AppSettings _appSettings = appSettings;
 
-    public async Task<(double distanceKm, DateTime estimatedDeliveryTime)> GetShippingInfoAsync(
+    public async Task<(double distanceKm, double estimatedDeliveryTime)> GetShippingInfoAsync(
         string orgLat, string orgLng, string destLat, string destLng, string travelMode = "car")
     {
         using HttpClient httpClient = new();
-        string requestUrl = $"{BASE_URL}/direction?origins={orgLat},{orgLng}&destinations={destLat},{destLng}&vehicle={travelMode}&api_key={_appSettings.GoongAPIKey}";
+        string requestUrl = $"{BASE_URL}/direction?origin={orgLat},{orgLng}&destination={destLat},{destLng}&vehicle={travelMode}&api_key={_appSettings.GoongAPIKey}";
 
         using var response = await httpClient.GetAsync(requestUrl);
         response.EnsureSuccessStatusCode();
@@ -32,9 +32,6 @@ public class GoongService(AppSettings appSettings) : IGoongService
         // Lấy thời gian vận chuyển (giây → giờ)
         double shippingTimeH = (jsonObject["routes"]?[0]?["legs"]?[0]?["duration"]?["value"]?.Value<double>() ?? 0) / 3600.0;
 
-        // Tính thời gian giao hàng dự kiến (từ thời điểm hiện tại)
-        DateTime estimatedDeliveryTime = DateTime.Now.AddHours(shippingTimeH);
-
-        return (distanceKm, estimatedDeliveryTime);
+        return (distanceKm, shippingTimeH);
     }
 }

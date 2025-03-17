@@ -1,5 +1,4 @@
 using AutoMapper;
-using CusCake.Application.Extensions;
 using CusCake.Application.GlobalExceptionHandling.Exceptions;
 using CusCake.Application.ViewModels.AuthModels;
 using CusCake.Domain.Constants;
@@ -15,6 +14,7 @@ public interface IAuthService
     Task<Auth> CreateAsync(AuthCreateModel model);
     Task<bool> UpdateAsync(AuthUpdateModel model);
     Task<bool> DeleteAsync(Guid entityId);
+    Task<Auth> GetAuthByIdAsync(Guid entityId);
 }
 
 public class AuthService(
@@ -69,6 +69,9 @@ public class AuthService(
                 x.Email == model.Email &&
                 x.Role == model.Role);
         if (isExist != null) throw new BadRequestException($"Email {model.Email} has already exist!");
+        var wallet = await CreateWalletAsync();
+
+        auth.WalletId = wallet.Id;
 
         await _unitOfWork.AuthRepository.AddAsync(auth);
         await _unitOfWork.SaveChangesAsync();
@@ -76,6 +79,13 @@ public class AuthService(
         return auth;
     }
 
+    private async Task<Wallet> CreateWalletAsync()
+    {
+        var wallet = new Wallet();
+        await _unitOfWork.WalletRepository.AddAsync(wallet);
+
+        return wallet;
+    }
     public async Task<bool> UpdateAsync(AuthUpdateModel model)
     {
         var auth = await _unitOfWork.AuthRepository
@@ -96,6 +106,16 @@ public class AuthService(
         _unitOfWork.AuthRepository.SoftRemove(auth);
 
         return await _unitOfWork.SaveChangesAsync();
+    }
+
+    public async Task<Auth> GetAuthByIdAsync(Guid entityId)
+    {
+        return await _unitOfWork.AuthRepository
+            .FirstOrDefaultAsync(x =>
+                x.EntityId == entityId,
+                includes: x => x.Wallet
+            ) ?? throw new BadRequestException("Error at update auth!");
+
     }
 }
 

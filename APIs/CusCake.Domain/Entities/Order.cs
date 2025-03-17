@@ -29,7 +29,7 @@ public class Order : BaseEntity
 
     [JsonPropertyName("shipping_time")]
     [Column("shipping_time")]
-    public DateTime? ShippingTime { get; set; }
+    public double? ShippingTime { get; set; }
 
     [JsonPropertyName("shipping_type")]
     [Column("shipping_type")]
@@ -61,7 +61,7 @@ public class Order : BaseEntity
 
     [JsonPropertyName("payment_type")]
     [Column("payment_type")]
-    public string PaymentType { get; set; } = default!;
+    public string PaymentType { get; set; } = PaymentTypeConstants.QR_CODE;
 
     [JsonPropertyName("canceled_reason")]
     [Column("canceled_reason")]
@@ -91,7 +91,15 @@ public class Order : BaseEntity
     [Column("cancel_by")]
     public string? CancelBy { get; set; }
 
+    [JsonPropertyName("order_code")]
+    [Column("order_code")]
+    public string OrderCode { get; set; } = default!;
+
+    [JsonPropertyName("paid_at")]
+    [Column("paid_at")]
+    public DateTime? PaidAt { get; set; }
     public List<OrderDetail>? OrderDetails { get; set; }
+    public List<OrderSupport>? OrderSupports { get; set; }
 
     #region RELATION
 

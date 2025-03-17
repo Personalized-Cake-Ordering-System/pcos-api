@@ -36,7 +36,7 @@ namespace CusCake.Domain.Entities
 
         [JsonPropertyName("bank_account")]
         [Column("bank_account")]
-        public string BankAccount { get; set; } = default!;
+        public string? BankAccount { get; set; } = default!;
 
         [Column("owner_name")]
         [JsonPropertyName("owner_name")]

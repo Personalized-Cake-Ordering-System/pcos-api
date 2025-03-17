@@ -8,7 +8,6 @@ public interface IUnitOfWork
     IAdminRepository AdminRepository { get; }
     IBakeryRepository BakeryRepository { get; }
     IAvailableCakeRepository AvailableCakeRepository { get; }
-    IBankEventRepository BankEventRepository { get; }
     ICakeDecorationOptionRepository CakeDecorationOptionRepository { get; }
     // ICakeDecorationTypeRepository CakeDecorationTypeRepository { get; }
     ICakeDecorationSelectionRepository CakeDecorationSelectionRepository { get; }
@@ -32,5 +31,7 @@ public interface IUnitOfWork
     IStorageRepository StorageRepository { get; }
     ITransactionRepository TransactionRepository { get; }
     IVoucherRepository VoucherRepository { get; }
+    IWalletRepository WalletRepository { get; }
+    IWalletTransactionRepository WalletTransaction { get; }
     Task<bool> SaveChangesAsync();
 }

@@ -30,6 +30,9 @@ public class OrderCreateModel
     [JsonPropertyName("shipping_type")]
     public string ShippingType { get; set; } = default!;
 
+    [JsonPropertyName("payment_type")]
+    public string PaymentType { get; set; } = default!;
+
     [JsonPropertyName("voucher_code")]
     public string? VoucherCode { get; set; }
 
@@ -65,6 +68,11 @@ public class OrderCreateModelValidator : AbstractValidator<OrderCreateModel>
                  .Must(type => type == ShippingTypeConstants.DELIVERY || type == ShippingTypeConstants.PICK_UP)
                  .WithMessage("Invalid shipping type.");
 
+        RuleFor(x => x.PaymentType)
+                 .NotEmpty().WithMessage("Payment type is required.")
+                 .Must(type => type == PaymentTypeConstants.QR_CODE || type == PaymentTypeConstants.CASH)
+                 .WithMessage("Invalid payment type.");
+
         RuleFor(x => x.PickUpTime)
         .Must(x => x.HasValue)
         .When(x => x.ShippingType == ShippingTypeConstants.PICK_UP)
@@ -77,11 +85,13 @@ public class OrderDetailCreateModelValidator : AbstractValidator<OrderDetailCrea
     public OrderDetailCreateModelValidator()
     {
         RuleFor(x => x.AvailableCakeId)
-            .NotNull().When(x => x.CustomCakeId == null)
+            .Must(x => x != null)
+            .When(x => x.CustomCakeId == null)
             .WithMessage("AvailableCakeId or CustomCakeId can't be null.");
 
         RuleFor(x => x.CustomCakeId)
-            .NotNull().When(x => x.AvailableCakeId == null)
+            .Must(x => x != null)
+            .When(x => x.AvailableCakeId == null)
             .WithMessage("AvailableCakeId or CustomCakeId can't be null.");
     }
 }

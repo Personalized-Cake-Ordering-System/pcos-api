@@ -15,6 +15,7 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 using CusCake.Application.ViewModels;
+using Hangfire;
 namespace CusCake.WebApi
 {
     public static class DependencyInjection
@@ -127,6 +128,9 @@ namespace CusCake.WebApi
                 };
             });
 
+            services.AddSignalR();
+            services.AddHangfire(config => config.UseInMemoryStorage());
+            services.AddHangfireServer();
             return services;
         }
     }

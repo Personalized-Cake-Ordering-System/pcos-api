@@ -1,6 +1,6 @@
-using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using CusCake.Domain.Constants;
 
 namespace CusCake.Domain.Entities;
 
@@ -15,21 +15,21 @@ public class Notification : BaseEntity
     [Column("content")]
     public string Content { get; set; } = default!;
 
-    [JsonPropertyName("sender_id")]
-    [Column("sender_id")]
-    public Guid SenderId { get; set; }
+    [JsonPropertyName("sender_type")]
+    [Column("sender_type")]
+    public string SenderType { get; set; } = NotificationSenderType.SYSTEM;
 
-    [JsonPropertyName("notification_type")]
-    [Column("notification_type")]
-    public string NotificationType { get; set; } = default!;
+    [JsonPropertyName("type")]
+    [Column("type")]
+    public string Type { get; set; } = default!;
 
     [JsonPropertyName("is_read")]
     [Column("is_read")]
     public bool IsRead { get; set; } = false;
 
-    [JsonPropertyName("type")]
-    [Column("type")]
-    public string Type { get; set; } = default!;
+    [JsonPropertyName("target_entity_id")]
+    [Column("target_entity_id")]
+    public Guid TargetEntityId { get; set; } = default!;
 
     // Relation
     [JsonPropertyName("bakery_id")]

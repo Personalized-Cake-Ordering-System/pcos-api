@@ -5,6 +5,7 @@ public class AppSettings
     public ConnectionStrings ConnectionStrings { get; set; } = default!;
     public JWTOptions JWTOptions { get; set; } = default!;
     public FirebaseSettings FirebaseSettings { get; set; } = default!;
+    public SepayOptions SepayOptions { get; set; } = default!;
     public string GoongAPIKey { get; set; } = default!;
 
 }
@@ -15,6 +16,12 @@ public class ConnectionStrings
     public string MySqlStringBackUp { get; set; } = default!;
 }
 
+public class SepayOptions
+{
+    public string BankId { get; set; } = default!;
+    public string AccountNo { get; set; } = default!;
+    public string ApiKey { get; set; } = default!;
+}
 
 public class JWTOptions
 {

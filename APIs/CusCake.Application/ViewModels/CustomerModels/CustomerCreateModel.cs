@@ -19,9 +19,6 @@ public class CustomerBaseActionModel
     [JsonPropertyName("longitude")]
     public string? Longitude { get; set; } = default!;
 
-    [JsonPropertyName("bank_account")]
-    public string BankAccount { get; set; } = default!;
-
     [JsonPropertyName("password")]
     public string Password { get; set; } = default!;
 }

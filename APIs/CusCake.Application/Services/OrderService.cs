@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using AutoMapper;
 using CusCake.Application.Extensions;
 using CusCake.Application.GlobalExceptionHandling.Exceptions;
@@ -6,6 +7,9 @@ using CusCake.Application.Utils;
 using CusCake.Application.ViewModels.OrderModels;
 using CusCake.Domain.Constants;
 using CusCake.Domain.Entities;
+using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
+using UnauthorizedAccessException = CusCake.Application.GlobalExceptionHandling.Exceptions.UnauthorizedAccessException;
 
 namespace CusCake.Application.Services;
 
@@ -14,6 +18,11 @@ public interface IOrderService
     Task<Order> CreateAsync(OrderCreateModel model);
     Task<Order> GetOrderByIdAsync(Guid id);
     Task<Order> UpdateAsync(Guid id, OrderUpdateModel model);
+    Task<Order> CancelAsync(Guid id);
+    Task BakeryConfirmAsync(Guid id);
+    Task<Order?> MoveToNextAsync<Order>(Guid id, List<IFormFile>? files = null);
+    Task<(Pagination, List<Order>)> GetAllAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<Order, bool>>? filter = null);
+    Task<Order> GetOrderDetailAsync(Guid id);
 }
 
 public class OrderService(
@@ -22,7 +31,10 @@ public class OrderService(
     ICustomerService customerService,
     IClaimsService claimsService,
     IGoongService goongService,
-    IVoucherService voucherService
+    IVoucherService voucherService,
+    INotificationService notificationService,
+    IFileService fileService,
+    IHangfireService hangfireService
 ) : IOrderService
 {
     private readonly IVoucherService _voucherService = voucherService;
@@ -31,110 +43,252 @@ public class OrderService(
     private readonly IMapper _mapper = mapper;
     private readonly IClaimsService _claimsService = claimsService;
     private readonly ICustomerService _customerService = customerService;
+    private readonly INotificationService _notificationService = notificationService;
+    private readonly IFileService _fileService = fileService;
+    private readonly IHangfireService _hangfireService = hangfireService;
 
-    public Dictionary<string, OrderStateTransition> GetTransitions()
+    public Dictionary<string, object> GetTransitions()
     {
-        return new Dictionary<string, OrderStateTransition>
+        return new Dictionary<string, object>
         {
             {
-                "ConfirmOrder", new OrderStateTransition
+                "PENDING", new OrderStateTransition<Order>
                 {
                     From = [OrderStatusConstants.PENDING],
                     To = OrderStatusConstants.CONFIRMED,
-                    Guard = (customerId) =>
+                    Guard = (order) =>
                     {
-                        return _claimsService.GetCurrentUserRole == RoleConstants.CUSTOMER;
+                        if(order!.CustomerId != _claimsService.GetCurrentUser ||
+                            _claimsService.GetCurrentUserRole != RoleConstants.CUSTOMER )
+                            throw new UnauthorizedAccessException("Can not access to action!");
+
+                        return true;
+                    },
+                    Action = async (order) =>
+                    {
+                        order!.OrderStatus = OrderStatusConstants.CONFIRMED;
+                        _unitOfWork.OrderRepository.Update(order!);
+                        await _unitOfWork.SaveChangesAsync();
+                        return order!;
                     }
                 }
             },
             {
-                "MarkPaymentPending", new OrderStateTransition
+                "CONFIRMED", new OrderStateTransition<Order>
                 {
                     From = [OrderStatusConstants.CONFIRMED],
                     To = OrderStatusConstants.PAYMENT_PENDING,
-                    // Guard = async (orderId) =>
-                    // {
-                    //     var user = await _userService.GetCurrentUserAsync();
-                    //     return user != null;
-                    // }
+                     Guard = (order) =>
+                    {
+                        if(order!.CustomerId != _claimsService.GetCurrentUser ||
+                            _claimsService.GetCurrentUserRole != RoleConstants.CUSTOMER )
+                            throw new UnauthorizedAccessException("Can not access to action!");
+
+
+                        return true;
+                    },
+                    Action = async (order) =>
+                    {
+                        var status=  order.ShippingType == ShippingTypeConstants.PICK_UP?
+                            OrderStatusConstants.WAITING_BAKERY :
+                            OrderStatusConstants.PAYMENT_PENDING;
+
+                        order!.OrderStatus = status;
+                        _unitOfWork.OrderRepository.Update(order!);
+                        await _unitOfWork.SaveChangesAsync();
+
+                        if(status == OrderStatusConstants.WAITING_BAKERY){
+                            _hangfireService.ScheduleJob(new JobRequest
+                                {
+                                    Action = async () => await BakeryConfirmAsync(order!.Id),
+                                    ExecuteTime = DateTime.Now.AddMinutes(5),
+                                });
+                        }
+
+                        return order!;
+                    }
                 }
             },
             {
-                "MarkAsPaid", new OrderStateTransition
+                "PAYMENT_PENDING", new OrderStateTransition<Order>
                 {
                     From = [OrderStatusConstants.PAYMENT_PENDING],
                     To = OrderStatusConstants.PAID,
-                    // Guard = async (orderId) =>
-                    // {
-                    //     var user = await _userService.GetCurrentUserAsync();
-                    //     return user != null;
-                    // }
+                    Guard = (order) =>
+                    {
+                        return true;
+                    },
+                    Action = async (order) =>
+                    {
+                        order!.OrderStatus = OrderStatusConstants.PAID;
+                        order!.PaidAt=DateTime.Now;
+                        _unitOfWork.OrderRepository.Update(order!);
+                        await _unitOfWork.SaveChangesAsync();
+                        return order!;
+                    }
                 }
             },
             {
-                "StartProcessing", new OrderStateTransition
+                "PAID", new OrderStateTransition<Order>
                 {
                     From = [OrderStatusConstants.PAID],
-                    To = OrderStatusConstants.PROCESSING
+                    To = OrderStatusConstants.WAITING_BAKERY,
+                    Action = async (order) =>
+                    {
+                        order!.OrderStatus = OrderStatusConstants.PROCESSING;
+                        _unitOfWork.OrderRepository.Update(order!);
+                        await _unitOfWork.SaveChangesAsync();
+                        return order!;
+                    }
                 }
             },
             {
-                "ReadyForPickup", new OrderStateTransition
+                "WAITING_BAKERY", new OrderStateTransition<Order>
+                {
+                    From = [OrderStatusConstants.WAITING_BAKERY],
+                    To = OrderStatusConstants.PROCESSING,
+                    Action=async (order)=> {
+
+                        order!.OrderStatus = OrderStatusConstants.PROCESSING;
+                        _unitOfWork.OrderRepository.Update(order!);
+
+                        await _unitOfWork.SaveChangesAsync();
+                        var notification = new Notification
+                        {
+                            Title = NotificationType.GetTitleByType(NotificationType.PROCESSING_ORDER),
+                            Content = NotificationType.GetContentByType(NotificationType.PROCESSING_ORDER),
+                            Type = NotificationType.PROCESSING_ORDER,
+                            TargetEntityId = order.Id
+                        };
+
+                        var orderJson = JsonConvert.SerializeObject(order);
+                        await _notificationService.CreateOrderNotificationAsync(order.Id,NotificationType.PROCESSING_ORDER, null ,order.CustomerId);
+                        await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, NotificationType.PROCESSING_ORDER);
+
+                        return order!;
+
+                    }
+                }
+            },
+            {
+                "PROCESSING", new OrderStateTransition<Order>
                 {
                     From = [OrderStatusConstants.PROCESSING],
-                    To = OrderStatusConstants.READY_FOR_PICKUP
+                    To = OrderStatusConstants.SHIPPING,
+                    Guard = (order) =>
+                    {
+                         if(_claimsService.GetCurrentUserRole!= RoleConstants.BAKERY || order.BakeryId != _claimsService.GetCurrentUser)
+                            throw new UnauthorizedAccessException("Can not access to action!");
+                        return true;
+                    },
+                    Validate=async (param)=>{
+                        var (order, files) = param;
+
+                        if(order.ShippingType == ShippingTypeConstants.PICK_UP) return true;
+
+                        if (files==null || files.Count == 0)
+                             throw new BadRequestException("Should provide image or video about order!");
+
+                        var ordersSupport= new List<OrderSupport>();
+
+                        foreach (var file in files)
+                        {
+                            var upload= await _fileService.UploadFileAsync(file);
+                            ordersSupport.Add(new OrderSupport{
+                                FileId=upload.Id,
+                                CustomerId=order.CustomerId,
+                                BakeryId=order.BakeryId,
+                                OrderId=order.Id
+                            });
+                        }
+                        await _unitOfWork.OrderSupportRepository.AddRangeAsync(ordersSupport);
+                        await _unitOfWork.SaveChangesAsync();
+
+                        return true;
+                    },
+                    Action=async (order) =>
+                    {
+                        var status=  order.ShippingType == ShippingTypeConstants.PICK_UP ?
+                                OrderStatusConstants.READY_FOR_PICKUP :
+                                OrderStatusConstants.SHIPPING;
+                        order!.OrderStatus = status;
+
+                        _unitOfWork.OrderRepository.Update(order!);
+                        await _unitOfWork.SaveChangesAsync();
+
+                        var orderJson = JsonConvert.SerializeObject(order);
+                        await _notificationService.CreateOrderNotificationAsync(order.Id, status , null ,order.CustomerId);
+                        await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, status);
+
+                        var completed_time=  order.ShippingType == ShippingTypeConstants.PICK_UP ? 30 :order.ShippingTime!.Value;
+
+                        _hangfireService.ScheduleJob(new JobRequest
+                        {
+                            Action = async () => await AutoCompletedAsync(order!.Id),
+                            ExecuteTime = DateTime.Now.AddMinutes(completed_time),
+                        });
+
+                        return order!;
+                    }
                 }
             },
             {
-                "CustomerConfirm", new OrderStateTransition
-                {
-                    From = [OrderStatusConstants.READY_FOR_PICKUP],
-                    To = OrderStatusConstants.CUSTOMER_CONFIRMED
-                }
-            },
-            {
-                "ShipOrder", new OrderStateTransition
-                {
-                    From = [OrderStatusConstants.CUSTOMER_CONFIRMED],
-                    To = OrderStatusConstants.SHIPPING
-                }
-            },
-            {
-                "CompleteOrder", new OrderStateTransition
+                "SHIPPING", new OrderStateTransition<Order>
                 {
                     From = [OrderStatusConstants.SHIPPING],
-                    To = OrderStatusConstants.COMPLETED
+                    To = OrderStatusConstants.COMPLETED,
+                    Action=async (order) =>
+                    {
+                        order!.OrderStatus = OrderStatusConstants.COMPLETED;
+                        _unitOfWork.OrderRepository.Update(order!);
+                        await _unitOfWork.SaveChangesAsync();
+
+                        var orderJson = JsonConvert.SerializeObject(order);
+                        await _notificationService.CreateOrderNotificationAsync(order.Id,NotificationType.ORDER_COMPLETED, null ,order.CustomerId);
+                        await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, NotificationType.ORDER_COMPLETED);
+
+                        return order!;
+                    }
                 }
             },
             {
-                "AutoCompleteOrder", new OrderStateTransition
+                "READY_FOR_PICKUP", new OrderStateTransition<Order>
                 {
-                    From = [OrderStatusConstants.READY_FOR_PICKUP, OrderStatusConstants.SHIPPING],
-                    To = OrderStatusConstants.AUTO_COMPLETED
-                }
-            },
-            {
-                "CancelOrder", new OrderStateTransition
-                {
-                    From =
-                    [
-                        OrderStatusConstants.PENDING,
-                        OrderStatusConstants.CONFIRMED,
-                        OrderStatusConstants.PAYMENT_PENDING,
-                        OrderStatusConstants.PAID,
-                        OrderStatusConstants.PROCESSING,
-                        OrderStatusConstants.READY_FOR_PICKUP
-                    ],
-                    To = OrderStatusConstants.CANCELED,
-                    // Guard = async (orderId) =>
-                    // {
-                    //     var user = await _userService.GetCurrentUserAsync();
-                    //     return user != null && user.Role == "ADMIN"; // Chỉ admin có quyền hủy
-                    // }
+                    From = [OrderStatusConstants.READY_FOR_PICKUP],
+                    To = OrderStatusConstants.COMPLETED,
+                    Action=async (order) =>
+                    {
+                        order!.OrderStatus = OrderStatusConstants.COMPLETED;
+                        _unitOfWork.OrderRepository.Update(order!);
+                        await _unitOfWork.SaveChangesAsync();
+
+                        var orderJson = JsonConvert.SerializeObject(order);
+                        await _notificationService.CreateOrderNotificationAsync(order.Id,NotificationType.ORDER_COMPLETED, null ,order.CustomerId);
+                        await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, NotificationType.ORDER_COMPLETED);
+
+                        return order!;
+                    }
                 }
             }
         };
     }
+
+    public async Task BakeryConfirmAsync(Guid id)
+    {
+        var order = await GetOrderByIdAsync(id);
+        if (order.OrderStatus != OrderStatusConstants.WAITING_BAKERY) return;
+
+        await MoveToNextAsync<Order>(id);
+    }
+
+    public async Task AutoCompletedAsync(Guid id)
+    {
+        var order = await GetOrderByIdAsync(id);
+        if (order.OrderStatus != OrderStatusConstants.SHIPPING) return;
+
+        await MoveToNextAsync<Order>(id);
+    }
+
 
     public async Task<Order> CreateAsync(OrderCreateModel model)
     {
@@ -153,6 +307,8 @@ public class OrderService(
 
         model.PhoneNumber ??= customer.Phone;
         model.ShippingAddress ??= customer.Address;
+        model.Longitude ??= customer.Longitude;
+        model.Latitude ??= customer.Latitude;
 
         var order = _mapper.Map<Order>(model);
         order.CustomerId = _claimsService.GetCurrentUser;
@@ -164,6 +320,8 @@ public class OrderService(
         order = await CalculateDiscount(order);
 
         order = CalculateFinalPrice(order);
+
+        order.OrderCode = GenerateRandomString.GenerateCode();
 
         await _unitOfWork.OrderRepository.AddAsync(order);
         await _unitOfWork.SaveChangesAsync();
@@ -193,7 +351,7 @@ public class OrderService(
 
     private async Task<Order> CalculateShipping(Bakery bakery, Order order)
     {
-        if (order.ShippingType == ShippingTypeConstants.PICK_UP)
+        if (order.ShippingType == ShippingTypeConstants.PICK_UP || order.PaymentType == PaymentTypeConstants.CASH)
         {
             order.ShippingAddress = null;
             order.Longitude = null;
@@ -207,7 +365,7 @@ public class OrderService(
 
         var (distanceKm, shippingTimeH) = await _goongService.GetShippingInfoAsync(
             bakery.Latitude, bakery.Longitude,
-            order.Longitude!, order.Longitude!
+            order.Latitude!, order.Longitude!
         );
 
         if (distanceKm == 0) throw new BadRequestException("Invalid address!");
@@ -263,7 +421,7 @@ public class OrderService(
         return (details, total);
     }
 
-    public async Task<Order> GetOrderByIdAsync(Guid id)
+    public async Task<Order> GetOrderDetailAsync(Guid id)
     {
         var includes = QueryHelper.Includes<Order>(
             x => x.Customer!,
@@ -276,8 +434,23 @@ public class OrderService(
             ?? throw new BadRequestException("Order not found!");
 
         order.OrderDetails = await _unitOfWork.OrderDetailRepository.WhereAsync(x => x.OrderId == id);
-
+        order.OrderSupports = await _unitOfWork.OrderSupportRepository
+                            .WhereAsync(x =>
+                                x.BakeryId == order.BakeryId &&
+                                x.OrderId == order.Id &&
+                                x.CustomerId == order.CustomerId
+                            );
         return order;
+    }
+    public async Task<Order> GetOrderByIdAsync(Guid id)
+    {
+        var includes = QueryHelper.Includes<Order>(
+            x => x.Voucher!,
+            x => x.CustomerVoucher!);
+
+        return await _unitOfWork.OrderRepository.GetByIdAsync(id, includes: includes)
+            ?? throw new BadRequestException("Order not found!");
+
     }
 
     private void DeleteOrderDetailAsync(Order order)
@@ -301,7 +474,7 @@ public class OrderService(
 
         var order = await GetOrderByIdAsync(id);
 
-        if (order.OrderStatus != OrderStatusConstants.PENDING)
+        if (order.OrderStatus != OrderStatusConstants.PENDING || order.OrderStatus != OrderStatusConstants.CONFIRMED)
             throw new BadRequestException("Only update when status is PENDING!");
 
         DeleteOrderDetailAsync(order);
@@ -320,6 +493,48 @@ public class OrderService(
         order = CalculateFinalPrice(order);
 
         return order;
+
+    }
+
+
+    public async Task<Order> CancelAsync(Guid id)
+    {
+        var order = await GetOrderByIdAsync(id);
+
+        order.OrderStatus = OrderStatusConstants.CANCELED;
+        order.CancelBy = _claimsService.GetCurrentUserRole;
+
+        return order;
+    }
+
+    public async Task<Order?> MoveToNextAsync<Order>(Guid id, List<IFormFile>? files = null)
+    {
+        var order = await GetOrderByIdAsync(id);
+
+        var transitions = GetTransitions();
+
+        if (!transitions.TryGetValue(order.OrderStatus!, out var transitionObj))
+            throw new BadRequestException("Invalid state transition!");
+
+        var transition = transitionObj as OrderStateTransition<Order> ?? throw new BadRequestException("Invalid state transition!");
+
+        transition.Guard?.Invoke(order);
+
+        transition.Validate?.Invoke((order, files)!);
+
+        return transition.Action != null ? await transition.Action(order) : default;
+    }
+
+    public async Task<(Pagination, List<Order>)> GetAllAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<Order, bool>>? filter = null)
+    {
+        var includes = QueryHelper.Includes<Order>(
+           x => x.Customer!,
+           x => x.Bakery!,
+           x => x.Transaction!,
+           x => x.Voucher!,
+           x => x.CustomerVoucher!);
+
+        return await _unitOfWork.OrderRepository.ToPagination(pageIndex, pageSize, filter: filter, includes: includes);
 
     }
 }

@@ -1,4 +1,5 @@
-﻿using CusCake.Application.Services;
+﻿using System.Linq.Expressions;
+using CusCake.Application.Services;
 using CusCake.Application.ViewModels;
 using CusCake.Application.ViewModels.CustomerModels;
 using CusCake.Domain.Constants;
@@ -9,9 +10,15 @@ using Microsoft.AspNetCore.Mvc;
 namespace CusCake.WebApi.Controllers;
 
 
-public class CustomerController(ICustomerService customerService) : BaseController
+public class CustomerController(
+    ICustomerService customerService,
+    INotificationService notificationService,
+    IOrderService orderService
+) : BaseController
 {
+    private readonly INotificationService _notificationService = notificationService;
     private readonly ICustomerService _customerService = customerService;
+    private readonly IOrderService _orderService = orderService;
 
     [HttpGet("{id}")]
     [Authorize]
@@ -50,5 +57,32 @@ public class CustomerController(ICustomerService customerService) : BaseControll
 
         return StatusCode(204, new ResponseModel<object, object> { StatusCode = 204 });
     }
+
+    [HttpGet("{id}/notifications")]
+    [Authorize(Roles = RoleConstants.CUSTOMER)]
+    public async Task<IActionResult> GetNotificationsAsync(
+       Guid id,
+       int pageIndex = 0,
+       int pageSize = 10)
+    {
+        Expression<Func<Notification, bool>> filter = x =>
+           (x.CustomerId == id);
+        var result = await _notificationService.GetAllAsync(pageIndex, pageSize, filter);
+        return Ok(ResponseModel<object, List<Notification>>.Success(result.Item2, result.Item1));
+    }
+
+    [HttpGet("{id}/orders")]
+    [Authorize(Roles = RoleConstants.CUSTOMER)]
+    public async Task<IActionResult> GetOrdersAsync(
+       Guid id,
+       int pageIndex = 0,
+       int pageSize = 10)
+    {
+        Expression<Func<Order, bool>> filter = x =>
+           (x.CustomerId == id);
+        var result = await _orderService.GetAllAsync(pageIndex, pageSize, filter);
+        return Ok(ResponseModel<object, List<Order>>.Success(result.Item2, result.Item1));
+    }
+
 }
 

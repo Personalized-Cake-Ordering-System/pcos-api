@@ -42,6 +42,11 @@ public class Auth : BaseEntity
     [JsonPropertyName("admin")]
     public Admin? Admin { get; set; } = default!;
 
+    [Column("wallet_id")]
+    [JsonPropertyName("wallet_id")]
+    public Guid WalletId { get; set; }
 
+    [JsonPropertyName("auth")]
+    public Wallet Wallet { get; set; } = default!;
 
 }

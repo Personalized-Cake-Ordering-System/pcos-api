@@ -17,5 +17,6 @@ public class AuthConfiguration : IEntityTypeConfiguration<Auth>
 {
     public void Configure(EntityTypeBuilder<Auth> builder)
     {
+        builder.HasOne(x => x.Wallet).WithOne().HasForeignKey<Auth>(x => x.WalletId).OnDelete(DeleteBehavior.Cascade);
     }
 }

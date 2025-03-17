@@ -11,9 +11,13 @@ public class OrderSupport : BaseEntity
     [Column("content")]
     public string? Content { get; set; }
 
-    [JsonPropertyName("order_support_file_id")]
-    [Column("order_support_file_id")]
-    public Guid? OrderSupportFileId { get; set; }
+    [JsonPropertyName("file_id")]
+    [Column("file_id")]
+    public Guid? FileId { get; set; }
+
+    [JsonPropertyName("file")]
+    public Storage? File { get; set; }
+
 
     [JsonPropertyName("bakery_id")]
     [Column("bakery_id")]

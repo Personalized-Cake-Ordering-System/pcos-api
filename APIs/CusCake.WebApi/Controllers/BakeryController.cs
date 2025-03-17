@@ -10,8 +10,14 @@ using Microsoft.AspNetCore.Mvc;
 namespace CusCake.WebApi.Controllers;
 [ApiController]
 [Route("api/bakeries")]
-public class BakeryController(IBakeryService bakeryService) : ControllerBase
+public class BakeryController(
+    IBakeryService bakeryService,
+    INotificationService notificationService,
+    IOrderService orderService
+) : ControllerBase
 {
+    private readonly IOrderService _orderService = orderService;
+    private readonly INotificationService _notificationService = notificationService;
     private readonly IBakeryService _bakeryService = bakeryService;
 
 
@@ -68,4 +74,31 @@ public class BakeryController(IBakeryService bakeryService) : ControllerBase
 
         return StatusCode(204, new ResponseModel<object, object> { StatusCode = 204 });
     }
+
+    [HttpGet("{id}/notifications")]
+    [Authorize(Roles = RoleConstants.BAKERY)]
+    public async Task<IActionResult> GetNotificationAsync(
+    Guid id,
+    int pageIndex = 0,
+    int pageSize = 10)
+    {
+        Expression<Func<Notification, bool>> filter = x =>
+           (x.BakeryId == id);
+        var result = await _notificationService.GetAllAsync(pageIndex, pageSize, filter);
+        return Ok(ResponseModel<object, List<Notification>>.Success(result.Item2, result.Item1));
+    }
+
+    [HttpGet("{id}/orders")]
+    [Authorize(Roles = RoleConstants.BAKERY)]
+    public async Task<IActionResult> GetOrdersAsync(
+     Guid id,
+     int pageIndex = 0,
+     int pageSize = 10)
+    {
+        Expression<Func<Order, bool>> filter = x =>
+           (x.BakeryId == id);
+        var result = await _orderService.GetAllAsync(pageIndex, pageSize, filter);
+        return Ok(ResponseModel<object, List<Order>>.Success(result.Item2, result.Item1));
+    }
+
 }

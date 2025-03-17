@@ -14,7 +14,6 @@ namespace CusCake.Infrastructures
         public DbSet<Storage> Storages { get; set; }
         public DbSet<Bakery> Bakeries { get; set; }
         public DbSet<AvailableCake> AvailableCakes { get; set; }
-        public DbSet<BankEvent> BankEvents { get; set; }
         public DbSet<CakeDecorationOption> CakeDecorationOptions { get; set; }
         public DbSet<CakeDecorationSelection> CakeDecorationSelections { get; set; }
         // public DbSet<CakeDecorationType> CakeDecorationTypes { get; set; }
@@ -38,6 +37,8 @@ namespace CusCake.Infrastructures
         public DbSet<CustomerVoucher> CustomerVouchers { get; set; }
         public DbSet<Admin> Admins { get; set; }
         public DbSet<Auth> Auths { get; set; }
+        public DbSet<Wallet> Wallets { get; set; }
+        public DbSet<WalletTransaction> WalletTransactions { get; set; }
 
         #endregion
 
