@@ -18,6 +18,12 @@ public class BakeryBaseActionModel
     [JsonPropertyName("address")]
     public string Address { get; set; } = default!;
 
+    [JsonPropertyName("latitude")]
+    public string Latitude { get; set; } = default!;
+
+    [JsonPropertyName("longitude")]
+    public string Longitude { get; set; } = default!;
+
     [JsonPropertyName("owner_name")]
     public string OwnerName { get; set; } = default!;
 
@@ -38,6 +44,9 @@ public class BakeryBaseActionModel
 
     [JsonPropertyName("back_card_file_id")]
     public Guid BackCardFileId { get; set; }
+
+    [JsonPropertyName("bank_account")]
+    public string? BankAccount { get; set; } = default!;
 }
 
 

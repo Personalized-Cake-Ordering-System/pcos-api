@@ -20,4 +20,16 @@ namespace CusCake.Infrastructures.Repositories
         {
         }
     }
+    public class WalletRepository : GenericRepository<Wallet>, IWalletRepository
+    {
+        public WalletRepository(AppDbContext context, ICurrentTime currentTime, IClaimsService claimsService) : base(context, currentTime, claimsService)
+        {
+        }
+    }
+    public class WalletTransactionRepository : GenericRepository<WalletTransaction>, IWalletTransactionRepository
+    {
+        public WalletTransactionRepository(AppDbContext context, ICurrentTime currentTime, IClaimsService claimsService) : base(context, currentTime, claimsService)
+        {
+        }
+    }
 }

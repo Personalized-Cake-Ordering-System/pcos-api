@@ -26,6 +26,18 @@ namespace CusCake.Domain.Entities
         [JsonPropertyName("address")]
         public string Address { get; set; } = default!;
 
+        [JsonPropertyName("latitude")]
+        [Column("latitude")]
+        public string Latitude { get; set; } = default!;
+
+        [JsonPropertyName("longitude")]
+        [Column("longitude")]
+        public string Longitude { get; set; } = default!;
+
+        [JsonPropertyName("bank_account")]
+        [Column("bank_account")]
+        public string? BankAccount { get; set; } = default!;
+
         [Column("owner_name")]
         [JsonPropertyName("owner_name")]
         public string OwnerName { get; set; } = default!;

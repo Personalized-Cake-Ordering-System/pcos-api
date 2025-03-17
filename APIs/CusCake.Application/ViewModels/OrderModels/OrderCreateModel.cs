@@ -2,6 +2,7 @@ using FluentValidation;
 
 namespace CusCake.Application.ViewModels.OrderModels;
 using System.Text.Json.Serialization;
+using CusCake.Domain.Constants;
 
 public class OrderCreateModel
 {
@@ -14,8 +15,26 @@ public class OrderCreateModel
     [JsonPropertyName("phone_number")]
     public string? PhoneNumber { get; set; }
 
-    [JsonPropertyName("order_address")]
-    public string? OrderAddress { get; set; }
+    [JsonPropertyName("shipping_address")]
+    public string? ShippingAddress { get; set; }
+
+    [JsonPropertyName("latitude")]
+    public string? Latitude { get; set; }
+
+    [JsonPropertyName("longitude")]
+    public string? Longitude { get; set; }
+
+    [JsonPropertyName("pickup_time")]
+    public DateTime? PickUpTime { get; set; } = DateTime.Now;
+
+    [JsonPropertyName("shipping_type")]
+    public string ShippingType { get; set; } = default!;
+
+    [JsonPropertyName("payment_type")]
+    public string PaymentType { get; set; } = default!;
+
+    [JsonPropertyName("voucher_code")]
+    public string? VoucherCode { get; set; }
 
     [JsonPropertyName("order_detail_create_models")]
     public List<OrderDetailCreateModel> OrderDetailCreateModels { get; set; } = default!;
@@ -43,6 +62,21 @@ public class OrderCreateModelValidator : AbstractValidator<OrderCreateModel>
         RuleFor(x => x.OrderDetailCreateModels)
             .NotNull().WithMessage("Order details can not null.")
             .Must(x => x != null && x.Count != 0).WithMessage("At least one order detail.");
+
+        RuleFor(x => x.ShippingType)
+                 .NotEmpty().WithMessage("Shipping type is required.")
+                 .Must(type => type == ShippingTypeConstants.DELIVERY || type == ShippingTypeConstants.PICK_UP)
+                 .WithMessage("Invalid shipping type.");
+
+        RuleFor(x => x.PaymentType)
+                 .NotEmpty().WithMessage("Payment type is required.")
+                 .Must(type => type == PaymentTypeConstants.QR_CODE || type == PaymentTypeConstants.CASH)
+                 .WithMessage("Invalid payment type.");
+
+        RuleFor(x => x.PickUpTime)
+        .Must(x => x.HasValue)
+        .When(x => x.ShippingType == ShippingTypeConstants.PICK_UP)
+        .WithMessage("PickUpTime is required when shipping type is PICKUP.");
     }
 }
 
@@ -51,11 +85,17 @@ public class OrderDetailCreateModelValidator : AbstractValidator<OrderDetailCrea
     public OrderDetailCreateModelValidator()
     {
         RuleFor(x => x.AvailableCakeId)
-            .NotNull().When(x => x.CustomCakeId == null)
+            .Must(x => x != null)
+            .When(x => x.CustomCakeId == null)
             .WithMessage("AvailableCakeId or CustomCakeId can't be null.");
 
         RuleFor(x => x.CustomCakeId)
-            .NotNull().When(x => x.AvailableCakeId == null)
+            .Must(x => x != null)
+            .When(x => x.AvailableCakeId == null)
             .WithMessage("AvailableCakeId or CustomCakeId can't be null.");
     }
+}
+
+public class OrderUpdateModel : OrderCreateModel
+{
 }

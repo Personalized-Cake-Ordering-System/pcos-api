@@ -7,8 +7,15 @@ public class ClaimService : IClaimsService
 {
     public ClaimService(IHttpContextAccessor httpContextAccessor)
     {
-        var Id = httpContextAccessor.HttpContext?.User?.FindFirstValue("id");
-        GetCurrentUser = string.IsNullOrEmpty(Id) ? Guid.Empty : Guid.Parse(Id);
+        var httpContext = httpContextAccessor.HttpContext;
+        var user = httpContext?.User;
+
+        var id = user?.FindFirstValue("id");
+        var role = user?.FindFirstValue(ClaimTypes.Role);
+
+        GetCurrentUser = string.IsNullOrEmpty(id) ? Guid.Empty : Guid.Parse(id);
+        GetCurrentUserRole = role ?? string.Empty;
     }
     public Guid GetCurrentUser { get; }
+    public string GetCurrentUserRole { get; }
 }

@@ -16,7 +16,6 @@ namespace CusCake.Infrastructures
             IBakeryRepository bakeryRepository,
             IStorageRepository storageRepository,
             IAvailableCakeRepository availableCakeRepository,
-            IBankEventRepository bankEventRepository,
 
             ICakeDecorationOptionRepository cakeDecorationOptionRepository,
             // ICakeDecorationTypeRepository cakeDecorationTypeRepository,
@@ -43,7 +42,9 @@ namespace CusCake.Infrastructures
             IOrderSupportRepository orderSupportRepository,
             ITransactionRepository transactionRepository,
             IVoucherRepository voucherRepository,
-            IAuthRepository authRepository
+            IAuthRepository authRepository,
+            IWalletRepository walletRepository,
+            IWalletTransactionRepository walletTransaction
         )
         {
             _appDbContext = appDbContext;
@@ -51,7 +52,6 @@ namespace CusCake.Infrastructures
             BakeryRepository = bakeryRepository;
             StorageRepository = storageRepository;
             AvailableCakeRepository = availableCakeRepository;
-            BankEventRepository = bankEventRepository;
 
             CakeExtraOptionRepository = cakeExtraOptionRepository;
             CakeExtraSelectionRepository = cakeExtraSelectionRepository;
@@ -80,6 +80,8 @@ namespace CusCake.Infrastructures
             VoucherRepository = voucherRepository;
             AdminRepository = adminRepository;
             AuthRepository = authRepository;
+            WalletRepository = walletRepository;
+            WalletTransaction = walletTransaction;
         }
 
         public ICustomerRepository CustomerRepository { get; }
@@ -89,8 +91,6 @@ namespace CusCake.Infrastructures
         public IStorageRepository StorageRepository { get; }
 
         public IAvailableCakeRepository AvailableCakeRepository { get; }
-
-        public IBankEventRepository BankEventRepository { get; }
 
         public ICakeReviewRepository CakeReviewRepository { get; }
 
@@ -129,6 +129,10 @@ namespace CusCake.Infrastructures
         public ICakeExtraOptionRepository CakeExtraOptionRepository { get; }
 
         public ICakeExtraSelectionRepository CakeExtraSelectionRepository { get; }
+
+        public IWalletRepository WalletRepository { get; }
+
+        public IWalletTransactionRepository WalletTransaction { get; }
 
         // public ICakeExtraTypeRepository CakeExtraTypeRepository { get; }
 
