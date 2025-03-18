@@ -11,6 +11,7 @@ using CusCake.Application.ViewModels.CakePartModels;
 using CusCake.Application.ViewModels.CustomCakeModels;
 using CusCake.Application.ViewModels.CustomerModels;
 using CusCake.Application.ViewModels.OrderModels;
+using CusCake.Application.ViewModels.TransactionModels;
 using CusCake.Application.ViewModels.VoucherModels;
 using CusCake.Domain.Entities;
 
@@ -62,7 +63,7 @@ namespace CusCake.Infrastructures.Mappers
 
             #endregion
 
-            #region Cake Extras
+            #region Orders
             CreateMap<OrderCreateModel, Order>().ReverseMap();
             CreateMap<OrderUpdateModel, Order>()
                 .ForMember(x => x.ShippingType, option => option.Ignore())
@@ -70,6 +71,12 @@ namespace CusCake.Infrastructures.Mappers
                 .ForMember(x => x.VoucherCode, option => option.Ignore())
                 .ReverseMap();
             CreateMap<OrderDetailCreateModel, OrderDetail>().ReverseMap();
+
+            CreateMap<TransactionWebhookModel, Transaction>()
+                .ForMember(x => x.Id, option => option.Ignore())
+                .ForMember(x => x.TransactionId, option => option.MapFrom(x => x.Id))
+                .ReverseMap();
+
             #endregion
 
             #region CustomCake

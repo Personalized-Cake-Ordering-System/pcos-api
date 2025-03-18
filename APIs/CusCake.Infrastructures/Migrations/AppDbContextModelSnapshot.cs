@@ -1518,11 +1518,6 @@ namespace CusCake.Infrastructures.Migrations
                         .HasColumnName("total_product_price")
                         .HasAnnotation("Relational:JsonPropertyName", "total_product_price");
 
-                    b.Property<Guid?>("TransactionId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("transaction_id")
-                        .HasAnnotation("Relational:JsonPropertyName", "transaction_id");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("updated_at")
@@ -1683,9 +1678,6 @@ namespace CusCake.Infrastructures.Migrations
                         .HasColumnName("order_id")
                         .HasAnnotation("Relational:JsonPropertyName", "order_id");
 
-                    // b.Property<Guid?>("OrderId1")
-                    //     .HasColumnType("char(36)");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("updated_at")
@@ -1705,8 +1697,6 @@ namespace CusCake.Infrastructures.Migrations
                     b.HasIndex("FileId");
 
                     b.HasIndex("OrderId");
-
-                    // b.HasIndex("OrderId1");
 
                     b.ToTable("order_supports");
                 });
@@ -1772,12 +1762,11 @@ namespace CusCake.Infrastructures.Migrations
                         .HasAnnotation("Relational:JsonPropertyName", "id");
 
                     b.Property<string>("AccountNumber")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("account_number")
                         .HasAnnotation("Relational:JsonPropertyName", "account_number");
 
-                    b.Property<double>("Accumulated")
+                    b.Property<double?>("Accumulated")
                         .HasColumnType("double")
                         .HasColumnName("accumulated")
                         .HasAnnotation("Relational:JsonPropertyName", "accumulated");
@@ -1788,13 +1777,11 @@ namespace CusCake.Infrastructures.Migrations
                         .HasAnnotation("Relational:JsonPropertyName", "amount");
 
                     b.Property<string>("Code")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("code")
                         .HasAnnotation("Relational:JsonPropertyName", "code");
 
                     b.Property<string>("Content")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("content")
                         .HasAnnotation("Relational:JsonPropertyName", "content");
@@ -1810,10 +1797,14 @@ namespace CusCake.Infrastructures.Migrations
                         .HasAnnotation("Relational:JsonPropertyName", "created_by");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("description")
                         .HasAnnotation("Relational:JsonPropertyName", "description");
+
+                    b.Property<string>("Gateway")
+                        .HasColumnType("longtext")
+                        .HasColumnName("gate_way")
+                        .HasAnnotation("Relational:JsonPropertyName", "gate_way");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("tinyint(1)")
@@ -1826,7 +1817,6 @@ namespace CusCake.Infrastructures.Migrations
                         .HasAnnotation("Relational:JsonPropertyName", "order_id");
 
                     b.Property<string>("ReferenceCode")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("reference_code")
                         .HasAnnotation("Relational:JsonPropertyName", "reference_code");
@@ -1836,13 +1826,22 @@ namespace CusCake.Infrastructures.Migrations
                         .HasColumnName("sub_account")
                         .HasAnnotation("Relational:JsonPropertyName", "sub_account");
 
-                    b.Property<double>("TransferAmount")
+                    b.Property<string>("TransactionDate")
+                        .HasColumnType("longtext")
+                        .HasColumnName("transaction_date")
+                        .HasAnnotation("Relational:JsonPropertyName", "transaction_date");
+
+                    b.Property<int?>("TransactionId")
+                        .HasColumnType("int")
+                        .HasColumnName("transaction_id")
+                        .HasAnnotation("Relational:JsonPropertyName", "transaction_id");
+
+                    b.Property<double?>("TransferAmount")
                         .HasColumnType("double")
                         .HasColumnName("transfer_amount")
                         .HasAnnotation("Relational:JsonPropertyName", "transfer_amount");
 
                     b.Property<string>("TransferType")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("transfer_type")
                         .HasAnnotation("Relational:JsonPropertyName", "transfer_type");
@@ -1859,12 +1858,9 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OrderId")
-                        .IsUnique();
+                    b.HasIndex("OrderId");
 
                     b.ToTable("transactions");
-
-                    b.HasAnnotation("Relational:JsonPropertyName", "transaction");
                 });
 
             modelBuilder.Entity("CusCake.Domain.Entities.Voucher", b =>
@@ -2407,7 +2403,7 @@ namespace CusCake.Infrastructures.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("CusCake.Domain.Entities.Order", "Order")
-                        .WithMany("OrderDetails")
+                        .WithMany()
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2446,10 +2442,6 @@ namespace CusCake.Infrastructures.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    // b.HasOne("CusCake.Domain.Entities.Order", null)
-                    //     .WithMany("OrderSupports")
-                    //     .HasForeignKey("OrderId1");
-
                     b.Navigation("Bakery");
 
                     b.Navigation("Customer");
@@ -2462,8 +2454,8 @@ namespace CusCake.Infrastructures.Migrations
             modelBuilder.Entity("CusCake.Domain.Entities.Transaction", b =>
                 {
                     b.HasOne("CusCake.Domain.Entities.Order", "Order")
-                        .WithOne("Transaction")
-                        .HasForeignKey("CusCake.Domain.Entities.Transaction", "OrderId")
+                        .WithMany()
+                        .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -2512,12 +2504,6 @@ namespace CusCake.Infrastructures.Migrations
             modelBuilder.Entity("CusCake.Domain.Entities.Order", b =>
                 {
                     b.Navigation("CustomerVoucher");
-
-                    b.Navigation("OrderDetails");
-
-                    b.Navigation("OrderSupports");
-
-                    b.Navigation("Transaction");
                 });
 #pragma warning restore 612, 618
         }

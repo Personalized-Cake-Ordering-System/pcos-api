@@ -117,12 +117,12 @@ public class Order : BaseEntity
     [JsonPropertyName("bakery")]
     public Bakery Bakery { get; set; } = default!;
 
-    [JsonPropertyName("transaction_id")]
-    [Column("transaction_id")]
-    public Guid? TransactionId { get; set; }
+    // [JsonPropertyName("transaction_id")]
+    // [Column("transaction_id")]
+    // public Guid? TransactionId { get; set; }
 
-    [JsonPropertyName("transaction")]
-    public Transaction? Transaction { get; set; }
+    // [JsonPropertyName("transaction")]
+    // public Transaction? Transaction { get; set; }
 
     [JsonPropertyName("voucher_id")]
     [Column("voucher_id")]

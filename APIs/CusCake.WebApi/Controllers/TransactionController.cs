@@ -1,4 +1,5 @@
 using CusCake.Application.Annotations;
+using CusCake.Application.Services;
 using CusCake.Application.ViewModels.TransactionModels;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,6 +8,11 @@ namespace CusCake.WebApi.Controllers;
 public class TransactionController : BaseController
 {
 
+    private readonly ITransactionService _transactionService;
+    public TransactionController(ITransactionService transactionService)
+    {
+        _transactionService = transactionService;
+    }
     /// <summary>
     /// It is webhook to handle payment
     /// </summary>
@@ -14,7 +20,7 @@ public class TransactionController : BaseController
     [SepayAuthorize]
     public async Task<IActionResult> TransactionWebhookHandler(TransactionWebhookModel model)
     {
-        await Task.Delay(0);
+        await _transactionService.HandlerWebhookEvent(model);
 
         return Ok(new { success = true });
     }

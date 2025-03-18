@@ -37,6 +37,7 @@ public class OrderSupport : BaseEntity
     [Column("order_id")]
     public Guid OrderId { get; set; }
 
+    [ForeignKey("OrderId")]
     [JsonPropertyName("order")]
     public Order Order { get; set; } = default!;
 }
