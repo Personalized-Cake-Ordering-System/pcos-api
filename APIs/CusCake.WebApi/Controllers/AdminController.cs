@@ -13,12 +13,12 @@ public class AdminController(IAdminService adminService) : BaseController
     /// <summary>
     /// Just use to create admin - not use in FE
     /// </summary>
-    [HttpPost]
-    public async Task<IActionResult> CreateAsync([FromBody] AdminCreateModel model)
-    {
-        await _adminService.CreateAsync(model);
-        return StatusCode(201, new ResponseModel<object, object> { StatusCode = 201 });
-    }
+    // [HttpPost]
+    // public async Task<IActionResult> CreateAsync([FromBody] AdminCreateModel model)
+    // {
+    //     await _adminService.CreateAsync(model);
+    //     return StatusCode(201, new ResponseModel<object, object> { StatusCode = 201 });
+    // }
 
     /// <summary>
     /// Just use to view list admins - not use in FE

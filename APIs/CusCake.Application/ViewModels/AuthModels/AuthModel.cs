@@ -44,6 +44,13 @@ public class AuthViewModel
     public Guid EntityId { get; set; } = default!;
     [JsonPropertyName("entity")]
     public object Entity { get; set; } = default!;
+
+    [JsonPropertyName("wallet_id")]
+    public Guid WalletId { get; set; }
+
+    [JsonPropertyName("wallet")]
+    public Wallet Wallet { get; set; } = default!;
+
 }
 
 public class AuthCreateModel

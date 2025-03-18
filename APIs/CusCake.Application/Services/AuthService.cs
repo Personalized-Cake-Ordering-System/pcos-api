@@ -15,6 +15,8 @@ public interface IAuthService
     Task<bool> UpdateAsync(AuthUpdateModel model);
     Task<bool> DeleteAsync(Guid entityId);
     Task<Auth> GetAuthByIdAsync(Guid entityId);
+    Task<Auth> GetAdminAsync();
+
 }
 
 public class AuthService(
@@ -36,7 +38,7 @@ public class AuthService(
         var auth = await _unitOfWork.AuthRepository
             .FirstOrDefaultAsync(x =>
                 x.Email == model.Email &
-                x.Password == model.Password
+                x.Password == model.Password, includes: x => x.Wallet
             ) ?? throw new BadRequestException("Incorrect email or password!");
 
         var authResponse = new AuthResponseModel
@@ -116,6 +118,12 @@ public class AuthService(
                 includes: x => x.Wallet
             ) ?? throw new BadRequestException("Error at update auth!");
 
+    }
+
+    public async Task<Auth> GetAdminAsync()
+    {
+        return await _unitOfWork.AuthRepository.FirstOrDefaultAsync(x => x.Email.Equals("admin@gmail.com"), includes: x => x.Wallet)
+                  ?? throw new NotFoundException("Admin not found!");
     }
 }
 

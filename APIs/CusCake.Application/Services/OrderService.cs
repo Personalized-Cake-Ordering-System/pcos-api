@@ -7,6 +7,7 @@ using CusCake.Application.Utils;
 using CusCake.Application.ViewModels.OrderModels;
 using CusCake.Domain.Constants;
 using CusCake.Domain.Entities;
+using Hangfire;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using UnauthorizedAccessException = CusCake.Application.GlobalExceptionHandling.Exceptions.UnauthorizedAccessException;
@@ -34,7 +35,9 @@ public class OrderService(
     IVoucherService voucherService,
     INotificationService notificationService,
     IFileService fileService,
-    IHangfireService hangfireService
+    IAuthService authService,
+    IWalletService walletService,
+    IBackgroundJobClient backgroundJobClient
 ) : IOrderService
 {
     private readonly IVoucherService _voucherService = voucherService;
@@ -45,7 +48,9 @@ public class OrderService(
     private readonly ICustomerService _customerService = customerService;
     private readonly INotificationService _notificationService = notificationService;
     private readonly IFileService _fileService = fileService;
-    private readonly IHangfireService _hangfireService = hangfireService;
+    private readonly IAuthService _authService = authService;
+    private readonly IWalletService _walletService = walletService;
+    private readonly IBackgroundJobClient _backgroundJobClient = backgroundJobClient;
 
     public Dictionary<string, object> GetTransitions()
     {
@@ -98,11 +103,9 @@ public class OrderService(
                         await _unitOfWork.SaveChangesAsync();
 
                         if(status == OrderStatusConstants.WAITING_BAKERY){
-                            _hangfireService.ScheduleJob(new JobRequest
-                                {
-                                    Action = async () => await BakeryConfirmAsync(order!.Id),
-                                    ExecuteTime = DateTime.Now.AddMinutes(5),
-                                });
+                            var localExecuteTime = DateTime.Now.AddHours(7).AddMinutes(5);
+                            var delay = localExecuteTime - DateTime.UtcNow;
+                            _backgroundJobClient.Schedule(() => BakeryConfirmAsync(order!.Id), delay);
                         }
 
                         return order!;
@@ -135,7 +138,7 @@ public class OrderService(
                     To = OrderStatusConstants.WAITING_BAKERY,
                     Action = async (order) =>
                     {
-                        order!.OrderStatus = OrderStatusConstants.PROCESSING;
+                        order!.OrderStatus = OrderStatusConstants.WAITING_BAKERY;
                         _unitOfWork.OrderRepository.Update(order!);
                         await _unitOfWork.SaveChangesAsync();
                         return order!;
@@ -222,11 +225,10 @@ public class OrderService(
 
                         var completed_time=  order.ShippingType == ShippingTypeConstants.PICK_UP ? 30 :order.ShippingTime!.Value;
 
-                        _hangfireService.ScheduleJob(new JobRequest
-                        {
-                            Action = async () => await AutoCompletedAsync(order!.Id),
-                            ExecuteTime = DateTime.Now.AddMinutes(completed_time),
-                        });
+                        var localExecuteTime = DateTime.Now.AddHours(7).AddMinutes(completed_time);
+                        var delay = localExecuteTime - DateTime.UtcNow;
+                        _backgroundJobClient.Schedule(() => AutoCompletedAsync(order!.Id), delay);
+
 
                         return order!;
                     }
@@ -242,6 +244,8 @@ public class OrderService(
                         order!.OrderStatus = OrderStatusConstants.COMPLETED;
                         _unitOfWork.OrderRepository.Update(order!);
                         await _unitOfWork.SaveChangesAsync();
+
+                         await MakeFinalPayment(order);
 
                         var orderJson = JsonConvert.SerializeObject(order);
                         await _notificationService.CreateOrderNotificationAsync(order.Id,NotificationType.ORDER_COMPLETED, null ,order.CustomerId);
@@ -262,6 +266,8 @@ public class OrderService(
                         _unitOfWork.OrderRepository.Update(order!);
                         await _unitOfWork.SaveChangesAsync();
 
+                        await MakeFinalPayment(order);
+
                         var orderJson = JsonConvert.SerializeObject(order);
                         await _notificationService.CreateOrderNotificationAsync(order.Id,NotificationType.ORDER_COMPLETED, null ,order.CustomerId);
                         await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, NotificationType.ORDER_COMPLETED);
@@ -271,6 +277,16 @@ public class OrderService(
                 }
             }
         };
+    }
+
+    private async Task MakeFinalPayment(Order order)
+    {
+        var adminWallet = (await _authService.GetAdminAsync()).Wallet;
+        await _walletService.MakeBillingAsync(adminWallet, -order.ShopRevenue, WalletTransactionTypeConstants.ADMIN_TO_BAKERY_TRANSFER);
+
+        var bakeryWallet = (await _authService.GetAuthByIdAsync(order.BakeryId)).Wallet;
+        await _walletService.MakeBillingAsync(bakeryWallet, order.ShopRevenue, WalletTransactionTypeConstants.SHOP_REVENUE_TRANSFER);
+
     }
 
     public async Task BakeryConfirmAsync(Guid id)
@@ -426,7 +442,6 @@ public class OrderService(
         var includes = QueryHelper.Includes<Order>(
             x => x.Customer!,
             x => x.Bakery!,
-            x => x.Transaction!,
             x => x.Voucher!,
             x => x.CustomerVoucher!);
 
@@ -530,7 +545,6 @@ public class OrderService(
         var includes = QueryHelper.Includes<Order>(
            x => x.Customer!,
            x => x.Bakery!,
-           x => x.Transaction!,
            x => x.Voucher!,
            x => x.CustomerVoucher!);
 

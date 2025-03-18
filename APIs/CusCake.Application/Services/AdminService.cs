@@ -1,4 +1,5 @@
 using AutoMapper;
+using CusCake.Application.GlobalExceptionHandling.Exceptions;
 using CusCake.Application.ViewModels.AdminModels;
 using CusCake.Application.ViewModels.AuthModels;
 using CusCake.Domain.Constants;
@@ -45,4 +46,6 @@ public class AdminService(IUnitOfWork unitOfWork, IMapper mapper, IAuthService a
     {
         return await _unitOfWork.AdminRepository.GetAllAsync();
     }
+
+
 }

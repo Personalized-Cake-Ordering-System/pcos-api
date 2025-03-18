@@ -38,75 +38,6 @@ namespace CusCake.Infrastructures.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "auths",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    email = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    password = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    role = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    entity_id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    created_by = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
-                    updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    updated_by = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
-                    is_deleted = table.Column<bool>(type: "tinyint(1)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_auths", x => x.id);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "cake_message_options",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    type = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    name = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    color = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    created_by = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
-                    updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    updated_by = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
-                    is_deleted = table.Column<bool>(type: "tinyint(1)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_cake_message_options", x => x.id);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "CakeMessageSelections",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    custom_cake_id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    message_type = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    message_options = table.Column<string>(type: "json", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    created_by = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
-                    updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    updated_by = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
-                    is_deleted = table.Column<bool>(type: "tinyint(1)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CakeMessageSelections", x => x.id);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "customers",
                 columns: table => new
                 {
@@ -116,6 +47,10 @@ namespace CusCake.Infrastructures.Migrations
                     phone = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     address = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    latitude = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    longitude = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     email = table.Column<string>(type: "varchar(255)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -157,6 +92,24 @@ namespace CusCake.Infrastructures.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "wallets",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    balance = table.Column<double>(type: "double", nullable: false),
+                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    created_by = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
+                    updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    updated_by = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
+                    is_deleted = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_wallets", x => x.id);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "bakeries",
                 columns: table => new
                 {
@@ -171,6 +124,12 @@ namespace CusCake.Infrastructures.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     address = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
+                    latitude = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    longitude = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    bank_account = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
                     owner_name = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     avatar_file_id = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
@@ -183,7 +142,7 @@ namespace CusCake.Infrastructures.Migrations
                     status = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     confirmed_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    shop_image_files = table.Column<string>(type: "json", nullable: false)
+                    shop_image_files = table.Column<string>(type: "json", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     created_by = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
@@ -216,20 +175,16 @@ namespace CusCake.Infrastructures.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "cake_decoration_options",
+                name: "cake_message_selections",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    name = table.Column<string>(type: "longtext", nullable: false)
+                    text = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    price = table.Column<double>(type: "double", nullable: false),
-                    color = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    is_default = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    description = table.Column<string>(type: "longtext", nullable: true)
+                    message_type = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     image_id = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
-                    type = table.Column<string>(type: "longtext", nullable: false)
+                    message_options = table.Column<string>(type: "json", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     created_by = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
@@ -239,79 +194,89 @@ namespace CusCake.Infrastructures.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_cake_decoration_options", x => x.id);
+                    table.PrimaryKey("PK_cake_message_selections", x => x.id);
                     table.ForeignKey(
-                        name: "FK_cake_decoration_options_storages_image_id",
-                        column: x => x.image_id,
-                        principalTable: "storages",
-                        principalColumn: "id");
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "cake_extra_options",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    name = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    price = table.Column<double>(type: "double", nullable: false),
-                    color = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    is_default = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    description = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    image_id = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
-                    type = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    created_by = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
-                    updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    updated_by = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
-                    is_deleted = table.Column<bool>(type: "tinyint(1)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_cake_extra_options", x => x.id);
-                    table.ForeignKey(
-                        name: "FK_cake_extra_options_storages_image_id",
-                        column: x => x.image_id,
-                        principalTable: "storages",
-                        principalColumn: "id");
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "cake_part_options",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    name = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    price = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
-                    color = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    description = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    is_default = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    image_id = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
-                    type = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    created_by = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
-                    updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    updated_by = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
-                    is_deleted = table.Column<bool>(type: "tinyint(1)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_cake_part_options", x => x.id);
-                    table.ForeignKey(
-                        name: "FK_cake_part_options_storages_image_id",
+                        name: "FK_cake_message_selections_storages_image_id",
                         column: x => x.image_id,
                         principalTable: "storages",
                         principalColumn: "id",
                         onDelete: ReferentialAction.SetNull);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "wallet_transactions",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    wallet_id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    amount = table.Column<double>(type: "double", nullable: false),
+                    transaction_type = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    created_by = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
+                    updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    updated_by = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
+                    is_deleted = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_wallet_transactions", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_wallet_transactions_wallets_wallet_id",
+                        column: x => x.wallet_id,
+                        principalTable: "wallets",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "auths",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    email = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    password = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    role = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    entity_id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    bakery_id = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
+                    customer_id = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
+                    admin_id = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
+                    wallet_id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    created_by = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
+                    updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    updated_by = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
+                    is_deleted = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_auths", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_auths_admins_admin_id",
+                        column: x => x.admin_id,
+                        principalTable: "admins",
+                        principalColumn: "id");
+                    table.ForeignKey(
+                        name: "FK_auths_bakeries_bakery_id",
+                        column: x => x.bakery_id,
+                        principalTable: "bakeries",
+                        principalColumn: "id");
+                    table.ForeignKey(
+                        name: "FK_auths_customers_customer_id",
+                        column: x => x.customer_id,
+                        principalTable: "customers",
+                        principalColumn: "id");
+                    table.ForeignKey(
+                        name: "FK_auths_wallets_wallet_id",
+                        column: x => x.wallet_id,
+                        principalTable: "wallets",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -329,7 +294,7 @@ namespace CusCake.Infrastructures.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     available_cake_quantity = table.Column<int>(type: "int", nullable: false),
                     available_main_image_id = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
-                    available_cake_image_files = table.Column<string>(type: "longtext", nullable: false)
+                    available_cake_image_files = table.Column<string>(type: "json", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     bakery_id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -357,20 +322,22 @@ namespace CusCake.Infrastructures.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "custom_cakes",
+                name: "cake_decoration_options",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    total_price = table.Column<double>(type: "double", nullable: false),
-                    custom_cake_name = table.Column<string>(type: "longtext", nullable: false)
+                    name = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    custom_cake_description = table.Column<string>(type: "longtext", nullable: true)
+                    price = table.Column<double>(type: "double", nullable: false),
+                    color = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    recipe = table.Column<string>(type: "longtext", nullable: true)
+                    is_default = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    description = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    customer_id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    image_id = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
+                    type = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
                     bakery_id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    message_selection_id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     created_by = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
                     updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -379,25 +346,129 @@ namespace CusCake.Infrastructures.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_custom_cakes", x => x.id);
+                    table.PrimaryKey("PK_cake_decoration_options", x => x.id);
                     table.ForeignKey(
-                        name: "FK_custom_cakes_CakeMessageSelections_message_selection_id",
-                        column: x => x.message_selection_id,
-                        principalTable: "CakeMessageSelections",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_custom_cakes_bakeries_bakery_id",
+                        name: "FK_cake_decoration_options_bakeries_bakery_id",
                         column: x => x.bakery_id,
                         principalTable: "bakeries",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_custom_cakes_customers_customer_id",
-                        column: x => x.customer_id,
-                        principalTable: "customers",
+                        name: "FK_cake_decoration_options_storages_image_id",
+                        column: x => x.image_id,
+                        principalTable: "storages",
+                        principalColumn: "id");
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "cake_extra_options",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    name = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    price = table.Column<double>(type: "double", nullable: false),
+                    color = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    is_default = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    description = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    image_id = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
+                    type = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    bakery_id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    created_by = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
+                    updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    updated_by = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
+                    is_deleted = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_cake_extra_options", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_cake_extra_options_bakeries_bakery_id",
+                        column: x => x.bakery_id,
+                        principalTable: "bakeries",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_cake_extra_options_storages_image_id",
+                        column: x => x.image_id,
+                        principalTable: "storages",
+                        principalColumn: "id");
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "cake_message_options",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    type = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    name = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    color = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    bakery_id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    created_by = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
+                    updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    updated_by = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
+                    is_deleted = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_cake_message_options", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_cake_message_options_bakeries_bakery_id",
+                        column: x => x.bakery_id,
+                        principalTable: "bakeries",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "cake_part_options",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    name = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    price = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
+                    color = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    description = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    is_default = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    image_id = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
+                    type = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    bakery_id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    created_by = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
+                    updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    updated_by = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
+                    is_deleted = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_cake_part_options", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_cake_part_options_bakeries_bakery_id",
+                        column: x => x.bakery_id,
+                        principalTable: "bakeries",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_cake_part_options_storages_image_id",
+                        column: x => x.image_id,
+                        principalTable: "storages",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.SetNull);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -410,12 +481,12 @@ namespace CusCake.Infrastructures.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     content = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    sender_id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    notification_type = table.Column<string>(type: "longtext", nullable: false)
+                    sender_type = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    is_read = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     type = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
+                    is_read = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    target_entity_id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     bakery_id = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
                     customer_id = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
                     created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -450,13 +521,11 @@ namespace CusCake.Infrastructures.Migrations
                     bakery_id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     code = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    discount_amount = table.Column<double>(type: "double", nullable: false),
                     discount_percentage = table.Column<double>(type: "double", nullable: false),
                     min_order_amount = table.Column<double>(type: "double", nullable: false),
                     max_discount_amount = table.Column<double>(type: "double", nullable: false),
                     expiration_date = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     quantity = table.Column<int>(type: "int", nullable: false),
-                    usage_limit = table.Column<int>(type: "int", nullable: false),
                     usage_count = table.Column<int>(type: "int", nullable: false),
                     description = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -475,6 +544,51 @@ namespace CusCake.Infrastructures.Migrations
                         name: "FK_vouchers_bakeries_bakery_id",
                         column: x => x.bakery_id,
                         principalTable: "bakeries",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "custom_cakes",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    total_price = table.Column<double>(type: "double", nullable: false),
+                    custom_cake_name = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    custom_cake_description = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    recipe = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    customer_id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    bakery_id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    message_selection_id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    created_by = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
+                    updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    updated_by = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
+                    is_deleted = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_custom_cakes", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_custom_cakes_bakeries_bakery_id",
+                        column: x => x.bakery_id,
+                        principalTable: "bakeries",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_custom_cakes_cake_message_selections_message_selection_id",
+                        column: x => x.message_selection_id,
+                        principalTable: "cake_message_selections",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_custom_cakes_customers_customer_id",
+                        column: x => x.customer_id,
+                        principalTable: "customers",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 })
@@ -518,6 +632,81 @@ namespace CusCake.Infrastructures.Migrations
                         name: "FK_cake_reviews_customers_customer_id",
                         column: x => x.customer_id,
                         principalTable: "customers",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "orders",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    total_product_price = table.Column<double>(type: "double", nullable: false),
+                    total_customer_paid = table.Column<double>(type: "double", nullable: false),
+                    shipping_distance = table.Column<double>(type: "double", nullable: false),
+                    discount_amount = table.Column<double>(type: "double", nullable: false),
+                    shipping_fee = table.Column<double>(type: "double", nullable: false),
+                    shipping_time = table.Column<double>(type: "double", nullable: true),
+                    shipping_type = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    commission_rate = table.Column<double>(type: "double", nullable: false),
+                    app_commission_fee = table.Column<double>(type: "double", nullable: false),
+                    shop_revenue = table.Column<double>(type: "double", nullable: false),
+                    voucher_code = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    order_note = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    pickup_time = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    payment_type = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    canceled_reason = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    phone_number = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    shipping_address = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    latitude = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    longitude = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    order_status = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    cancel_by = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    order_code = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    paid_at = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    customer_id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    bakery_id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    transaction_id = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
+                    voucher_id = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
+                    customer_voucher_id = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
+                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    created_by = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
+                    updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    updated_by = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
+                    is_deleted = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_orders", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_orders_bakeries_bakery_id",
+                        column: x => x.bakery_id,
+                        principalTable: "bakeries",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_orders_customers_customer_id",
+                        column: x => x.customer_id,
+                        principalTable: "customers",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_orders_vouchers_voucher_id",
+                        column: x => x.voucher_id,
+                        principalTable: "vouchers",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 })
@@ -594,9 +783,9 @@ namespace CusCake.Infrastructures.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    custom_cake_id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     part_type = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
+                    custom_cake_id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     part_option_id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     created_by = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
@@ -617,62 +806,6 @@ namespace CusCake.Infrastructures.Migrations
                         name: "FK_cake_part_selections_custom_cakes_custom_cake_id",
                         column: x => x.custom_cake_id,
                         principalTable: "custom_cakes",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "orders",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    total_price = table.Column<double>(type: "double", nullable: false),
-                    order_note = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    pickup_time = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    shipping_type = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    payment_type = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    canceled_reason = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    phone_number = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    order_address = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    order_status = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    customer_id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    bakery_id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    transaction_id = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
-                    voucher_id = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
-                    customer_voucher_id = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
-                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    created_by = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
-                    updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    updated_by = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
-                    is_deleted = table.Column<bool>(type: "tinyint(1)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_orders", x => x.id);
-                    table.ForeignKey(
-                        name: "FK_orders_bakeries_bakery_id",
-                        column: x => x.bakery_id,
-                        principalTable: "bakeries",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_orders_customers_customer_id",
-                        column: x => x.customer_id,
-                        principalTable: "customers",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_orders_vouchers_voucher_id",
-                        column: x => x.voucher_id,
-                        principalTable: "vouchers",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 })
@@ -708,8 +841,8 @@ namespace CusCake.Infrastructures.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_customer_vouchers_vouchers_voucher_id",
-                        column: x => x.voucher_id,
+                        name: "FK_customer_vouchers_vouchers_customer_id",
+                        column: x => x.customer_id,
                         principalTable: "vouchers",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
@@ -771,7 +904,7 @@ namespace CusCake.Infrastructures.Migrations
                     id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     content = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    order_support_file_id = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
+                    file_id = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
                     bakery_id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     customer_id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     order_id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
@@ -802,6 +935,12 @@ namespace CusCake.Infrastructures.Migrations
                         principalTable: "orders",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_order_supports_storages_file_id",
+                        column: x => x.file_id,
+                        principalTable: "storages",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -812,6 +951,22 @@ namespace CusCake.Infrastructures.Migrations
                     id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     amount = table.Column<double>(type: "double", nullable: false),
                     order_id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    account_number = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    sub_account = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    code = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    content = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    transfer_type = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    description = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    transfer_amount = table.Column<double>(type: "double", nullable: false),
+                    reference_code = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    accumulated = table.Column<double>(type: "double", nullable: false),
                     created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     created_by = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
                     updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -830,51 +985,6 @@ namespace CusCake.Infrastructures.Migrations
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
-            migrationBuilder.CreateTable(
-                name: "bank_events",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    transaction_id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    gateway = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    transaction_date = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    account_number = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    sub_account = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    code = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    content = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    transfer_type = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    description = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    tranfer_amount = table.Column<double>(type: "double", nullable: false),
-                    reference_code = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    accumulated = table.Column<double>(type: "double", nullable: false),
-                    is_processed = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    processed_at = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    created_by = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
-                    updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    updated_by = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
-                    is_deleted = table.Column<bool>(type: "tinyint(1)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_bank_events", x => x.id);
-                    table.ForeignKey(
-                        name: "FK_bank_events_transactions_transaction_id",
-                        column: x => x.transaction_id,
-                        principalTable: "transactions",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
             migrationBuilder.CreateIndex(
                 name: "IX_admins_email",
                 table: "admins",
@@ -885,6 +995,27 @@ namespace CusCake.Infrastructures.Migrations
                 name: "IX_admins_name",
                 table: "admins",
                 column: "name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_auths_admin_id",
+                table: "auths",
+                column: "admin_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_auths_bakery_id",
+                table: "auths",
+                column: "bakery_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_auths_customer_id",
+                table: "auths",
+                column: "customer_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_auths_wallet_id",
+                table: "auths",
+                column: "wallet_id",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -913,9 +1044,9 @@ namespace CusCake.Infrastructures.Migrations
                 column: "font_card_file_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_bank_events_transaction_id",
-                table: "bank_events",
-                column: "transaction_id");
+                name: "IX_cake_decoration_options_bakery_id",
+                table: "cake_decoration_options",
+                column: "bakery_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_cake_decoration_options_image_id",
@@ -933,6 +1064,11 @@ namespace CusCake.Infrastructures.Migrations
                 column: "decoration_option_id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_cake_extra_options_bakery_id",
+                table: "cake_extra_options",
+                column: "bakery_id");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_cake_extra_options_image_id",
                 table: "cake_extra_options",
                 column: "image_id");
@@ -946,6 +1082,21 @@ namespace CusCake.Infrastructures.Migrations
                 name: "IX_cake_extra_selections_extra_option_id",
                 table: "cake_extra_selections",
                 column: "extra_option_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_cake_message_options_bakery_id",
+                table: "cake_message_options",
+                column: "bakery_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_cake_message_selections_image_id",
+                table: "cake_message_selections",
+                column: "image_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_cake_part_options_bakery_id",
+                table: "cake_part_options",
+                column: "bakery_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_cake_part_options_image_id",
@@ -990,8 +1141,7 @@ namespace CusCake.Infrastructures.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_custom_cakes_message_selection_id",
                 table: "custom_cakes",
-                column: "message_selection_id",
-                unique: true);
+                column: "message_selection_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_customer_vouchers_customer_id",
@@ -1003,11 +1153,6 @@ namespace CusCake.Infrastructures.Migrations
                 table: "customer_vouchers",
                 column: "oder_id",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_customer_vouchers_voucher_id",
-                table: "customer_vouchers",
-                column: "voucher_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_customers_email",
@@ -1057,6 +1202,11 @@ namespace CusCake.Infrastructures.Migrations
                 column: "customer_id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_order_supports_file_id",
+                table: "order_supports",
+                column: "file_id");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_order_supports_order_id",
                 table: "order_supports",
                 column: "order_id");
@@ -1086,19 +1236,18 @@ namespace CusCake.Infrastructures.Migrations
                 name: "IX_vouchers_bakery_id",
                 table: "vouchers",
                 column: "bakery_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_wallet_transactions_wallet_id",
+                table: "wallet_transactions",
+                column: "wallet_id");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "admins");
-
-            migrationBuilder.DropTable(
                 name: "auths");
-
-            migrationBuilder.DropTable(
-                name: "bank_events");
 
             migrationBuilder.DropTable(
                 name: "cake_decoration_selections");
@@ -1128,6 +1277,12 @@ namespace CusCake.Infrastructures.Migrations
                 name: "transactions");
 
             migrationBuilder.DropTable(
+                name: "wallet_transactions");
+
+            migrationBuilder.DropTable(
+                name: "admins");
+
+            migrationBuilder.DropTable(
                 name: "cake_decoration_options");
 
             migrationBuilder.DropTable(
@@ -1146,10 +1301,13 @@ namespace CusCake.Infrastructures.Migrations
                 name: "orders");
 
             migrationBuilder.DropTable(
+                name: "wallets");
+
+            migrationBuilder.DropTable(
                 name: "available_cakes");
 
             migrationBuilder.DropTable(
-                name: "CakeMessageSelections");
+                name: "cake_message_selections");
 
             migrationBuilder.DropTable(
                 name: "customers");

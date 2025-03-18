@@ -3,6 +3,7 @@ using CusCake.Application.GlobalExceptionHandling.Exceptions;
 using CusCake.Application.ViewModels.TransactionModels;
 using CusCake.Domain.Constants;
 using CusCake.Domain.Entities;
+using Hangfire;
 using Newtonsoft.Json;
 
 namespace CusCake.Application.Services;
@@ -19,24 +20,23 @@ public class TransactionService(
     IAuthService authService,
     IWalletService walletService,
     INotificationService notificationService,
-    IHangfireService hangfireService
+    IBackgroundJobClient backgroundJobClient
 ) : ITransactionService
 {
+    private readonly IBackgroundJobClient _backgroundJobClient = backgroundJobClient;
     private readonly INotificationService _notificationService = notificationService;
     private readonly IWalletService _walletService = walletService;
     private readonly IAuthService _authService = authService;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IMapper _mapper = mapper;
     private readonly IOrderService _orderService = orderService;
-    private readonly IHangfireService _hangfireService = hangfireService;
 
     public async Task HandlerWebhookEvent(TransactionWebhookModel model)
     {
         var order = await _unitOfWork.OrderRepository.FirstOrDefaultAsync(x => model.Content!.Contains(x.OrderCode))
                         ?? throw new BadRequestException("Order is not found!");
-        var transaction = _mapper.Map<Transaction>(model);
 
-        await CreateTransactionAsync(transaction, order.Id);
+        await CreateTransactionAsync(model, order);
 
         await MakeBillingAsync(order);
 
@@ -44,18 +44,18 @@ public class TransactionService(
 
         await CreateNotificationAsync(order!);
 
-        _hangfireService.ScheduleJob(new JobRequest
-        {
-            Action = async () => await _orderService.BakeryConfirmAsync(order!.Id),
-            ExecuteTime = DateTime.Now.AddMinutes(5),
-        });
+        var localExecuteTime = DateTime.Now.AddHours(7).AddMinutes(5);
+        var delay = localExecuteTime - DateTime.UtcNow;
+        _backgroundJobClient.Schedule(() => _orderService.BakeryConfirmAsync(order!.Id), delay);
 
     }
 
 
-    private async Task CreateTransactionAsync(Transaction transaction, Guid orderId)
+    private async Task CreateTransactionAsync(TransactionWebhookModel model, Order order)
     {
-        transaction.OrderId = orderId;
+        var transaction = _mapper.Map<Transaction>(model);
+        transaction.OrderId = order.Id;
+        transaction.Amount = transaction.TransferAmount!.Value;
         await _unitOfWork.TransactionRepository.AddAsync(transaction);
         await _unitOfWork.SaveChangesAsync();
 
@@ -75,11 +75,9 @@ public class TransactionService(
 
     private async Task MakeBillingAsync(Order order)
     {
-        var customerWallet = (await _authService.GetAuthByIdAsync(order.CustomerId)).Wallet;
-        var bakeryWallet = (await _authService.GetAuthByIdAsync(order.BakeryId)).Wallet;
+        var adminWallet = (await _authService.GetAdminAsync()).Wallet;
 
-        await _walletService.MakeBillingAsync(customerWallet, order.ShopRevenue);
-        await _walletService.MakeBillingAsync(bakeryWallet, order.AppCommissionFee);
+        await _walletService.MakeBillingAsync(adminWallet, order.TotalCustomerPaid, WalletTransactionTypeConstants.PENDING_PAYMENT);
     }
 
 }
