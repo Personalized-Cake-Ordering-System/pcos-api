@@ -8,7 +8,8 @@ public static class NotificationType
     public const string PROCESSING_ORDER = "PROCESSING_ORDER";
     public const string SHIPPING_ORDER = "SHIPPING_ORDER";
     public const string READY_FOR_PICKUP = "READY_FOR_PICKUP";
-    public const string ORDER_COMPLETED = "ORDER_COMPLETED";
+    public const string COMPLETED_ORDER = "COMPLETED_ORDER";
+    public const string CANCELED_ORDER = "CANCELED_ORDER";
 
 
     private static readonly Dictionary<string, (string Title, string Content)> NotificationDetails =
@@ -35,12 +36,16 @@ public static class NotificationType
                 ("Đơn hàng đang vận chuyển", "Đơn hàng đang trên đường đến bạn. Hãy theo dõi tình trạng giao hàng.")
             },
             {
-                ORDER_COMPLETED,
+                COMPLETED_ORDER,
                 ("Đơn hàng hoàn tất", "Cảm ơn bạn đã mua hàng! Nếu có bất kỳ vấn đề nào, vui lòng liên hệ hỗ trợ.")
             },
             {
                 READY_FOR_PICKUP,
                 ("Đơn hàng hoàn tất", "Vui lòng đến lấy tại quầy!")
+            },
+            {
+                CANCELED_ORDER,
+                ("Đơn hàng đã được hủy!", "Vui lòng kiểm tra lại thông tin!")
             }
         };
 

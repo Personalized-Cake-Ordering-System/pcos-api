@@ -58,28 +58,45 @@ public class CustomerController(
         return StatusCode(204, new ResponseModel<object, object> { StatusCode = 204 });
     }
 
+    /// <summary>
+    /// Example to filter multiple type: NEW_ORDER.PROCESSING_ORDER.SHIPPING_ORDER
+    /// </summary>
     [HttpGet("{id}/notifications")]
     [Authorize(Roles = RoleConstants.CUSTOMER)]
     public async Task<IActionResult> GetNotificationsAsync(
        Guid id,
+       string? type,
        int pageIndex = 0,
        int pageSize = 10)
     {
+        List<string> typeList = string.IsNullOrEmpty(type)
+                 ? []
+                 : [.. type.Split(".")];
         Expression<Func<Notification, bool>> filter = x =>
-           (x.CustomerId == id);
+           (x.CustomerId == id) &&
+           (string.IsNullOrEmpty(type) || (typeList.Count == 0 || typeList.Contains(x.Type!)));
         var result = await _notificationService.GetAllAsync(pageIndex, pageSize, filter);
         return Ok(ResponseModel<object, List<Notification>>.Success(result.Item2, result.Item1));
     }
 
+    /// <summary>
+    /// Example to filter multiple status: PENDING.COMPLETED.SHIPPING
+    /// </summary>
     [HttpGet("{id}/orders")]
     [Authorize(Roles = RoleConstants.CUSTOMER)]
     public async Task<IActionResult> GetOrdersAsync(
        Guid id,
+       string? status,
        int pageIndex = 0,
        int pageSize = 10)
     {
+        List<string> statusList = string.IsNullOrEmpty(status)
+                   ? []
+                   : [.. status.Split(".")];
+
         Expression<Func<Order, bool>> filter = x =>
-           (x.CustomerId == id);
+           (x.CustomerId == id) &&
+            (string.IsNullOrEmpty(status) || (statusList.Count == 0 || statusList.Contains(x.OrderStatus!)));
         var result = await _orderService.GetAllAsync(pageIndex, pageSize, filter);
         return Ok(ResponseModel<object, List<Order>>.Success(result.Item2, result.Item1));
     }

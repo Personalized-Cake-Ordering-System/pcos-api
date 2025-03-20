@@ -9,10 +9,6 @@ public class AdminController(IAdminService adminService) : BaseController
 {
     public readonly IAdminService _adminService = adminService;
 
-
-    /// <summary>
-    /// Just use to create admin - not use in FE
-    /// </summary>
     // [HttpPost]
     // public async Task<IActionResult> CreateAsync([FromBody] AdminCreateModel model)
     // {
