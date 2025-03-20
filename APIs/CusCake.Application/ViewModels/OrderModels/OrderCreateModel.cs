@@ -61,7 +61,14 @@ public class OrderCreateModelValidator : AbstractValidator<OrderCreateModel>
 
         RuleFor(x => x.OrderDetailCreateModels)
             .NotNull().WithMessage("Order details can not null.")
-            .Must(x => x != null && x.Count != 0).WithMessage("At least one order detail.");
+            .Must(x => x != null && x.Count != 0).WithMessage("At least one order detail.")
+            .DependentRules(() =>
+            {
+                RuleForEach(x => x.OrderDetailCreateModels)
+                    .Must(orderDetail => orderDetail.CustomCakeId == null)
+                    .When(x => x.ShippingType == ShippingTypeConstants.PICK_UP)
+                    .WithMessage("CustomCakeId must be null when ShippingType is PICKUP.");
+            });
 
         RuleFor(x => x.ShippingType)
                  .NotEmpty().WithMessage("Shipping type is required.")

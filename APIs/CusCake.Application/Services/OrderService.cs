@@ -343,7 +343,7 @@ public class OrderService(
 
         var order = _mapper.Map<Order>(model);
         order.CustomerId = _claimsService.GetCurrentUser;
-        var getOrderDetail = await GetOrderDetails(order.Id, model.OrderDetailCreateModels);
+        var getOrderDetail = await GetOrderDetails(order, model.OrderDetailCreateModels);
         order.TotalProductPrice = getOrderDetail.Item2;
 
         order = await CalculateShipping(bakery, order);
@@ -463,7 +463,7 @@ public class OrderService(
         return order;
     }
 
-    private async Task<(List<OrderDetail>, double)> GetOrderDetails(Guid orderId, List<OrderDetailCreateModel> orderDetails)
+    private async Task<(List<OrderDetail>, double)> GetOrderDetails(Order order, List<OrderDetailCreateModel> orderDetails)
     {
         var details = _mapper.Map<List<OrderDetail>>(orderDetails);
         double total = 0;
@@ -471,21 +471,27 @@ public class OrderService(
         {
             var available_cake_id = orderDetails[i].AvailableCakeId;
             var customer_cake_id = orderDetails[i].CustomCakeId;
-            details[i].OrderId = orderId;
+            details[i].OrderId = order.Id;
 
             if (available_cake_id.HasValue)
             {
-                var availableCake = await _unitOfWork.AvailableCakeRepository.GetByIdAsync(available_cake_id.Value); ;
+                var availableCake = await _unitOfWork.AvailableCakeRepository.FirstOrDefaultAsync(x =>
+                        x.BakeryId == order.BakeryId &&
+                        x.Id == available_cake_id.Value); ;
                 total += availableCake!.AvailableCakePrice;
                 details[i].SubTotalPrice = availableCake.AvailableCakePrice;
             }
             if (customer_cake_id.HasValue)
             {
-                var customCake = await _unitOfWork.CustomCakeRepository.GetByIdAsync(customer_cake_id.Value);
+                var customCake = await _unitOfWork.CustomCakeRepository.FirstOrDefaultAsync(x =>
+                        x.BakeryId == order.BakeryId &&
+                        x.Id == customer_cake_id.Value);
                 total += customCake!.Price;
                 details[i].SubTotalPrice = customCake.Price;
             }
         }
+        if (details.Count != orderDetails.Count)
+            throw new BadRequestException("Only buy cake in one store at time!");
 
         await _unitOfWork.OrderDetailRepository.AddRangeAsync(details);
 
@@ -594,7 +600,7 @@ public class OrderService(
 
         _mapper.Map(model, order);
 
-        var getOrderDetail = await GetOrderDetails(order.Id, model.OrderDetailCreateModels);
+        var getOrderDetail = await GetOrderDetails(order, model.OrderDetailCreateModels);
         order.TotalProductPrice = getOrderDetail.Item2;
 
         if (model.ShippingType != old_ShippingType || model.ShippingAddress != old_ShippingAddress)
