@@ -50,6 +50,9 @@ public class OrderDetailCreateModel
 
     [JsonPropertyName("cake_note")]
     public string? CakeNote { get; set; }
+
+    [JsonPropertyName("quantity")]
+    public int Quantity { get; set; }
 }
 
 public class OrderCreateModelValidator : AbstractValidator<OrderCreateModel>
@@ -100,6 +103,11 @@ public class OrderDetailCreateModelValidator : AbstractValidator<OrderDetailCrea
             .Must(x => x != null)
             .When(x => x.AvailableCakeId == null)
             .WithMessage("AvailableCakeId or CustomCakeId can't be null.");
+
+        RuleFor(x => x.Quantity)
+            .NotNull().NotEmpty().WithMessage("Quantity is required")
+            .GreaterThan(0)
+            .WithMessage("At least 1 for each quantity.");
     }
 }
 
