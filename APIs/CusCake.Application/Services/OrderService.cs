@@ -150,6 +150,15 @@ public class OrderService(
                 {
                     From = [OrderStatusConstants.WAITING_BAKERY],
                     To = OrderStatusConstants.PROCESSING,
+                    Guard = (order) =>
+                    {
+                        if(_claimsService.GetCurrentUser == Guid.Empty)
+                            return true;
+
+                         if(_claimsService.GetCurrentUserRole!= RoleConstants.BAKERY || order.BakeryId != _claimsService.GetCurrentUser)
+                            throw new UnauthorizedAccessException("Can not access to action!");
+                        return true;
+                    },
                     Action=async (order)=> {
 
                         order!.OrderStatus = OrderStatusConstants.PROCESSING;
@@ -478,7 +487,7 @@ public class OrderService(
                 var availableCake = await _unitOfWork.AvailableCakeRepository.FirstOrDefaultAsync(x =>
                         x.BakeryId == order.BakeryId &&
                         x.Id == available_cake_id.Value); ;
-                total += availableCake!.AvailableCakePrice;
+                total += (double)(availableCake!.AvailableCakePrice * details[i].Quantity)!;
                 details[i].SubTotalPrice = availableCake.AvailableCakePrice;
             }
             if (customer_cake_id.HasValue)
@@ -486,7 +495,7 @@ public class OrderService(
                 var customCake = await _unitOfWork.CustomCakeRepository.FirstOrDefaultAsync(x =>
                         x.BakeryId == order.BakeryId &&
                         x.Id == customer_cake_id.Value);
-                total += customCake!.Price;
+                total += (double)(customCake!.Price * details[i].Quantity)!;
                 details[i].SubTotalPrice = customCake.Price;
             }
         }

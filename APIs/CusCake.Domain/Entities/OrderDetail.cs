@@ -29,6 +29,10 @@ public class OrderDetail : BaseEntity
     [Column("sub_total_price")]
     public double? SubTotalPrice { get; set; }
 
+    [JsonPropertyName("quantity")]
+    [Column("quantity")]
+    public int? Quantity { get; set; }
+
     [JsonPropertyName("cake_review_id")]
     [Column("cake_review_id")]
     public Guid? CakeReviewId { get; set; }
