@@ -27,4 +27,14 @@ public class CustomerVoucher : BaseEntity
 
     [JsonPropertyName("order")]
     public Order? Order { get; set; } = default!;
+
+    [JsonPropertyName("is_applied")]
+    [Column("is_applied")]
+    public bool IsApplied { get; set; } = false;
+
+    [JsonPropertyName("applied_at")]
+    [Column("applied_at")]
+    public DateTime? AppliedAt { get; set; }
+
+
 }

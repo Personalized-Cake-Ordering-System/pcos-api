@@ -9,6 +9,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
     public void Configure(EntityTypeBuilder<Order> builder)
     {
         builder
+            .Ignore(o => o.Transaction)
             .Ignore(o => o.OrderDetails)
             .Ignore(o => o.OrderSupports);
 

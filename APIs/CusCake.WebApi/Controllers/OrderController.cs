@@ -28,7 +28,7 @@ public class OrderController(IOrderService service) : BaseController
     }
 
     /// <summary>
-    /// Update order when Status is PENDING or CONFIRMED - Can not CANCEL after PAID
+    /// Update order
     /// </summary>
     [HttpPut("{id}/save")]
     [Authorize(Roles = RoleConstants.CUSTOMER)]
@@ -46,6 +46,9 @@ public class OrderController(IOrderService service) : BaseController
 
     }
 
+    /// <summary>
+    /// Move to next state
+    /// </summary>
     [HttpPut("{id}/move-to-next")]
     [Authorize(Roles = RoleConstants.BAKERY + "," + RoleConstants.CUSTOMER)]
     public async Task<IActionResult> MoveToNextAsync(Guid id, [FromForm] List<IFormFile>? files = null)

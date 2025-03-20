@@ -66,9 +66,9 @@ namespace CusCake.Infrastructures.Mappers
             #region Orders
             CreateMap<OrderCreateModel, Order>().ReverseMap();
             CreateMap<OrderUpdateModel, Order>()
-                .ForMember(x => x.ShippingType, option => option.Ignore())
-                .ForMember(x => x.ShippingAddress, option => option.Ignore())
-                .ForMember(x => x.VoucherCode, option => option.Ignore())
+                // .ForMember(x => x.ShippingType, option => option.Ignore())
+                // .ForMember(x => x.ShippingAddress, option => option.Ignore())
+                // .ForMember(x => x.VoucherCode, option => option.Ignore())
                 .ReverseMap();
             CreateMap<OrderDetailCreateModel, OrderDetail>().ReverseMap();
 
