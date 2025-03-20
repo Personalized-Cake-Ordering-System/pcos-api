@@ -42,7 +42,15 @@ public class CakePartController(ICakePartService cakePartService) : ControllerBa
         Expression<Func<CakePartOption, bool>> filter = x =>
                   (bakeryId == null || x.BakeryId == bakeryId);
         var result = await _cakePartService.GetAllAsync(pageIndex, pageSize, filter);
-        return Ok(ResponseModel<object, object>.Success(result.Item2, result.Item1));
+        var groupedOptions = result.Item2
+               .GroupBy(option => option.Type)
+               .Select(group => new
+               {
+                   Type = group.Key,
+                   Items = group.ToList()
+               })
+               .ToList();
+        return Ok(ResponseModel<object, object>.Success(groupedOptions, result.Item1));
     }
 
     [HttpPut("{id}")]

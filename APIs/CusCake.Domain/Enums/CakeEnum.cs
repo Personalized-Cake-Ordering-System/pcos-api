@@ -7,7 +7,7 @@ public enum CakePartTypeEnum
     Filling,
     Icing,
     Goo,
-    Extras
+    Extras //optionals
 }
 
 public enum CakeDecorationTypeEnum
