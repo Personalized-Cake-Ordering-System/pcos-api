@@ -4,135 +4,99 @@ using CusCake.Domain.Entities;
 
 namespace CusCake.Infrastructures
 {
-    public class UnitOfWork : IUnitOfWork
+    public class UnitOfWork(
+        AppDbContext appDbContext,
+        IAdminRepository adminRepository,
+        ICustomerRepository customerRepository,
+        IBakeryRepository bakeryRepository,
+        IStorageRepository storageRepository,
+        IAvailableCakeRepository availableCakeRepository,
+
+        ICakeDecorationOptionRepository cakeDecorationOptionRepository,
+        // ICakeDecorationTypeRepository cakeDecorationTypeRepository,
+        ICakeDecorationSelectionRepository cakeDecorationSelectionRepository,
+
+        ICakeExtraOptionRepository cakeExtraOptionRepository,
+        ICakeExtraSelectionRepository cakeExtraSelectionRepository,
+        // ICakeExtraTypeRepository cakeExtraTypeRepository,
+
+        ICakeMessageOptionRepository cakeMessageOptionRepository,
+        ICakeMessageSelectionRepository cakeMessageSelectionRepository,
+        // ICakeMessageTypeRepository cakeMessageTypeRepository,
+
+        ICakePartOptionRepository cakePartOptionRepository,
+        ICakePartSelectionRepository cakePartSelectionRepository,
+        // ICakePartTypeRepository cakePartTypeRepository,
+
+        ICakeReviewRepository cakeReviewRepository,
+        ICustomCakeRepository customCakeRepository,
+        ICustomerVoucherRepository customerVoucherRepository,
+        INotificationRepository notificationRepository,
+        IOrderDetailRepository orderDetailRepository,
+        IOrderRepository orderRepository,
+        IOrderSupportRepository orderSupportRepository,
+        ITransactionRepository transactionRepository,
+        IVoucherRepository voucherRepository,
+        IAuthRepository authRepository,
+        IWalletRepository walletRepository,
+        IWalletTransactionRepository walletTransaction,
+        IMongoRepository mongoRepository
+        ) : IUnitOfWork
     {
 
-        private readonly AppDbContext _appDbContext;
+        private readonly AppDbContext _appDbContext = appDbContext;
 
-        public UnitOfWork(
-            AppDbContext appDbContext,
-            IAdminRepository adminRepository,
-            ICustomerRepository customerRepository,
-            IBakeryRepository bakeryRepository,
-            IStorageRepository storageRepository,
-            IAvailableCakeRepository availableCakeRepository,
+        public ICustomerRepository CustomerRepository { get; } = customerRepository;
 
-            ICakeDecorationOptionRepository cakeDecorationOptionRepository,
-            // ICakeDecorationTypeRepository cakeDecorationTypeRepository,
-            ICakeDecorationSelectionRepository cakeDecorationSelectionRepository,
+        public IBakeryRepository BakeryRepository { get; } = bakeryRepository;
 
-            ICakeExtraOptionRepository cakeExtraOptionRepository,
-            ICakeExtraSelectionRepository cakeExtraSelectionRepository,
-            // ICakeExtraTypeRepository cakeExtraTypeRepository,
+        public IStorageRepository StorageRepository { get; } = storageRepository;
 
-            ICakeMessageOptionRepository cakeMessageOptionRepository,
-            ICakeMessageSelectionRepository cakeMessageSelectionRepository,
-            // ICakeMessageTypeRepository cakeMessageTypeRepository,
+        public IAvailableCakeRepository AvailableCakeRepository { get; } = availableCakeRepository;
 
-            ICakePartOptionRepository cakePartOptionRepository,
-            ICakePartSelectionRepository cakePartSelectionRepository,
-            // ICakePartTypeRepository cakePartTypeRepository,
+        public ICakeReviewRepository CakeReviewRepository { get; } = cakeReviewRepository;
 
-            ICakeReviewRepository cakeReviewRepository,
-            ICustomCakeRepository customCakeRepository,
-            ICustomerVoucherRepository customerVoucherRepository,
-            INotificationRepository notificationRepository,
-            IOrderDetailRepository orderDetailRepository,
-            IOrderRepository orderRepository,
-            IOrderSupportRepository orderSupportRepository,
-            ITransactionRepository transactionRepository,
-            IVoucherRepository voucherRepository,
-            IAuthRepository authRepository,
-            IWalletRepository walletRepository,
-            IWalletTransactionRepository walletTransaction
-        )
-        {
-            _appDbContext = appDbContext;
-            CustomerRepository = customerRepository;
-            BakeryRepository = bakeryRepository;
-            StorageRepository = storageRepository;
-            AvailableCakeRepository = availableCakeRepository;
+        public ICustomCakeRepository CustomCakeRepository { get; } = customCakeRepository;
 
-            CakeExtraOptionRepository = cakeExtraOptionRepository;
-            CakeExtraSelectionRepository = cakeExtraSelectionRepository;
-            // CakeExtraTypeRepository = cakeExtraTypeRepository;
+        public ICustomerVoucherRepository CustomerVoucherRepository { get; } = customerVoucherRepository;
 
-            CakeDecorationOptionRepository = cakeDecorationOptionRepository;
-            CakeDecorationSelectionRepository = cakeDecorationSelectionRepository;
-            // CakeDecorationTypeRepository = cakeDecorationTypeRepository;
-
-            // CakeMessageTypeRepository = cakeMessageTypeRepository;
-            CakeMessageOptionRepository = cakeMessageOptionRepository;
-            CakeMessageSelectionRepository = cakeMessageSelectionRepository;
-
-            CakePartSelectionRepository = cakePartSelectionRepository;
-            CakePartOptionRepository = cakePartOptionRepository;
-            // CakePartTypeRepository = cakePartTypeRepository;
-
-            CakeReviewRepository = cakeReviewRepository;
-            CustomCakeRepository = customCakeRepository;
-            CustomerVoucherRepository = customerVoucherRepository;
-            NotificationRepository = notificationRepository;
-            OrderDetailRepository = orderDetailRepository;
-            OrderRepository = orderRepository;
-            OrderSupportRepository = orderSupportRepository;
-            TransactionRepository = transactionRepository;
-            VoucherRepository = voucherRepository;
-            AdminRepository = adminRepository;
-            AuthRepository = authRepository;
-            WalletRepository = walletRepository;
-            WalletTransaction = walletTransaction;
-        }
-
-        public ICustomerRepository CustomerRepository { get; }
-
-        public IBakeryRepository BakeryRepository { get; }
-
-        public IStorageRepository StorageRepository { get; }
-
-        public IAvailableCakeRepository AvailableCakeRepository { get; }
-
-        public ICakeReviewRepository CakeReviewRepository { get; }
-
-        public ICustomCakeRepository CustomCakeRepository { get; }
-
-        public ICustomerVoucherRepository CustomerVoucherRepository { get; }
-
-        public INotificationRepository NotificationRepository { get; }
-        public IOrderDetailRepository OrderDetailRepository { get; }
-        public IOrderRepository OrderRepository { get; }
-        public IOrderSupportRepository OrderSupportRepository { get; }
-        public ITransactionRepository TransactionRepository { get; }
-        public IVoucherRepository VoucherRepository { get; }
-        public IAdminRepository AdminRepository { get; }
+        public INotificationRepository NotificationRepository { get; } = notificationRepository;
+        public IOrderDetailRepository OrderDetailRepository { get; } = orderDetailRepository;
+        public IOrderRepository OrderRepository { get; } = orderRepository;
+        public IOrderSupportRepository OrderSupportRepository { get; } = orderSupportRepository;
+        public ITransactionRepository TransactionRepository { get; } = transactionRepository;
+        public IVoucherRepository VoucherRepository { get; } = voucherRepository;
+        public IAdminRepository AdminRepository { get; } = adminRepository;
 
         // public ICakeMessageTypeRepository CakeMessageTypeRepository { get; }
 
-        public IAuthRepository AuthRepository { get; }
+        public IAuthRepository AuthRepository { get; } = authRepository;
 
-        public ICakePartSelectionRepository CakePartSelectionRepository { get; }
+        public ICakePartSelectionRepository CakePartSelectionRepository { get; } = cakePartSelectionRepository;
 
         // public ICakePartTypeRepository CakePartTypeRepository { get; }
 
-        public ICakePartOptionRepository CakePartOptionRepository { get; }
+        public ICakePartOptionRepository CakePartOptionRepository { get; } = cakePartOptionRepository;
 
-        public ICakeDecorationOptionRepository CakeDecorationOptionRepository { get; }
+        public ICakeDecorationOptionRepository CakeDecorationOptionRepository { get; } = cakeDecorationOptionRepository;
 
         // public ICakeDecorationTypeRepository CakeDecorationTypeRepository { get; }
 
-        public ICakeDecorationSelectionRepository CakeDecorationSelectionRepository { get; }
+        public ICakeDecorationSelectionRepository CakeDecorationSelectionRepository { get; } = cakeDecorationSelectionRepository;
 
-        public ICakeMessageOptionRepository CakeMessageOptionRepository { get; }
+        public ICakeMessageOptionRepository CakeMessageOptionRepository { get; } = cakeMessageOptionRepository;
 
-        public ICakeMessageSelectionRepository CakeMessageSelectionRepository { get; }
+        public ICakeMessageSelectionRepository CakeMessageSelectionRepository { get; } = cakeMessageSelectionRepository;
 
-        public ICakeExtraOptionRepository CakeExtraOptionRepository { get; }
+        public ICakeExtraOptionRepository CakeExtraOptionRepository { get; } = cakeExtraOptionRepository;
 
-        public ICakeExtraSelectionRepository CakeExtraSelectionRepository { get; }
+        public ICakeExtraSelectionRepository CakeExtraSelectionRepository { get; } = cakeExtraSelectionRepository;
 
-        public IWalletRepository WalletRepository { get; }
+        public IWalletRepository WalletRepository { get; } = walletRepository;
 
-        public IWalletTransactionRepository WalletTransaction { get; }
+        public IWalletTransactionRepository WalletTransaction { get; } = walletTransaction;
+
+        public IMongoRepository MongoRepository { get; } = mongoRepository;
 
         // public ICakeExtraTypeRepository CakeExtraTypeRepository { get; }
 

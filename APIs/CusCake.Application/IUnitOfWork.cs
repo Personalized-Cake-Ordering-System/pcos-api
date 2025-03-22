@@ -33,5 +33,6 @@ public interface IUnitOfWork
     IVoucherRepository VoucherRepository { get; }
     IWalletRepository WalletRepository { get; }
     IWalletTransactionRepository WalletTransaction { get; }
+    IMongoRepository MongoRepository { get; }
     Task<bool> SaveChangesAsync();
 }
