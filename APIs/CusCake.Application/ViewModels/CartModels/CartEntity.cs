@@ -1,20 +1,13 @@
 using System.Text.Json.Serialization;
+using CusCake.Domain.Entities;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace CusCake.Application.ViewModels.CartModels;
 
-
-public class CartEntity
+public class CartActionModel
 {
-    [BsonId]
-    [JsonPropertyName("id")]
-    public Guid Id { get; set; } = new Guid();
-
-    [JsonPropertyName("customer_id")]
-    [BsonElement("customer_id")]
-    public Guid CustomerId { get; set; }
-
-    [JsonPropertyName("bakery_id")]
+    // [JsonPropertyName("bakery_id")]
     [BsonElement("bakery_id")]
     public Guid BakeryId { get; set; }
 
@@ -44,17 +37,63 @@ public class CartEntity
 
     [JsonPropertyName("shipping_type")]
     [BsonElement("shipping_type")]
-    public string ShippingType { get; set; } = default!;
+    public string? ShippingType { get; set; } = default!;
 
     [JsonPropertyName("payment_type")]
     [BsonElement("payment_type")]
-    public string PaymentType { get; set; } = default!;
+    public string? PaymentType { get; set; } = default!;
 
     [JsonPropertyName("voucher_code")]
     [BsonElement("voucher_code")]
     public string? VoucherCode { get; set; }
 
-    // [BsonElement("items")]
-    // public List<Item> Items { get; set; }  // Danh sách các mặt hàng trong giỏ hàng
+    [BsonElement("items")]
+    public List<CartItem>? CartItems { get; set; }
 
+}
+
+public class CartItem
+{
+
+    [BsonElement("cake_name")]
+    [JsonPropertyName("cake_name")]
+    public string CakeName { get; set; } = default!;
+
+    [BsonElement("main_image_id")]
+    [JsonPropertyName("main_image_id")]
+    public Guid? MainImageId { get; set; }
+
+    [BsonElement("main_image")]
+    [JsonPropertyName("main_image")]
+    public Storage? CakeMainImage { get; set; }
+
+    // Order detail fields
+
+    [BsonElement("quantity")]
+    [JsonPropertyName("quantity")]
+    public int Quantity { get; set; } = 1;
+
+    [BsonElement("cake_note")]
+    [JsonPropertyName("cake_note")]
+    public string? CakeNote { get; set; }
+
+    [JsonPropertyName("sub_total_price")]
+    [BsonElement("sub_total_price")]
+    public double? SubTotalPrice { get; set; } = 0;
+
+    [BsonElement("available_cake_id")]
+    [JsonPropertyName("available_cake_id")]
+    public Guid? AvailableCakeId { get; set; }
+
+    [BsonElement("custom_cake_id")]
+    [JsonPropertyName("custom_cake_id")]
+    public Guid? CustomCakeId { get; set; }
+
+}
+
+public class CartEntity : CartActionModel
+{
+    // [JsonPropertyName("customer_id")]
+    [BsonId]
+    public Guid CustomerId { get; set; } = Guid.NewGuid();
 }

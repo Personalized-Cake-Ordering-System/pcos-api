@@ -12,8 +12,8 @@ namespace CusCake.Infrastructures
 
             services.AddAutoMapper(typeof(MapperConfigurationsProfile));
             services.AddDbContext<AppDbContext>(option =>
-            option.UseMySql(appSettings.ConnectionStrings.MySqlString, new MySqlServerVersion(new Version(8, 0, 30)))
-            // option.UseMySql(appSettings.ConnectionStrings.MySqlStringBackUp, new MySqlServerVersion(new Version(8, 0, 30)))
+            // option.UseMySql(appSettings.ConnectionStrings.MySqlString, new MySqlServerVersion(new Version(8, 0, 30)))
+            option.UseMySql(appSettings.ConnectionStrings.MySqlStringBackUp, new MySqlServerVersion(new Version(8, 0, 30)))
             );
             return services;
         }
