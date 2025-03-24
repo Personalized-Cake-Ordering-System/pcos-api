@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using CusCake.Application.Annotations;
 using CusCake.Application.ViewModels.AdminModels;
 using CusCake.Application.ViewModels.AuthModels;
 using CusCake.Application.ViewModels.AvailableCakeModels;
@@ -8,6 +7,7 @@ using CusCake.Application.ViewModels.CakeDecorationModels;
 using CusCake.Application.ViewModels.CakeExtraModels;
 using CusCake.Application.ViewModels.CakeMessageModels;
 using CusCake.Application.ViewModels.CakePartModels;
+using CusCake.Application.ViewModels.CakeReviewModels;
 using CusCake.Application.ViewModels.CartModels;
 using CusCake.Application.ViewModels.CustomCakeModels;
 using CusCake.Application.ViewModels.CustomerModels;
@@ -99,6 +99,11 @@ namespace CusCake.Infrastructures.Mappers
 
             #region Cart
             CreateMap<CartActionModel, CartEntity>().ReverseMap();
+            #endregion
+
+            #region Cart
+            CreateMap<CakeReview, CakeReviewCreateModel>().ReverseMap();
+            CreateMap<CakeReview, CakeReviewUpdateModel>().ReverseMap();
             #endregion
         }
     }

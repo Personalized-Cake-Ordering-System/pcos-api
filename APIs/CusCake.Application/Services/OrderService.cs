@@ -233,7 +233,7 @@ public class OrderService(
                         await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, status);
 
                         var completed_time=  order.ShippingType == ShippingTypeConstants.PICK_UP ? 30 :order.ShippingTime!.Value;
-                        var localExecuteTime = DateTime.Now.AddHours(7).AddMinutes(completed_time);
+                        var localExecuteTime = DateTime.Now.AddHours(7).AddMinutes(completed_time + 15);
                         var delay = localExecuteTime - DateTime.UtcNow;
 
                         if( order.ShippingType == ShippingTypeConstants.PICK_UP)
@@ -380,7 +380,7 @@ public class OrderService(
             return order;
         }
 
-        CustomerVoucher cus_voucher = default!;
+        CustomerVoucher cus_voucher = null!;
 
         var voucher = await _voucherService.GetVoucherByCodeAsync(order.VoucherCode!, order.BakeryId)
             ?? throw new BadRequestException("Voucher code is invalid or does not exist.");
@@ -407,13 +407,13 @@ public class OrderService(
         order.DiscountAmount = Math.Min(discountAmount, voucher.MaxDiscountAmount);
 
         order.VoucherId = voucher.Id;
-
-        UpdateVoucherCount(voucher, cus_voucher);
+        order.CustomerVoucherId = cus_voucher?.Id;
+        UpdateVoucherCount(order.Id, voucher, cus_voucher!);
         return order;
     }
 
 
-    private void UpdateVoucherCount(Voucher voucher, CustomerVoucher cus_voucher)
+    private void UpdateVoucherCount(Guid orderId, Voucher voucher, CustomerVoucher cus_voucher)
     {
         if (voucher.VoucherType == VoucherTypeConstants.GLOBAL)
         {
@@ -421,7 +421,7 @@ public class OrderService(
             _unitOfWork.VoucherRepository.Update(voucher);
             return;
         }
-
+        cus_voucher.OrderId = orderId;
         cus_voucher.IsApplied = true;
         cus_voucher.AppliedAt = DateTime.Now;
         _unitOfWork.CustomerVoucherRepository.Update(cus_voucher);
@@ -519,7 +519,7 @@ public class OrderService(
             ?? throw new BadRequestException("Order not found!");
         order.Transaction = await _unitOfWork.TransactionRepository.FirstOrDefaultAsync(x => x.OrderId == order.Id);
 
-        order.OrderDetails = await _unitOfWork.OrderDetailRepository.WhereAsync(x => x.OrderId == id);
+        order.OrderDetails = await _unitOfWork.OrderDetailRepository.WhereAsync(x => x.OrderId == id, includes: x => x.CakeReview!);
 
         order.OrderSupports = await _unitOfWork.OrderSupportRepository
                             .WhereAsync(x =>

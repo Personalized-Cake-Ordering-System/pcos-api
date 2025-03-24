@@ -56,4 +56,13 @@ public class VoucherController(IVoucherService voucherService) : BaseController
 
         return StatusCode(204, new ResponseModel<object, object> { StatusCode = 204 });
     }
+
+    [HttpPost("{id}/assign")]
+    [Authorize(Roles = RoleConstants.BAKERY)]
+    public async Task<IActionResult> AssignVoucherToCustomer(Guid id, AssignVoucherModel model)
+    {
+        return Ok(ResponseModel<object, object>.Success(await _voucherService.AssignVoucherToCustomer(id, model)));
+
+    }
+
 }
