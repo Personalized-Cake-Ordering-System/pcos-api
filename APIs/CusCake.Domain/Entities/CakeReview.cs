@@ -14,9 +14,11 @@ public class CakeReview : BaseEntity
     [JsonPropertyName("rating")]
     public int Rating { get; set; }
 
-    [Column("review_image_file_id")]
-    [JsonPropertyName("review_image_file_id")]
-    public Guid ReviewImageFileId { get; set; }
+    [Column("image_id")]
+    [JsonPropertyName("image_id")]
+    public Guid? ImageId { get; set; }
+    [JsonPropertyName("image")]
+    public Storage? Image { get; set; }
 
     [Column("order_detail_id")]
     [JsonPropertyName("order_detail_id")]

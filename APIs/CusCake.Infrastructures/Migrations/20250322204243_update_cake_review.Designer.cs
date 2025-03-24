@@ -4,6 +4,7 @@ using CusCake.Infrastructures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CusCake.Infrastructures.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250322204243_update_cake_review")]
+    partial class update_cake_review
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1288,8 +1291,6 @@ namespace CusCake.Infrastructures.Migrations
                     b.HasIndex("OrderId")
                         .IsUnique();
 
-                    b.HasIndex("VoucherId");
-
                     b.ToTable("customer_vouchers");
 
                     b.HasAnnotation("Relational:JsonPropertyName", "customer_voucher");
@@ -2354,16 +2355,16 @@ namespace CusCake.Infrastructures.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("CusCake.Domain.Entities.Voucher", "Voucher")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("CusCake.Domain.Entities.Order", "Order")
                         .WithOne("CustomerVoucher")
                         .HasForeignKey("CusCake.Domain.Entities.CustomerVoucher", "OrderId")
                         .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("CusCake.Domain.Entities.Voucher", "Voucher")
-                        .WithMany()
-                        .HasForeignKey("VoucherId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
 
                     b.Navigation("Customer");
 
