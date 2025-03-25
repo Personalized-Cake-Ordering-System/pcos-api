@@ -84,5 +84,27 @@ public class CustomerController(
         return Ok(ResponseModel<object, List<Order>>.Success(result.Item2, result.Item1));
     }
 
+<<<<<<< Updated upstream
+=======
+
+    /// <summary>
+    /// Api này để customer xem voucher được tặng
+    /// </summary>
+    [HttpGet("{id}/vouchers")]
+    [Authorize(Roles = RoleConstants.CUSTOMER)]
+    public async Task<IActionResult> GetCustomerVouchersAsync(
+       Guid id,
+       bool? isApplied,
+       int pageIndex = 0,
+       int pageSize = 10)
+    {
+        Expression<Func<CustomerVoucher, bool>> filter = x =>
+            (x.CustomerId == id) &&
+            (isApplied != null || x.IsApplied == isApplied);
+        var result = await _voucherService.GetCustomerVouchersAsync(pageIndex, pageSize, filter);
+        return Ok(ResponseModel<object, List<CustomerVoucher>>.Success(result.Item2, result.Item1));
+    }
+
+>>>>>>> Stashed changes
 }
 

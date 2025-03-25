@@ -56,4 +56,36 @@ public class VoucherController(IVoucherService voucherService) : BaseController
 
         return StatusCode(204, new ResponseModel<object, object> { StatusCode = 204 });
     }
+<<<<<<< Updated upstream
+=======
+
+    [HttpPost("{id}/assigns")]
+    [Authorize(Roles = RoleConstants.BAKERY)]
+    public async Task<IActionResult> AssignVoucherToCustomer(Guid id, AssignVoucherModel model)
+    {
+        return Ok(ResponseModel<object, object>.Success(await _voucherService.AssignVoucherToCustomer(id, model)));
+
+    }
+
+
+    /// <summary>
+    /// Api này để bakery xem voucher đã được tặng cho customer
+    /// </summary>
+    [HttpGet("{id}/assigns")]
+    [Authorize(Roles = RoleConstants.BAKERY)]
+    public async Task<IActionResult> GetCustomerVouchersAsync(
+        Guid id,
+        bool? isApplied,
+        int pageIndex = 0,
+        int pageSize = 10)
+    {
+        Expression<Func<CustomerVoucher, bool>> filter = x =>
+            (x.VoucherId == id) &&
+            (isApplied != null || x.IsApplied == isApplied);
+        var result = await _voucherService.GetCustomerVouchersAsync(pageIndex, pageSize, filter);
+        return Ok(ResponseModel<object, List<CustomerVoucher>>.Success(result.Item2, result.Item1));
+    }
+
+
+>>>>>>> Stashed changes
 }
