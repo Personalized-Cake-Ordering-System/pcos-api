@@ -98,7 +98,11 @@ public class Order : BaseEntity
     [JsonPropertyName("paid_at")]
     [Column("paid_at")]
     public DateTime? PaidAt { get; set; }
+
+    [JsonPropertyName("order_details")]
     public List<OrderDetail>? OrderDetails { get; set; }
+
+    [JsonPropertyName("order_supports")]
     public List<OrderSupport>? OrderSupports { get; set; }
 
     #region RELATION
@@ -121,8 +125,8 @@ public class Order : BaseEntity
     // [Column("transaction_id")]
     // public Guid? TransactionId { get; set; }
 
-    // [JsonPropertyName("transaction")]
-    // public Transaction? Transaction { get; set; }
+    [JsonPropertyName("transaction")]
+    public Transaction? Transaction { get; set; }
 
     [JsonPropertyName("voucher_id")]
     [Column("voucher_id")]

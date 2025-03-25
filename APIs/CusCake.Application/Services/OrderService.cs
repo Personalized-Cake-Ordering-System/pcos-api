@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using AutoMapper;
 using CusCake.Application.Extensions;
 using CusCake.Application.GlobalExceptionHandling.Exceptions;
@@ -60,96 +61,104 @@ public class OrderService(
                 "PENDING", new OrderStateTransition<Order>
                 {
                     From = [OrderStatusConstants.PENDING],
-                    To = OrderStatusConstants.CONFIRMED,
+                    To = OrderStatusConstants.WAITING_BAKERY,
                     Guard = (order) =>
                     {
+                        if(order.ShippingType==ShippingTypeConstants.DELIVERY)
+                            return true;
+
                         if(order!.CustomerId != _claimsService.GetCurrentUser ||
                             _claimsService.GetCurrentUserRole != RoleConstants.CUSTOMER )
                             throw new UnauthorizedAccessException("Can not access to action!");
 
-                        return true;
-                    },
-                    Action = async (order) =>
-                    {
-                        order!.OrderStatus = OrderStatusConstants.CONFIRMED;
-                        _unitOfWork.OrderRepository.Update(order!);
-                        await _unitOfWork.SaveChangesAsync();
-                        return order!;
-                    }
-                }
-            },
-            {
-                "CONFIRMED", new OrderStateTransition<Order>
-                {
-                    From = [OrderStatusConstants.CONFIRMED],
-                    To = OrderStatusConstants.PAYMENT_PENDING,
-                     Guard = (order) =>
-                    {
-                        if(order!.CustomerId != _claimsService.GetCurrentUser ||
-                            _claimsService.GetCurrentUserRole != RoleConstants.CUSTOMER )
-                            throw new UnauthorizedAccessException("Can not access to action!");
-
+                        if(order.Transaction== null)
+                            throw new BadRequestException("Please! Making a payment!");
 
                         return true;
                     },
                     Action = async (order) =>
                     {
-                        var status=  order.ShippingType == ShippingTypeConstants.PICK_UP?
-                            OrderStatusConstants.WAITING_BAKERY :
-                            OrderStatusConstants.PAYMENT_PENDING;
 
-                        order!.OrderStatus = status;
-                        _unitOfWork.OrderRepository.Update(order!);
-                        await _unitOfWork.SaveChangesAsync();
-
-                        if(status == OrderStatusConstants.WAITING_BAKERY){
-                            var localExecuteTime = DateTime.Now.AddHours(7).AddMinutes(5);
-                            var delay = localExecuteTime - DateTime.UtcNow;
-                            _backgroundJobClient.Schedule(() => BakeryConfirmAsync(order!.Id), delay);
-                        }
-
-                        return order!;
-                    }
-                }
-            },
-            {
-                "PAYMENT_PENDING", new OrderStateTransition<Order>
-                {
-                    From = [OrderStatusConstants.PAYMENT_PENDING],
-                    To = OrderStatusConstants.PAID,
-                    Guard = (order) =>
-                    {
-                        return true;
-                    },
-                    Action = async (order) =>
-                    {
-                        order!.OrderStatus = OrderStatusConstants.PAID;
+                        order!.OrderStatus = OrderStatusConstants.WAITING_BAKERY;
                         order!.PaidAt=DateTime.Now;
                         _unitOfWork.OrderRepository.Update(order!);
                         await _unitOfWork.SaveChangesAsync();
+
+                        var localExecuteTime = DateTime.Now.AddHours(7).AddMinutes(5);
+                        var delay = localExecuteTime - DateTime.UtcNow;
+                        _backgroundJobClient.Schedule(() => BakeryConfirmAsync(order!.Id), delay);
+
                         return order!;
                     }
                 }
             },
+            // {
+            //     "CONFIRMED", new OrderStateTransition<Order>
+            //     {
+            //         From = [OrderStatusConstants.CONFIRMED],
+            //         To = OrderStatusConstants.PAYMENT_PENDING,
+            //          Guard = (order) =>
+            //         {
+            //             if(order!.CustomerId != _claimsService.GetCurrentUser ||
+            //                 _claimsService.GetCurrentUserRole != RoleConstants.CUSTOMER )
+            //                 throw new UnauthorizedAccessException("Can not access to action!");
+
+
+            //             return true;
+            //         },
+            //         Action = async (order) =>
+            //         {
+            //             var status=  order.ShippingType == ShippingTypeConstants.PICK_UP?
+            //                 OrderStatusConstants.WAITING_BAKERY :
+            //                 OrderStatusConstants.PAYMENT_PENDING;
+
+            //             order!.OrderStatus = status;
+            //             _unitOfWork.OrderRepository.Update(order!);
+            //             await _unitOfWork.SaveChangesAsync();
+
+            //             if(status == OrderStatusConstants.WAITING_BAKERY){
+            //                 var localExecuteTime = DateTime.Now.AddHours(7).AddMinutes(5);
+            //                 var delay = localExecuteTime - DateTime.UtcNow;
+            //                 _backgroundJobClient.Schedule(() => BakeryConfirmAsync(order!.Id), delay);
+            //             }
+
+            //             return order!;
+            //         }
+            //     }
+            // },
+            // {
+            //     "PAYMENT_PENDING", new OrderStateTransition<Order>
+            //     {
+            //         From = [OrderStatusConstants.PAYMENT_PENDING],
+            //         To = OrderStatusConstants.WAITING_BAKERY,
+            //         Guard = (order) =>
+            //         {
+            //             return true;
+            //         },
+            //         Action = async (order) =>
+            //         {
+            //             order!.OrderStatus = OrderStatusConstants.WAITING_BAKERY;
+            //             order!.PaidAt=DateTime.Now;
+            //             _unitOfWork.OrderRepository.Update(order!);
+            //             await _unitOfWork.SaveChangesAsync();
+            //             return order!;
+            //         }
+            //     }
+            // },
             {
-                "PAID", new OrderStateTransition<Order>
-                {
-                    From = [OrderStatusConstants.PAID],
-                    To = OrderStatusConstants.WAITING_BAKERY,
-                    Action = async (order) =>
-                    {
-                        order!.OrderStatus = OrderStatusConstants.WAITING_BAKERY;
-                        _unitOfWork.OrderRepository.Update(order!);
-                        await _unitOfWork.SaveChangesAsync();
-                        return order!;
-                    }
-                }
-            },
-            {
-                "WAITING_BAKERY", new OrderStateTransition<Order>
+                "WAITING_BAKERY_CONFIRM", new OrderStateTransition<Order>
                 {
                     From = [OrderStatusConstants.WAITING_BAKERY],
                     To = OrderStatusConstants.PROCESSING,
+                    Guard = (order) =>
+                    {
+                        if(_claimsService.GetCurrentUser == Guid.Empty)
+                            return true;
+
+                         if(_claimsService.GetCurrentUserRole!= RoleConstants.BAKERY || order.BakeryId != _claimsService.GetCurrentUser)
+                            throw new UnauthorizedAccessException("Can not access to action!");
+                        return true;
+                    },
                     Action=async (order)=> {
 
                         order!.OrderStatus = OrderStatusConstants.PROCESSING;
@@ -224,11 +233,13 @@ public class OrderService(
                         await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, status);
 
                         var completed_time=  order.ShippingType == ShippingTypeConstants.PICK_UP ? 30 :order.ShippingTime!.Value;
-
-                        var localExecuteTime = DateTime.Now.AddHours(7).AddMinutes(completed_time);
+                        var localExecuteTime = DateTime.Now.AddHours(7).AddMinutes(completed_time + 15);
                         var delay = localExecuteTime - DateTime.UtcNow;
-                        _backgroundJobClient.Schedule(() => AutoCompletedAsync(order!.Id), delay);
 
+                        if( order.ShippingType == ShippingTypeConstants.PICK_UP)
+                            _backgroundJobClient.Schedule(() => AutoShippingCompletedAsync(order!.Id), delay);
+                        else
+                            _backgroundJobClient.Schedule(() => AutoCancelAsync(order!.Id), delay);
 
                         return order!;
                     }
@@ -248,8 +259,8 @@ public class OrderService(
                          await MakeFinalPayment(order);
 
                         var orderJson = JsonConvert.SerializeObject(order);
-                        await _notificationService.CreateOrderNotificationAsync(order.Id,NotificationType.ORDER_COMPLETED, null ,order.CustomerId);
-                        await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, NotificationType.ORDER_COMPLETED);
+                        await _notificationService.CreateOrderNotificationAsync(order.Id,NotificationType.COMPLETED_ORDER, null ,order.CustomerId);
+                        await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, NotificationType.COMPLETED_ORDER);
 
                         return order!;
                     }
@@ -269,8 +280,8 @@ public class OrderService(
                         await MakeFinalPayment(order);
 
                         var orderJson = JsonConvert.SerializeObject(order);
-                        await _notificationService.CreateOrderNotificationAsync(order.Id,NotificationType.ORDER_COMPLETED, null ,order.CustomerId);
-                        await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, NotificationType.ORDER_COMPLETED);
+                        await _notificationService.CreateOrderNotificationAsync(order.Id,NotificationType.COMPLETED_ORDER, null ,order.CustomerId);
+                        await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, NotificationType.COMPLETED_ORDER);
 
                         return order!;
                     }
@@ -297,7 +308,7 @@ public class OrderService(
         await MoveToNextAsync<Order>(id);
     }
 
-    public async Task AutoCompletedAsync(Guid id)
+    public async Task AutoShippingCompletedAsync(Guid id)
     {
         var order = await GetOrderByIdAsync(id);
         if (order.OrderStatus != OrderStatusConstants.SHIPPING) return;
@@ -305,6 +316,19 @@ public class OrderService(
         await MoveToNextAsync<Order>(id);
     }
 
+    public async Task AutoCancelAsync(Guid id)
+    {
+        var order = await GetOrderByIdAsync(id);
+        if (order.OrderStatus == OrderStatusConstants.COMPLETED) return;
+
+        order!.OrderStatus = OrderStatusConstants.CANCELED;
+        _unitOfWork.OrderRepository.Update(order!);
+        await _unitOfWork.SaveChangesAsync();
+
+        var orderJson = JsonConvert.SerializeObject(order);
+        await _notificationService.CreateOrderNotificationAsync(order.Id, NotificationType.CANCELED_ORDER, order.BakeryId, null);
+        await _notificationService.SendNotificationAsync(order.BakeryId, orderJson, NotificationType.CANCELED_ORDER);
+    }
 
     public async Task<Order> CreateAsync(OrderCreateModel model)
     {
@@ -328,7 +352,7 @@ public class OrderService(
 
         var order = _mapper.Map<Order>(model);
         order.CustomerId = _claimsService.GetCurrentUser;
-        var getOrderDetail = await GetOrderDetails(order.Id, model.OrderDetailCreateModels);
+        var getOrderDetail = await GetOrderDetails(order, model.OrderDetailCreateModels);
         order.TotalProductPrice = getOrderDetail.Item2;
 
         order = await CalculateShipping(bakery, order);
@@ -350,19 +374,58 @@ public class OrderService(
     {
         if (string.IsNullOrEmpty(order.VoucherCode))
         {
-            order.DiscountAmount = 0;
+            order.VoucherCode = null;
             order.VoucherId = null;
+            order.DiscountAmount = 0;
             return order;
         }
 
+        CustomerVoucher cus_voucher = null!;
+
         var voucher = await _voucherService.GetVoucherByCodeAsync(order.VoucherCode!, order.BakeryId)
-                        ?? throw new BadRequestException("Invalid voucher code!");
+            ?? throw new BadRequestException("Voucher code is invalid or does not exist.");
 
-        var discountAmount = order.TotalProductPrice * voucher.DiscountPercentage;
-        order.DiscountAmount = discountAmount;
+        if (voucher.VoucherType == VoucherTypeConstants.PRIVATE)
+            cus_voucher = await _unitOfWork.CustomerVoucherRepository
+                .FirstOrDefaultAsync(x =>
+                    x.CustomerId == _claimsService.GetCurrentUser &&
+                    x.VoucherId == voucher.Id &&
+                    x.IsApplied == false
+                ) ?? throw new BadRequestException("Voucher code is invalid or does not exist.");
+
+        if (voucher.UsageCount >= voucher.Quantity)
+            throw new BadRequestException("This voucher has been used up and is no longer available.");
+
+        if (voucher.ExpirationDate < DateTime.Now)
+            throw new BadRequestException("This voucher has expired and can no longer be used.");
+
+        if (voucher.MinOrderAmount > order.TotalProductPrice)
+            throw new BadRequestException($"The total order amount must be greater than or equal to {voucher.MinOrderAmount:C} to use this voucher.");
+
+        var discountAmount = order.TotalProductPrice * voucher.DiscountPercentage / 100;
+
+        order.DiscountAmount = Math.Min(discountAmount, voucher.MaxDiscountAmount);
+
         order.VoucherId = voucher.Id;
-
+        order.CustomerVoucherId = cus_voucher?.Id;
+        UpdateVoucherCount(order.Id, voucher, cus_voucher!);
         return order;
+    }
+
+
+    private void UpdateVoucherCount(Guid orderId, Voucher voucher, CustomerVoucher cus_voucher)
+    {
+        if (voucher.VoucherType == VoucherTypeConstants.GLOBAL)
+        {
+            voucher.UsageCount += 1;
+            _unitOfWork.VoucherRepository.Update(voucher);
+            return;
+        }
+        cus_voucher.OrderId = orderId;
+        cus_voucher.IsApplied = true;
+        cus_voucher.AppliedAt = DateTime.Now;
+        _unitOfWork.CustomerVoucherRepository.Update(cus_voucher);
+
     }
 
     private async Task<Order> CalculateShipping(Bakery bakery, Order order)
@@ -391,6 +454,7 @@ public class OrderService(
         order.ShippingDistance = distanceKm;
         order.ShippingFee = shipping_fee;
         order.ShippingTime = shippingTimeH;
+        order.ShippingType = ShippingTypeConstants.DELIVERY;
 
         return order;
     }
@@ -408,7 +472,7 @@ public class OrderService(
         return order;
     }
 
-    private async Task<(List<OrderDetail>, double)> GetOrderDetails(Guid orderId, List<OrderDetailCreateModel> orderDetails)
+    private async Task<(List<OrderDetail>, double)> GetOrderDetails(Order order, List<OrderDetailCreateModel> orderDetails)
     {
         var details = _mapper.Map<List<OrderDetail>>(orderDetails);
         double total = 0;
@@ -416,21 +480,27 @@ public class OrderService(
         {
             var available_cake_id = orderDetails[i].AvailableCakeId;
             var customer_cake_id = orderDetails[i].CustomCakeId;
-            details[i].OrderId = orderId;
+            details[i].OrderId = order.Id;
 
             if (available_cake_id.HasValue)
             {
-                var availableCake = await _unitOfWork.AvailableCakeRepository.GetByIdAsync(available_cake_id.Value); ;
-                total += availableCake!.AvailableCakePrice;
+                var availableCake = await _unitOfWork.AvailableCakeRepository.FirstOrDefaultAsync(x =>
+                        x.BakeryId == order.BakeryId &&
+                        x.Id == available_cake_id.Value); ;
+                total += (double)(availableCake!.AvailableCakePrice * details[i].Quantity)!;
                 details[i].SubTotalPrice = availableCake.AvailableCakePrice;
             }
             if (customer_cake_id.HasValue)
             {
-                var customCake = await _unitOfWork.CustomCakeRepository.GetByIdAsync(customer_cake_id.Value);
-                total += customCake!.Price;
+                var customCake = await _unitOfWork.CustomCakeRepository.FirstOrDefaultAsync(x =>
+                        x.BakeryId == order.BakeryId &&
+                        x.Id == customer_cake_id.Value);
+                total += (double)(customCake!.Price * details[i].Quantity)!;
                 details[i].SubTotalPrice = customCake.Price;
             }
         }
+        if (details.Count != orderDetails.Count)
+            throw new BadRequestException("Only buy cake in one store at time!");
 
         await _unitOfWork.OrderDetailRepository.AddRangeAsync(details);
 
@@ -447,8 +517,10 @@ public class OrderService(
 
         var order = await _unitOfWork.OrderRepository.GetByIdAsync(id, includes: includes)
             ?? throw new BadRequestException("Order not found!");
+        order.Transaction = await _unitOfWork.TransactionRepository.FirstOrDefaultAsync(x => x.OrderId == order.Id);
 
-        order.OrderDetails = await _unitOfWork.OrderDetailRepository.WhereAsync(x => x.OrderId == id);
+        order.OrderDetails = await _unitOfWork.OrderDetailRepository.WhereAsync(x => x.OrderId == id, includes: x => x.CakeReview!);
+
         order.OrderSupports = await _unitOfWork.OrderSupportRepository
                             .WhereAsync(x =>
                                 x.BakeryId == order.BakeryId &&
@@ -463,14 +535,43 @@ public class OrderService(
             x => x.Voucher!,
             x => x.CustomerVoucher!);
 
-        return await _unitOfWork.OrderRepository.GetByIdAsync(id, includes: includes)
+        var order = await _unitOfWork.OrderRepository.GetByIdAsync(id, includes: includes)
             ?? throw new BadRequestException("Order not found!");
+        order.Transaction = await _unitOfWork.TransactionRepository.FirstOrDefaultAsync(x => x.OrderId == order.Id);
 
+        return order;
     }
 
-    private void DeleteOrderDetailAsync(Order order)
+    private async Task DeleteOrderDetailAsync(Order order)
     {
-        _unitOfWork.OrderDetailRepository.SoftRemoveRange(order.OrderDetails!);
+        var order_details = await _unitOfWork.OrderDetailRepository.WhereAsync(x => x.OrderId == order.Id);
+        _unitOfWork.OrderDetailRepository.SoftRemoveRange(order_details!);
+    }
+
+    private async Task ResetVoucherAsync(string voucherCode, Guid bakeryId)
+    {
+        var voucher = await _voucherService.GetVoucherByCodeAsync(voucherCode, bakeryId)
+         ?? throw new BadRequestException("Voucher code is invalid or does not exist.");
+
+        if (voucher.VoucherType == VoucherTypeConstants.GLOBAL)
+        {
+            voucher.UsageCount += 1;
+            _unitOfWork.VoucherRepository.Update(voucher);
+            await _unitOfWork.SaveChangesAsync();
+            return;
+        }
+
+        var cus_voucher = await _unitOfWork.CustomerVoucherRepository
+                .FirstOrDefaultAsync(x =>
+                    x.CustomerId == _claimsService.GetCurrentUser &&
+                    x.VoucherId == voucher.Id &&
+                    x.IsApplied == false
+                ) ?? throw new BadRequestException("Voucher code is invalid or does not exist.");
+
+        cus_voucher.IsApplied = false;
+        cus_voucher.AppliedAt = null;
+        _unitOfWork.CustomerVoucherRepository.Update(cus_voucher);
+        await _unitOfWork.SaveChangesAsync();
     }
 
     public async Task<Order> UpdateAsync(Guid id, OrderUpdateModel model)
@@ -484,28 +585,47 @@ public class OrderService(
 
         var customer = await _customerService.GetByIdAsync(_claimsService.GetCurrentUser);
 
+        model.PhoneNumber ??= customer.Phone;
+        model.ShippingAddress ??= customer.Address;
+        model.Longitude ??= customer.Longitude;
+        model.Latitude ??= customer.Latitude;
+
         if (string.IsNullOrEmpty(model.ShippingAddress) && string.IsNullOrEmpty(customer.Address))
             throw new BadRequestException("Shipping Address is required");
 
         var order = await GetOrderByIdAsync(id);
+        var old_voucherCode = order.VoucherCode;
+        var old_ShippingAddress = order.VoucherCode;
+        var old_ShippingType = order.ShippingType;
 
-        if (order.OrderStatus != OrderStatusConstants.PENDING || order.OrderStatus != OrderStatusConstants.CONFIRMED)
-            throw new BadRequestException("Only update when status is PENDING!");
+        if (!new[] {
+            OrderStatusConstants.PENDING,
+            // OrderStatusConstants.CONFIRMED,
+            // OrderStatusConstants.PAYMENT_PENDING
+        }.Contains(order.OrderStatus))
+            throw new BadRequestException("Only update before PAID!");
 
-        DeleteOrderDetailAsync(order);
+        await DeleteOrderDetailAsync(order);
 
         _mapper.Map(model, order);
 
-        var getOrderDetail = await GetOrderDetails(order.Id, model.OrderDetailCreateModels);
+        var getOrderDetail = await GetOrderDetails(order, model.OrderDetailCreateModels);
         order.TotalProductPrice = getOrderDetail.Item2;
 
-        if (model.ShippingAddress != order.ShippingAddress)
+        if (model.ShippingType != old_ShippingType || model.ShippingAddress != old_ShippingAddress)
             order = await CalculateShipping(bakery, order);
 
-        if (order.VoucherCode != model.VoucherCode)
+        if (model.VoucherCode != old_voucherCode)
             order = await CalculateDiscount(order);
 
         order = CalculateFinalPrice(order);
+        order.OrderStatus = OrderStatusConstants.PENDING;
+
+        _unitOfWork.OrderRepository.Update(order);
+        await _unitOfWork.SaveChangesAsync();
+
+        if (model.VoucherCode != old_voucherCode && old_voucherCode != null)
+            await ResetVoucherAsync(old_voucherCode, order.BakeryId);
 
         return order;
 
@@ -516,10 +636,45 @@ public class OrderService(
     {
         var order = await GetOrderByIdAsync(id);
 
+        if (new[] {
+            OrderStatusConstants.PROCESSING,
+            OrderStatusConstants.READY_FOR_PICKUP,
+            OrderStatusConstants.SHIPPING,
+            OrderStatusConstants.COMPLETED,
+            OrderStatusConstants.CANCELED,
+        }.Contains(order.OrderStatus))
+            throw new BadRequestException("Only cancel before bakery CONFIRMED!");
+
         order.OrderStatus = OrderStatusConstants.CANCELED;
         order.CancelBy = _claimsService.GetCurrentUserRole;
 
+        _unitOfWork.OrderRepository.Update(order);
+        await _unitOfWork.SaveChangesAsync();
+
+        if (new[] {
+            OrderStatusConstants.WAITING_BAKERY,
+        }.Contains(order.OrderStatus))
+            await RollbackMoneyAsync(order);
+
+        if (!string.IsNullOrEmpty(order.OrderCode))
+            await ResetVoucherAsync(order.VoucherCode!, order.BakeryId);
+
+
+        var orderJson = JsonConvert.SerializeObject(order);
+        await _notificationService.CreateOrderNotificationAsync(order.Id, NotificationType.COMPLETED_ORDER, null, order.CustomerId);
+        await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, NotificationType.COMPLETED_ORDER);
+
         return order;
+    }
+
+    private async Task RollbackMoneyAsync(Order order)
+    {
+        var adminWallet = (await _authService.GetAdminAsync()).Wallet;
+        await _walletService.MakeBillingAsync(adminWallet, -order.TotalCustomerPaid, WalletTransactionTypeConstants.ROLL_BACK);
+
+        var customerWallet = (await _authService.GetAuthByIdAsync(order.CustomerId)).Wallet;
+        await _walletService.MakeBillingAsync(customerWallet, order.TotalCustomerPaid, WalletTransactionTypeConstants.ROLL_BACK);
+
     }
 
     public async Task<Order?> MoveToNextAsync<Order>(Guid id, List<IFormFile>? files = null)
@@ -535,7 +690,11 @@ public class OrderService(
 
         transition.Guard?.Invoke(order);
 
-        transition.Validate?.Invoke((order, files)!);
+        // transition.Validate?.Invoke((order, files)!);
+        if (transition.Validate != null)
+        {
+            await transition.Validate((order, files!));
+        }
 
         return transition.Action != null ? await transition.Action(order) : default;
     }

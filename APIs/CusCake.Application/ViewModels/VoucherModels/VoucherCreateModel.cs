@@ -37,6 +37,10 @@ public class VoucherUpdateModel : VoucherCreateModel
 
 }
 
+public class AssignVoucherModel
+{
+    public Guid CustomerId { get; set; }
+}
 
 public class VoucherCreateModelValidator : AbstractValidator<VoucherCreateModel>
 {

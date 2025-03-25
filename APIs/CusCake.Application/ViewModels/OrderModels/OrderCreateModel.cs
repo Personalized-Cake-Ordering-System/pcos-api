@@ -50,6 +50,9 @@ public class OrderDetailCreateModel
 
     [JsonPropertyName("cake_note")]
     public string? CakeNote { get; set; }
+
+    [JsonPropertyName("quantity")]
+    public int Quantity { get; set; }
 }
 
 public class OrderCreateModelValidator : AbstractValidator<OrderCreateModel>
@@ -61,7 +64,14 @@ public class OrderCreateModelValidator : AbstractValidator<OrderCreateModel>
 
         RuleFor(x => x.OrderDetailCreateModels)
             .NotNull().WithMessage("Order details can not null.")
-            .Must(x => x != null && x.Count != 0).WithMessage("At least one order detail.");
+            .Must(x => x != null && x.Count != 0).WithMessage("At least one order detail.")
+            .DependentRules(() =>
+            {
+                RuleForEach(x => x.OrderDetailCreateModels)
+                    .Must(orderDetail => orderDetail.CustomCakeId == null)
+                    .When(x => x.ShippingType == ShippingTypeConstants.PICK_UP)
+                    .WithMessage("CustomCakeId must be null when ShippingType is PICKUP.");
+            });
 
         RuleFor(x => x.ShippingType)
                  .NotEmpty().WithMessage("Shipping type is required.")
@@ -93,6 +103,11 @@ public class OrderDetailCreateModelValidator : AbstractValidator<OrderDetailCrea
             .Must(x => x != null)
             .When(x => x.AvailableCakeId == null)
             .WithMessage("AvailableCakeId or CustomCakeId can't be null.");
+
+        RuleFor(x => x.Quantity)
+            .NotNull().NotEmpty().WithMessage("Quantity is required")
+            .GreaterThan(0)
+            .WithMessage("At least 1 for each quantity.");
     }
 }
 

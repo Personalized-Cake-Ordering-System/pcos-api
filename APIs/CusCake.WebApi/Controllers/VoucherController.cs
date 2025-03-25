@@ -56,8 +56,7 @@ public class VoucherController(IVoucherService voucherService) : BaseController
 
         return StatusCode(204, new ResponseModel<object, object> { StatusCode = 204 });
     }
-<<<<<<< Updated upstream
-=======
+
 
     [HttpPost("{id}/assigns")]
     [Authorize(Roles = RoleConstants.BAKERY)]
@@ -86,6 +85,4 @@ public class VoucherController(IVoucherService voucherService) : BaseController
         return Ok(ResponseModel<object, List<CustomerVoucher>>.Success(result.Item2, result.Item1));
     }
 
-
->>>>>>> Stashed changes
 }

@@ -4,6 +4,7 @@ using CusCake.Infrastructures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CusCake.Infrastructures.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250320092253_update_order_detail")]
+    partial class update_order_detail
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1009,11 +1012,6 @@ namespace CusCake.Infrastructures.Migrations
                         .HasColumnName("customer_id")
                         .HasAnnotation("Relational:JsonPropertyName", "customer_id");
 
-                    b.Property<Guid?>("ImageId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("image_id")
-                        .HasAnnotation("Relational:JsonPropertyName", "image_id");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("is_deleted")
@@ -1028,6 +1026,11 @@ namespace CusCake.Infrastructures.Migrations
                         .HasColumnType("int")
                         .HasColumnName("rating")
                         .HasAnnotation("Relational:JsonPropertyName", "rating");
+
+                    b.Property<Guid>("ReviewImageFileId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("review_image_file_id")
+                        .HasAnnotation("Relational:JsonPropertyName", "review_image_file_id");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime(6)")
@@ -1046,8 +1049,6 @@ namespace CusCake.Infrastructures.Migrations
                     b.HasIndex("BakeryId");
 
                     b.HasIndex("CustomerId");
-
-                    b.HasIndex("ImageId");
 
                     b.ToTable("cake_reviews");
 
@@ -1287,8 +1288,6 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.HasIndex("OrderId")
                         .IsUnique();
-
-                    b.HasIndex("VoucherId");
 
                     b.ToTable("customer_vouchers");
 
@@ -2305,18 +2304,11 @@ namespace CusCake.Infrastructures.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("CusCake.Domain.Entities.Storage", "Image")
-                        .WithMany()
-                        .HasForeignKey("ImageId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
                     b.Navigation("AvailableCake");
 
                     b.Navigation("Bakery");
 
                     b.Navigation("Customer");
-
-                    b.Navigation("Image");
                 });
 
             modelBuilder.Entity("CusCake.Domain.Entities.CustomCake", b =>
@@ -2354,16 +2346,16 @@ namespace CusCake.Infrastructures.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("CusCake.Domain.Entities.Voucher", "Voucher")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("CusCake.Domain.Entities.Order", "Order")
                         .WithOne("CustomerVoucher")
                         .HasForeignKey("CusCake.Domain.Entities.CustomerVoucher", "OrderId")
                         .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("CusCake.Domain.Entities.Voucher", "Voucher")
-                        .WithMany()
-                        .HasForeignKey("VoucherId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
 
                     b.Navigation("Customer");
 

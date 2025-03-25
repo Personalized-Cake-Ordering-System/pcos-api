@@ -1,5 +1,6 @@
 using AutoMapper.Configuration.Annotations;
 using CusCake.Application.Validators;
+using CusCake.Domain.Constants;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using System.Text.Json.Serialization;
@@ -49,7 +50,8 @@ public class AvailableCakeBaseActionModelValidator : AbstractValidator<Available
 
         RuleFor(x => x.AvailableCakeType)
             .NotEmpty().WithMessage("Cake type is required.")
-            .MaximumLength(50).WithMessage("Cake type cannot exceed 50 characters.");
+            .MaximumLength(50).WithMessage("Cake type cannot exceed 50 characters.")
+            .Must(BeAValidCakeType).WithMessage("Invalid cake type.");
 
         RuleFor(x => x.AvailableCakeQuantity)
             .GreaterThanOrEqualTo(0).WithMessage("Quantity must be greater than or equal to 0.");
@@ -61,7 +63,11 @@ public class AvailableCakeBaseActionModelValidator : AbstractValidator<Available
             .WithMessage("AvailableCakeImageFiles contains an invalid GUID")
             .Must(files => files.Distinct().Count() == files.Count).WithMessage("ShopImageFileIds must be unique.");
 
+    }
 
+    private bool BeAValidCakeType(string cakeType)
+    {
+        return AvailableCakeTypeConstants.AllCakeTypes.Contains(cakeType);
     }
 }
 

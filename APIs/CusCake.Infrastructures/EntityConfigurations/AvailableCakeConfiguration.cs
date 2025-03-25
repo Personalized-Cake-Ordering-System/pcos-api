@@ -10,6 +10,9 @@ public class AvailableCakeConfiguration : IEntityTypeConfiguration<AvailableCake
 {
     public void Configure(EntityTypeBuilder<AvailableCake> builder)
     {
+        builder
+         .Ignore(o => o.CakeReviews);
+
         var storageComparer = new ValueComparer<List<Storage>>(
             (c1, c2) => c1 != null && c2 != null && c1.SequenceEqual(c2), // So sánh 2 danh sách
             c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())), // Tạo hash code

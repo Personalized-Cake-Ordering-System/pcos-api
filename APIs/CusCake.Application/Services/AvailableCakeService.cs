@@ -69,7 +69,9 @@ public class AvailableCakeService(IUnitOfWork unitOfWork, IMapper mapper, IFileS
 
     public async Task<AvailableCake> GetByIdAsync(Guid id)
     {
-        return await _unitOfWork.AvailableCakeRepository.GetByIdAsync(id) ?? throw new BadRequestException("Cake is not exist!");
+        var available_cake = await _unitOfWork.AvailableCakeRepository.GetByIdAsync(id) ?? throw new BadRequestException("Cake is not exist!");
+        available_cake.CakeReviews = await _unitOfWork.CakeReviewRepository.WhereAsync(x => x.AvailableCakeId == id);
+        return available_cake;
     }
 
     public async Task<AvailableCake> UpdateAsync(Guid id, AvailableCakeUpdateModel model)

@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using AutoMapper;
+using CusCake.Application.Extensions;
 using CusCake.Application.GlobalExceptionHandling.Exceptions;
 using CusCake.Application.Services.IServices;
 using CusCake.Application.Utils;
@@ -15,8 +16,9 @@ public interface IVoucherService
     Task<(Pagination, List<Voucher>)> GetAllAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<Voucher, bool>>? filter = null);
     Task DeleteAsync(Guid id);
     Task<Voucher> UpdateAsync(Guid id, VoucherUpdateModel model);
-
     Task<Voucher?> GetVoucherByCodeAsync(string code, Guid bakeryId);
+    Task<CustomerVoucher> AssignVoucherToCustomer(Guid id, AssignVoucherModel model);
+    Task<(Pagination, List<CustomerVoucher>)> GetCustomerVouchersAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<CustomerVoucher, bool>>? filter = null);
 }
 
 
@@ -29,6 +31,20 @@ public class VoucherService(
     private readonly IMapper _mapper = mapper;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IClaimsService _claimsService = claimsService;
+
+    public async Task<CustomerVoucher> AssignVoucherToCustomer(Guid id, AssignVoucherModel model)
+    {
+        var cus_voucher = new CustomerVoucher
+        {
+            VoucherId = id,
+            CustomerId = model.CustomerId
+        };
+
+        await _unitOfWork.CustomerVoucherRepository.AddAsync(cus_voucher);
+        await _unitOfWork.SaveChangesAsync();
+        return cus_voucher;
+
+    }
 
     public async Task<Voucher> CreateAsync(VoucherCreateModel model)
     {
@@ -68,6 +84,15 @@ public class VoucherService(
     public async Task<Voucher> GetByIdAsync(Guid id)
     {
         return await _unitOfWork.VoucherRepository.GetByIdAsync(id, includes: x => x.Bakery) ?? throw new BadRequestException("Voucher not found!");
+    }
+
+    public async Task<(Pagination, List<CustomerVoucher>)> GetCustomerVouchersAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<CustomerVoucher, bool>>? filter = null)
+    {
+        var includes = QueryHelper.Includes<CustomerVoucher>(
+            x => x.Customer!,
+            x => x.Voucher!);
+        return await _unitOfWork.CustomerVoucherRepository.ToPagination(pageIndex, pageSize, filter: filter, includes: includes);
+
     }
 
     public async Task<Voucher?> GetVoucherByCodeAsync(string code, Guid bakeryId)

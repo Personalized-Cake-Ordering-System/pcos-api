@@ -28,11 +28,7 @@ public class OrderController(IOrderService service) : BaseController
     }
 
     /// <summary>
-<<<<<<< Updated upstream
     /// Update order when Status is PENDING or CONFIRMED - Can not CANCEL after PAID
-=======
-    /// Update order - Chỉ update khi ở trạng thái PENDING
->>>>>>> Stashed changes
     /// </summary>
     [HttpPut("{id}/save")]
     [Authorize(Roles = RoleConstants.CUSTOMER)]
@@ -50,13 +46,10 @@ public class OrderController(IOrderService service) : BaseController
 
     }
 
-<<<<<<< Updated upstream
-=======
     /// <summary>
     /// Api này này dùng để chuyển state
     /// Move to next state
     /// </summary>
->>>>>>> Stashed changes
     [HttpPut("{id}/move-to-next")]
     [Authorize(Roles = RoleConstants.BAKERY + "," + RoleConstants.CUSTOMER)]
     public async Task<IActionResult> MoveToNextAsync(Guid id, [FromForm] List<IFormFile>? files = null)
