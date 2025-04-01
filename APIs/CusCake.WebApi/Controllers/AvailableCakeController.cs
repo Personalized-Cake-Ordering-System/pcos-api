@@ -4,6 +4,7 @@ using CusCake.Application.ViewModels;
 using CusCake.Application.ViewModels.AvailableCakeModels;
 using CusCake.Domain.Constants;
 using CusCake.Domain.Entities;
+using CusCake.WebApi.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -34,20 +35,22 @@ public class AvailableCakeController(IAvailableCakeService availableCakeService)
 
     /// <summary>
     /// Example to filter price : 0-100000
+    /// Sort format: fieldName:asc/desc,anotherField:asc/desc
+    /// Example sort: price:desc,name:asc
     /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetAllAsync(
-        string? type,
         int pageIndex = 0,
         int pageSize = 10,
+        string? type = null,
         string? price = null,
         string? name = null,
-        [FromQuery] Guid? bakeryId = null)
+        [FromQuery] Guid? bakeryId = null,
+        string? sort = null)
     {
         List<double> prices = string.IsNullOrEmpty(price)
                            ? []
                            : [.. price.Split("-").Select(p => double.TryParse(p, out double result) ? result : (double?)null).Where(p => p.HasValue).Cast<double>()];
-
 
         List<string> typeList = string.IsNullOrEmpty(type)
                                   ? []
@@ -59,8 +62,9 @@ public class AvailableCakeController(IAvailableCakeService availableCakeService)
             (string.IsNullOrEmpty(type) || (typeList.Count == 0 || typeList.Contains(x.AvailableCakeType!))) &&
             (string.IsNullOrEmpty(price) || (x.AvailableCakePrice >= prices.First() && x.AvailableCakePrice <= prices.Last()));
 
+        var orderByList = SortingHelper.ParseSortingParameters(sort, EntitySortingMappings.AvailableCakeMappings);
 
-        var result = await _availableCakeService.GetAllAsync(pageIndex, pageSize, filter: filter);
+        var result = await _availableCakeService.GetAllAsync(pageIndex, pageSize, filter: filter, orderByList: orderByList);
         return Ok(ResponseModel<object, object>.Success(result.Item2, result.Item1));
     }
 

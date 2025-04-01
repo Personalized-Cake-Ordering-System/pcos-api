@@ -1,6 +1,4 @@
-﻿
-
-using CusCake.Application.Repositories;
+﻿using CusCake.Application.Repositories;
 using CusCake.Application.Services;
 using CusCake.Application.Services.IServices;
 using CusCake.Application.Utils;
@@ -17,13 +15,72 @@ public class GenericRepository<TEntity>(AppDbContext context, ICurrentTime curre
     private readonly ICurrentTime _timeService = currentTime;
     private readonly IClaimsService _claimsService = claimsService;
 
-    public async Task<List<TEntity>> GetAllAsync(bool withDeleted = false, params Expression<Func<TEntity, object>>[] includes) =>
-          await includes
-         .Aggregate(_dbSet.AsQueryable(),
-             (entity, property) => entity.Include(property).IgnoreAutoIncludes())
-         .Where(x => withDeleted || !x.IsDeleted)
-         .OrderByDescending(x => x.CreatedAt)
-         .ToListAsync();
+    // Thêm phương thức riêng để xử lý sắp xếp
+    private IQueryable<TEntity> ApplyOrderingAndFiltering(
+        IQueryable<TEntity> query,
+        bool withDeleted = false,
+        Expression<Func<TEntity, bool>>? filter = null,
+        List<(Expression<Func<TEntity, object>> OrderBy, bool IsDescending)>? orderByList = null)
+    {
+        // Áp dụng filter chung cho deleted entities
+        query = query.Where(x => withDeleted || !x.IsDeleted);
+
+        // Áp dụng filter tùy chỉnh nếu có
+        if (filter != null)
+        {
+            query = query.Where(filter);
+        }
+
+        // Áp dụng sắp xếp
+        IQueryable<TEntity> finalQuery;
+
+        if (orderByList != null && orderByList.Count > 0)
+        {
+            var isFirstOrder = true;
+            IOrderedQueryable<TEntity> orderedQuery = null!;
+
+            foreach (var (orderBy, isDescending) in orderByList)
+            {
+                if (isFirstOrder)
+                {
+                    orderedQuery = isDescending
+                        ? query.OrderByDescending(orderBy)
+                        : query.OrderBy(orderBy);
+                    isFirstOrder = false;
+                }
+                else
+                {
+                    orderedQuery = isDescending
+                        ? orderedQuery.ThenByDescending(orderBy)
+                        : orderedQuery.ThenBy(orderBy);
+                }
+            }
+
+            finalQuery = orderedQuery;
+        }
+        else
+        {
+            // Mặc định sắp xếp theo CreatedAt giảm dần
+            finalQuery = query.OrderByDescending(x => x.CreatedAt);
+        }
+
+        return finalQuery;
+    }
+
+    public async Task<List<TEntity>> GetAllAsync(
+        bool withDeleted = false,
+        List<(Expression<Func<TEntity, object>> OrderBy, bool IsDescending)>? orderByList = null,
+        params Expression<Func<TEntity, object>>[] includes)
+    {
+        var query = includes
+            .Aggregate(_dbSet.AsQueryable(),
+                (entity, property) => entity.Include(property).IgnoreAutoIncludes());
+
+        // Sử dụng phương thức chung cho việc sắp xếp
+        var finalQuery = ApplyOrderingAndFiltering(query, withDeleted, null, orderByList);
+
+        return await finalQuery.ToListAsync();
+    }
 
     public async Task<TEntity?> GetByIdAsync(Guid id, bool withDeleted = false, params Expression<Func<TEntity, object>>[] includes)
     {
@@ -73,26 +130,30 @@ public class GenericRepository<TEntity>(AppDbContext context, ICurrentTime curre
         int pageSize = 10,
         bool withDeleted = false,
         Expression<Func<TEntity, bool>>? filter = null,
+        List<(Expression<Func<TEntity, object>> OrderBy, bool IsDescending)>? orderByList = null,
         params Expression<Func<TEntity, object>>[] includes)
     {
-        var itemsQuery = await GetAllAsync(withDeleted, includes);
+        var query = includes
+            .Aggregate(_dbSet.AsQueryable(),
+                (entity, property) => entity.Include(property));
 
-        // Áp dụng filter nếu có
-        if (filter != null)
-        {
-            Func<TEntity, bool> compiledFilter = (Func<TEntity, bool>)filter.Compile();
-            itemsQuery = [.. itemsQuery.AsQueryable().Where(compiledFilter)];
-        }
+        // Sử dụng phương thức chung cho việc sắp xếp và lọc
+        var finalQuery = ApplyOrderingAndFiltering(query, withDeleted, filter, orderByList);
 
-        var items = itemsQuery;
+        // Đếm tổng số items trước khi phân trang
+        var totalCount = await finalQuery.CountAsync();
 
-        var paginatedItems = items.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+        // Áp dụng phân trang
+        var paginatedItems = await finalQuery
+            .Skip(pageIndex * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
 
         var pagination = new Pagination
         {
             PageIndex = pageIndex,
             PageSize = pageSize,
-            TotalItemsCount = items.Count,
+            TotalItemsCount = totalCount,
         };
 
         return (pagination, paginatedItems);
@@ -108,14 +169,21 @@ public class GenericRepository<TEntity>(AppDbContext context, ICurrentTime curre
         _dbSet.UpdateRange(entities);
     }
 
-    public async Task<List<TEntity>> WhereAsync(Expression<Func<TEntity, bool>> expression, bool withDeleted = false, params Expression<Func<TEntity, object>>[] includes)
-          => await includes
+    public async Task<List<TEntity>> WhereAsync(
+        Expression<Func<TEntity, bool>> filter,
+        bool withDeleted = false,
+        List<(Expression<Func<TEntity, object>> OrderBy, bool IsDescending)>? orderByList = null,
+        params Expression<Func<TEntity, object>>[] includes)
+    {
+        var query = includes
             .Aggregate(_dbSet!.AsQueryable(),
-                (entity, property) => entity.Include(property)).AsNoTracking()
-            .Where(expression!)
-            .Where(x => withDeleted || !x.IsDeleted)
-            .OrderByDescending(x => x.CreatedAt)
-            .ToListAsync();
+                (entity, property) => entity.Include(property)).AsNoTracking();
+
+        // Sử dụng phương thức chung cho việc sắp xếp và lọc
+        var finalQuery = ApplyOrderingAndFiltering(query, withDeleted, filter, orderByList);
+
+        return await finalQuery.ToListAsync();
+    }
 
     public async Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> expression, bool withDeleted = false, params Expression<Func<TEntity, object>>[] includes)
          => await includes

@@ -28,15 +28,30 @@ public class VoucherController(IVoucherService voucherService) : BaseController
         return StatusCode(201, new ResponseModel<object, object> { StatusCode = 201, Payload = voucher });
     }
 
+    /// <summary>
+    /// Get all vouchers with optional filtering
+    /// </summary>
+    /// <param name="bakeryId">Optional bakery ID to filter vouchers</param>
+    /// <param name="pageIndex">Page index for pagination (default: 0)</param>
+    /// <param name="pageSize">Page size for pagination (default: 10)</param>
+    /// <param name="type">Filter by voucher type (GLOBAL, PRIVATE, or null for all)</param>
+    /// <returns>List of vouchers with pagination data</returns>
     [HttpGet]
     public async Task<IActionResult> GetAllAsync(
         [FromQuery] Guid? bakeryId,
         int pageIndex = 0,
-        int pageSize = 10)
+        int pageSize = 10,
+        [FromQuery] string? type = null)
     {
-        Expression<Func<Voucher, bool>> filter = x =>
-                  (bakeryId == null || x.BakeryId == bakeryId);
+        // Normalize type to uppercase for consistent comparison
+        type = type?.ToUpper();
 
+        // Build the filter expression
+        Expression<Func<Voucher, bool>> filter = x =>
+            (bakeryId == null || x.BakeryId == bakeryId) &&
+            (string.IsNullOrEmpty(type) || ((type != VoucherTypeConstants.GLOBAL) && (type != VoucherTypeConstants.PRIVATE)) || x.VoucherType == type);
+
+        // Call service with filter and ordering
         var result = await _voucherService.GetAllAsync(pageIndex, pageSize, filter);
         return Ok(ResponseModel<object, object>.Success(result.Item2, result.Item1));
     }

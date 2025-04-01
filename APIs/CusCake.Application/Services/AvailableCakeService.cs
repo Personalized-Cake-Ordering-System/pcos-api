@@ -18,7 +18,11 @@ public interface IAvailableCakeService
 
     public Task DeleteAsync(Guid id);
 
-    public Task<(Pagination, List<AvailableCake>)> GetAllAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<AvailableCake, bool>>? filter = null);
+    Task<(Pagination, List<AvailableCake>)> GetAllAsync(
+               int pageIndex = 0,
+               int pageSize = 10,
+               Expression<Func<AvailableCake, bool>>? filter = null,
+               List<(Expression<Func<AvailableCake, object>> OrderBy, bool IsDescending)>? orderByList = null);
 }
 
 public class AvailableCakeService(IUnitOfWork unitOfWork, IMapper mapper, IFileService fileService, IClaimsService claimsService) : IAvailableCakeService
@@ -61,9 +65,10 @@ public class AvailableCakeService(IUnitOfWork unitOfWork, IMapper mapper, IFileS
     public async Task<(Pagination, List<AvailableCake>)> GetAllAsync(
         int pageIndex = 0,
         int pageSize = 10,
-        Expression<Func<AvailableCake, bool>>? filter = null)
+        Expression<Func<AvailableCake, bool>>? filter = null,
+        List<(Expression<Func<AvailableCake, object>> OrderBy, bool IsDescending)>? orderByList = null)
     {
-        return await _unitOfWork.AvailableCakeRepository.ToPagination(pageIndex, pageSize, filter: filter);
+        return await _unitOfWork.AvailableCakeRepository.ToPagination(pageIndex, pageSize, filter: filter, orderByList: orderByList);
 
     }
 
