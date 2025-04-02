@@ -68,7 +68,7 @@ public class AvailableCakeService(IUnitOfWork unitOfWork, IMapper mapper, IFileS
         Expression<Func<AvailableCake, bool>>? filter = null,
         List<(Expression<Func<AvailableCake, object>> OrderBy, bool IsDescending)>? orderByList = null)
     {
-        return await _unitOfWork.AvailableCakeRepository.ToPagination(pageIndex, pageSize, filter: filter, orderByList: orderByList);
+        return await _unitOfWork.AvailableCakeRepository.ToPagination(pageIndex, pageSize, filter: filter, includes: x => x.Bakery, orderByList: orderByList);
 
     }
 

@@ -1,7 +1,6 @@
 using System.Linq.Expressions;
 using CusCake.Application.Services;
 using CusCake.Application.ViewModels;
-using CusCake.Application.ViewModels.CakePartModels;
 using CusCake.Application.ViewModels.CustomCakeModels;
 using CusCake.Domain.Constants;
 using CusCake.Domain.Entities;

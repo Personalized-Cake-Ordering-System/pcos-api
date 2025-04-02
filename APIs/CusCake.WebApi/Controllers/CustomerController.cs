@@ -14,13 +14,15 @@ public class CustomerController(
     ICustomerService customerService,
     INotificationService notificationService,
     IOrderService orderService,
-    IVoucherService voucherService
+    IVoucherService voucherService,
+    ICustomCakeService customCakeService
 ) : BaseController
 {
     private readonly INotificationService _notificationService = notificationService;
     private readonly ICustomerService _customerService = customerService;
     private readonly IOrderService _orderService = orderService;
     private readonly IVoucherService _voucherService = voucherService;
+    private readonly ICustomCakeService _customCakeService = customCakeService;
 
     [HttpGet("{id}")]
     [Authorize]
@@ -121,6 +123,23 @@ public class CustomerController(
             (isApplied != null || x.IsApplied == isApplied);
         var result = await _voucherService.GetCustomerVouchersAsync(pageIndex, pageSize, filter);
         return Ok(ResponseModel<object, List<CustomerVoucher>>.Success(result.Item2, result.Item1));
+    }
+
+    [HttpGet("{id}/custom_cakes")]
+    [Authorize]
+    public async Task<IActionResult> GetCustomCakesAsync(
+       Guid id,
+       [FromQuery] Guid? bakeryId,
+       int pageIndex = 0,
+       int pageSize = 10)
+    {
+
+        Expression<Func<CustomCake, bool>> filter = x =>
+                    (x.CustomerId == id) &&
+                    (bakeryId == null || x.BakeryId == bakeryId);
+
+        var result = await _customCakeService.GetAllAsync(pageIndex, pageSize, filter);
+        return Ok(ResponseModel<object, object>.Success(result.Item2, result.Item1));
     }
 }
 

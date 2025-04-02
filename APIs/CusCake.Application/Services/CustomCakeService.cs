@@ -20,6 +20,8 @@ public interface ICustomCakeService
     Task<CustomCake> GetByIdAsync(Guid id);
 
     Task DeleteAsync(Guid id);
+
+    Task UpdateAsync(Guid id, CustomCakeUpdateModel model);
 }
 
 public class CustomCakeService(IUnitOfWork unitOfWork, IMapper mapper, IClaimsService claimsService) : ICustomCakeService
@@ -338,6 +340,73 @@ public class CustomCakeService(IUnitOfWork unitOfWork, IMapper mapper, IClaimsSe
     {
         var custom_cake = await GetByIdAsync(id);
         _unitOfWork.CustomCakeRepository.SoftRemove(custom_cake);
+        await _unitOfWork.SaveChangesAsync();
+    }
+
+    public async Task UpdateAsync(Guid id, CustomCakeUpdateModel model)
+    {
+        var custom_cake = await GetByIdAsync(id);
+
+        // Update basic information
+        _mapper.Map(model, custom_cake);
+
+        // Handle message selection changes
+        if (model.MessageSelectionModel != null)
+        {
+            // Remove old message selection
+            if (custom_cake.MessageSelectionId != Guid.Empty)
+            {
+                var oldMessage = await _unitOfWork.CakeMessageSelectionRepository.GetByIdAsync(custom_cake.MessageSelectionId);
+                if (oldMessage != null)
+                {
+                    _unitOfWork.CakeMessageSelectionRepository.SoftRemove(oldMessage);
+                }
+            }
+
+            // Add new message selection
+            var messageResult = await HandleMessageSelection(model.MessageSelectionModel);
+            custom_cake.MessageSelectionId = messageResult.Item2.Id;
+            custom_cake.Price = messageResult.Item1; // Reset price and start adding from message
+        }
+
+        // Handle part selections
+        if (model.PartSelectionModels != null)
+        {
+            // Remove old part selections
+            var oldPartSelections = await _unitOfWork.CakePartSelectionRepository
+                .WhereAsync(x => x.CustomCakeId == custom_cake.Id);
+            _unitOfWork.CakePartSelectionRepository.SoftRemoveRange(oldPartSelections);
+
+            // Add new part selections and update price
+            custom_cake.Price += await HandlePartSelection(custom_cake.Id, custom_cake.BakeryId, model.PartSelectionModels);
+        }
+
+        // Handle decoration selections
+        if (model.DecorationSelectionModels != null)
+        {
+            // Remove old decoration selections
+            var oldDecorationSelections = await _unitOfWork.CakeDecorationSelectionRepository
+                .WhereAsync(x => x.CustomCakeId == custom_cake.Id);
+            _unitOfWork.CakeDecorationSelectionRepository.SoftRemoveRange(oldDecorationSelections);
+
+            // Add new decoration selections and update price
+            custom_cake.Price += await HandleDecorationSelection(custom_cake.Id, custom_cake.BakeryId, model.DecorationSelectionModels);
+        }
+
+        // Handle extra selections
+        if (model.ExtraSelectionModels != null)
+        {
+            // Remove old extra selections
+            var oldExtraSelections = await _unitOfWork.CakeExtraSelectionRepository
+                .WhereAsync(x => x.CustomCakeId == custom_cake.Id);
+            _unitOfWork.CakeExtraSelectionRepository.SoftRemoveRange(oldExtraSelections);
+
+            // Add new extra selections and update price
+            custom_cake.Price += await HandleExtraSelection(custom_cake.Id, custom_cake.BakeryId, model.ExtraSelectionModels);
+        }
+
+        _unitOfWork.CustomCakeRepository.Update(custom_cake);
+
         await _unitOfWork.SaveChangesAsync();
     }
 }

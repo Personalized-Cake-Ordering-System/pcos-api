@@ -4,6 +4,7 @@ using CusCake.Application.ViewModels;
 using CusCake.Application.ViewModels.BakeryModels;
 using CusCake.Domain.Constants;
 using CusCake.Domain.Entities;
+using CusCake.WebApi.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,14 +14,16 @@ namespace CusCake.WebApi.Controllers;
 public class BakeryController(
     IBakeryService bakeryService,
     INotificationService notificationService,
-    IOrderService orderService
+    IOrderService orderService,
+    IAvailableCakeService availableCakeService,
+    ICustomCakeService customCakeService
 ) : ControllerBase
 {
     private readonly IOrderService _orderService = orderService;
     private readonly INotificationService _notificationService = notificationService;
     private readonly IBakeryService _bakeryService = bakeryService;
-
-
+    private readonly IAvailableCakeService _availableCakeService = availableCakeService;
+    private readonly ICustomCakeService _customCakeService = customCakeService;
     [HttpGet("{id}")]
     public async Task<IActionResult> GetByIdAsync(Guid id)
     {
@@ -126,5 +129,57 @@ public class BakeryController(
         var result = await _orderService.GetAllAsync(pageIndex, pageSize, filter);
         return Ok(ResponseModel<object, List<Order>>.Success(result.Item2, result.Item1));
     }
+
+    /// <summary>
+    /// Example to filter price : 0-100000
+    /// Sort format: fieldName:asc/desc,anotherField:asc/desc
+    /// Example sort: price:desc,name:asc
+    /// </summary>
+    [HttpGet("{id}/available_cakes")]
+    public async Task<IActionResult> GetAvailableCakesAsync(
+        Guid id,
+        int pageIndex = 0,
+        int pageSize = 10,
+        string? type = null,
+        string? price = null,
+        string? name = null,
+        string? sort = null)
+    {
+        List<double> prices = string.IsNullOrEmpty(price)
+                           ? []
+                           : [.. price.Split("-").Select(p => double.TryParse(p, out double result) ? result : (double?)null).Where(p => p.HasValue).Cast<double>()];
+
+        List<string> typeList = string.IsNullOrEmpty(type)
+                                  ? []
+                                  : [.. type.Split(".")];
+
+        Expression<Func<AvailableCake, bool>> filter = x =>
+            (x.BakeryId == id) &&
+            (string.IsNullOrEmpty(name) || x.AvailableCakeName.Contains(name, StringComparison.CurrentCultureIgnoreCase)) &&
+            (string.IsNullOrEmpty(type) || typeList.Count == 0 || typeList.Contains(x.AvailableCakeType!)) &&
+            (string.IsNullOrEmpty(price) || (x.AvailableCakePrice >= prices.First() && x.AvailableCakePrice <= prices.Last()));
+
+        var orderByList = SortingHelper.ParseSortingParameters(sort, EntitySortingMappings.AvailableCakeMappings);
+
+        var result = await _availableCakeService.GetAllAsync(pageIndex, pageSize, filter: filter, orderByList: orderByList);
+        return Ok(ResponseModel<object, object>.Success(result.Item2, result.Item1));
+    }
+
+    [HttpGet("{id}/custom_cakes")]
+    [Authorize]
+    public async Task<IActionResult> GetCustomCakesAsync(
+        Guid id,
+        [FromQuery] Guid? customerId,
+        int pageIndex = 0,
+        int pageSize = 10)
+    {
+
+        Expression<Func<CustomCake, bool>> filter = x =>
+                    (x.BakeryId == id) &&
+                    (customerId == null || x.CustomerId == customerId);
+        var result = await _customCakeService.GetAllAsync(pageIndex, pageSize, filter);
+        return Ok(ResponseModel<object, object>.Success(result.Item2, result.Item1));
+    }
+
 
 }

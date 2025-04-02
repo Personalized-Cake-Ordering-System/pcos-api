@@ -72,6 +72,9 @@ public class MessageSelection
     public List<Guid>? CakeMessageOptionIds { get; set; }
 }
 
+public class CustomCakeUpdateModel : CustomCakeCreateModel
+{
+}
 
 public class CustomCakeCreateModelValidator : AbstractValidator<CustomCakeCreateModel>
 {
@@ -130,7 +133,6 @@ public class MessageCreateDetailValidator : AbstractValidator<MessageSelection>
     }
 }
 
-
 public class PartSelectionValidator : AbstractValidator<PartSelection>
 {
     public PartSelectionValidator()
@@ -152,6 +154,7 @@ public class DecorationSelectionValidator : AbstractValidator<DecorationSelectio
             .WithMessage($"Invalid Decoration type. Must be one of: {string.Join(", ", Enum.GetNames(typeof(CakeDecorationTypeEnum)))}");
     }
 }
+
 public class ExtraSelectionValidator : AbstractValidator<ExtraSelection>
 {
     public ExtraSelectionValidator()
