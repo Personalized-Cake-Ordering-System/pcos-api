@@ -64,7 +64,7 @@ public class OrderService(
                     To = OrderStatusConstants.WAITING_BAKERY,
                     Guard = (order) =>
                     {
-                        if(order.ShippingType==ShippingTypeConstants.DELIVERY)
+                        if(order.ShippingType==ShippingTypeConstants.DELIVERY && order.Transaction!=null)
                             return true;
 
                         if(order!.CustomerId != _claimsService.GetCurrentUser ||
@@ -92,59 +92,6 @@ public class OrderService(
                     }
                 }
             },
-            // {
-            //     "CONFIRMED", new OrderStateTransition<Order>
-            //     {
-            //         From = [OrderStatusConstants.CONFIRMED],
-            //         To = OrderStatusConstants.PAYMENT_PENDING,
-            //          Guard = (order) =>
-            //         {
-            //             if(order!.CustomerId != _claimsService.GetCurrentUser ||
-            //                 _claimsService.GetCurrentUserRole != RoleConstants.CUSTOMER )
-            //                 throw new UnauthorizedAccessException("Can not access to action!");
-
-
-            //             return true;
-            //         },
-            //         Action = async (order) =>
-            //         {
-            //             var status=  order.ShippingType == ShippingTypeConstants.PICK_UP?
-            //                 OrderStatusConstants.WAITING_BAKERY :
-            //                 OrderStatusConstants.PAYMENT_PENDING;
-
-            //             order!.OrderStatus = status;
-            //             _unitOfWork.OrderRepository.Update(order!);
-            //             await _unitOfWork.SaveChangesAsync();
-
-            //             if(status == OrderStatusConstants.WAITING_BAKERY){
-            //                 var localExecuteTime = DateTime.Now.AddHours(7).AddMinutes(5);
-            //                 var delay = localExecuteTime - DateTime.UtcNow;
-            //                 _backgroundJobClient.Schedule(() => BakeryConfirmAsync(order!.Id), delay);
-            //             }
-
-            //             return order!;
-            //         }
-            //     }
-            // },
-            // {
-            //     "PAYMENT_PENDING", new OrderStateTransition<Order>
-            //     {
-            //         From = [OrderStatusConstants.PAYMENT_PENDING],
-            //         To = OrderStatusConstants.WAITING_BAKERY,
-            //         Guard = (order) =>
-            //         {
-            //             return true;
-            //         },
-            //         Action = async (order) =>
-            //         {
-            //             order!.OrderStatus = OrderStatusConstants.WAITING_BAKERY;
-            //             order!.PaidAt=DateTime.Now;
-            //             _unitOfWork.OrderRepository.Update(order!);
-            //             await _unitOfWork.SaveChangesAsync();
-            //             return order!;
-            //         }
-            //     }
-            // },
             {
                 "WAITING_BAKERY_CONFIRM", new OrderStateTransition<Order>
                 {
@@ -152,10 +99,7 @@ public class OrderService(
                     To = OrderStatusConstants.PROCESSING,
                     Guard = (order) =>
                     {
-                        if(_claimsService.GetCurrentUser == Guid.Empty)
-                            return true;
-
-                         if(_claimsService.GetCurrentUserRole!= RoleConstants.BAKERY || order.BakeryId != _claimsService.GetCurrentUser)
+                        if(_claimsService.GetCurrentUserRole!= RoleConstants.BAKERY || order.BakeryId != _claimsService.GetCurrentUser)
                             throw new UnauthorizedAccessException("Can not access to action!");
                         return true;
                     },

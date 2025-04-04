@@ -37,8 +37,8 @@ public class NotificationService(
         var json = JsonConvert.SerializeObject(notification);
 
         await _hubContext.Clients
-            .User(connectionId.ToString())
-            .SendAsync("ReceiveNotification", json);
+            .All
+            .SendAsync("messageReceived", connectionId.ToString(), json);
 
 
     }
