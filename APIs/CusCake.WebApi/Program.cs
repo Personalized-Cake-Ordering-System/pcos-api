@@ -12,6 +12,8 @@ var configuration = builder.Configuration.Get<AppSettings>() ?? throw new Except
 builder.Services.AddSingleton(configuration);
 builder.Services.AddWebAPIService(configuration);
 builder.Services.AddInfrastructuresService(configuration);
+builder.Logging.AddConsole();  // Ghi log vào Console (mặc định)
+builder.Logging.AddDebug();    // Ghi log vào Debug
 
 var app = builder.Build();
 

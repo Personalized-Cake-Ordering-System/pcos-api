@@ -174,8 +174,11 @@ public class OrderService(
                         await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, status);
 
                         var completed_time=  order.ShippingType == ShippingTypeConstants.PICK_UP ? 5 :order.ShippingTime!.Value;
-                        var localExecuteTime = DateTime.Now.AddHours(7).AddMinutes(completed_time + 15);
-                        var delay = localExecuteTime - DateTime.UtcNow;
+                        var localExecuteTime = DateTime.Now.AddMinutes(completed_time);
+                        var delay = localExecuteTime - DateTime.Now;
+                        // var completed_time=  order.ShippingType == ShippingTypeConstants.PICK_UP ? 5 :order.ShippingTime!.Value;
+                        // var localExecuteTime = DateTime.Now.AddHours(7).AddMinutes(completed_time + 15);
+                        // var delay = localExecuteTime - DateTime.UtcNow;
 
                         if( order.ShippingType == ShippingTypeConstants.PICK_UP)
                             _backgroundJobClient.Schedule(() => AutoCancelAsync(order!.Id), delay);
