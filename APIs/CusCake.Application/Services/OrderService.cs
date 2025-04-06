@@ -71,9 +71,6 @@ public class OrderService(
                             _claimsService.GetCurrentUserRole != RoleConstants.CUSTOMER )
                             throw new UnauthorizedAccessException("Can not access to action!");
 
-                        if(order.Transaction== null)
-                            throw new BadRequestException("Please! Making a payment!");
-
                         return true;
                     },
                     Action = async (order) =>
