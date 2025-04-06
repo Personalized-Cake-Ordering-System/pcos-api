@@ -65,7 +65,7 @@ public class OrderService(
                     Guard = (order) =>
                     {
                         if(order.ShippingType==ShippingTypeConstants.DELIVERY && order.Transaction!=null)
-                            return true;
+                             return true;
 
                         if(order!.CustomerId != _claimsService.GetCurrentUser ||
                             _claimsService.GetCurrentUserRole != RoleConstants.CUSTOMER )
