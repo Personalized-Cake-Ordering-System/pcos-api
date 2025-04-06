@@ -19,20 +19,18 @@ public interface IBakeryService
     Task<Bakery> GetByIdAsync(Guid id);
     Task<(Pagination, List<Bakery>)> GetAllAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<Bakery, bool>>? filter = null);
     Task DeleteAsync(Guid id);
-
     Task<bool> ApproveBakeryAsync(Guid id, bool isApprove = true);
+    Task<bool> BanedBakeryAsync(Guid id, string action);
 }
 
 public class BakeryService(
     IUnitOfWork unitOfWork,
-    IFileService fileService,
     IMapper mapper,
     ICurrentTime currentTime,
     IAuthService authService,
     IClaimsService claimsService) : IBakeryService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
-    private readonly IFileService _fileService = fileService;
     private readonly IMapper _mapper = mapper;
     private readonly IAuthService _authService = authService;
     private readonly IClaimsService _claimsService = claimsService;
@@ -162,5 +160,22 @@ public class BakeryService(
         });
 
         return bakery;
+    }
+
+    public async Task<bool> BanedBakeryAsync(Guid id, string action)
+    {
+        if (!action.Equals("BAN") || !action.Equals("UN_BAN"))
+            throw new BadRequestException("Invalid action!");
+
+        var bakery = await GetByIdAsync(id);
+        if (bakery.Status != BakeryStatusConstants.CONFIRMED)
+            throw new BadRequestException("Status of bakery must be CONFIRMED");
+
+        bakery.Status = action.Equals("BAN") ? BakeryStatusConstants.BANNED : BakeryStatusConstants.CONFIRMED;
+        bakery.BannedAt = action.Equals("BAN") ? DateTime.Now : null;
+
+        _unitOfWork.BakeryRepository.Update(bakery);
+
+        return await _unitOfWork.SaveChangesAsync();
     }
 }

@@ -15,7 +15,8 @@ public class CustomerController(
     INotificationService notificationService,
     IOrderService orderService,
     IVoucherService voucherService,
-    ICustomCakeService customCakeService
+    ICustomCakeService customCakeService,
+    IReportService reportService
 ) : BaseController
 {
     private readonly INotificationService _notificationService = notificationService;
@@ -23,6 +24,7 @@ public class CustomerController(
     private readonly IOrderService _orderService = orderService;
     private readonly IVoucherService _voucherService = voucherService;
     private readonly ICustomCakeService _customCakeService = customCakeService;
+    private readonly IReportService _reportService = reportService;
 
     [HttpGet("{id}")]
     [Authorize]
@@ -140,6 +142,29 @@ public class CustomerController(
 
         var result = await _customCakeService.GetAllAsync(pageIndex, pageSize, filter);
         return Ok(ResponseModel<object, object>.Success(result.Item2, result.Item1));
+    }
+
+    /// <summary>
+    /// Example to filter multiple status: PENDING.ACCEPTED.REJECTED
+    /// </summary>
+    [HttpGet("{id}/reports")]
+    [Authorize(Roles = RoleConstants.ADMIN)]
+    public async Task<IActionResult> GetAllAsync(
+        Guid id,
+        string? status,
+        int pageIndex = 0,
+        int pageSize = 10
+    )
+    {
+        List<string> statusList = string.IsNullOrEmpty(status)
+                          ? []
+                          : [.. status.Split(".")];
+        Expression<Func<Report, bool>> filter = x =>
+            (x.CustomerId == id) &&
+            (string.IsNullOrEmpty(status) || statusList.Count == 0 || statusList.Contains(x.Status!));
+
+        var result = await _reportService.GetAllAsync(pageIndex, pageSize, filter);
+        return Ok(ResponseModel<object, ICollection<Report>>.Success(result.Item2, result.Item1));
     }
 }
 

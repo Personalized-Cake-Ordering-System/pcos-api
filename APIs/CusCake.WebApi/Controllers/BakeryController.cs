@@ -16,7 +16,8 @@ public class BakeryController(
     INotificationService notificationService,
     IOrderService orderService,
     IAvailableCakeService availableCakeService,
-    ICustomCakeService customCakeService
+    ICustomCakeService customCakeService,
+    IReportService reportService
 ) : ControllerBase
 {
     private readonly IOrderService _orderService = orderService;
@@ -24,6 +25,7 @@ public class BakeryController(
     private readonly IBakeryService _bakeryService = bakeryService;
     private readonly IAvailableCakeService _availableCakeService = availableCakeService;
     private readonly ICustomCakeService _customCakeService = customCakeService;
+    private readonly IReportService _reportService = reportService;
     [HttpGet("{id}")]
     public async Task<IActionResult> GetByIdAsync(Guid id)
     {
@@ -36,6 +38,20 @@ public class BakeryController(
     public async Task<IActionResult> ApproveBakery(Guid id, bool isApprove = true)
     {
         await _bakeryService.ApproveBakeryAsync(id, isApprove);
+        return StatusCode(200, new ResponseModel<object, object> { StatusCode = 200 });
+    }
+
+
+    /// <summary>
+    /// Action are BAN or UN_BAN
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="action">BAN or UN_BAN</param>
+    [HttpGet("{id}/ban_action")]
+    [Authorize(Roles = RoleConstants.ADMIN)]
+    public async Task<IActionResult> BanBakery(Guid id, string action)
+    {
+        await _bakeryService.BanedBakeryAsync(id, action);
         return StatusCode(200, new ResponseModel<object, object> { StatusCode = 200 });
     }
 
@@ -181,5 +197,27 @@ public class BakeryController(
         return Ok(ResponseModel<object, object>.Success(result.Item2, result.Item1));
     }
 
+    /// <summary>
+    /// Example to filter multiple status: PENDING.ACCEPTED.REJECTED
+    /// </summary>
+    [HttpGet("{id}/reports")]
+    [Authorize(Roles = RoleConstants.ADMIN)]
+    public async Task<IActionResult> GetAllAsync(
+        Guid id,
+        string? status,
+        int pageIndex = 0,
+        int pageSize = 10
+    )
+    {
+        List<string> statusList = string.IsNullOrEmpty(status)
+                          ? []
+                          : [.. status.Split(".")];
+        Expression<Func<Report, bool>> filter = x =>
+            (x.BakeryId == id) &&
+            (string.IsNullOrEmpty(status) || statusList.Count == 0 || statusList.Contains(x.Status!));
+
+        var result = await _reportService.GetAllAsync(pageIndex, pageSize, filter);
+        return Ok(ResponseModel<object, ICollection<Report>>.Success(result.Item2, result.Item1));
+    }
 
 }

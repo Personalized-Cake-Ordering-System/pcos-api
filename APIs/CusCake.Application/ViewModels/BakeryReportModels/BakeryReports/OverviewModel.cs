@@ -1,4 +1,4 @@
-namespace CusCake.Application.ViewModels.ReportModels.BakeryReports;
+namespace CusCake.Application.ViewModels.BakeryReportModels.BakeryReports;
 
 public class OverviewModel
 {

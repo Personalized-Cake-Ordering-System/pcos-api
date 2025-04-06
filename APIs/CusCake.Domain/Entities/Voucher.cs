@@ -9,10 +9,10 @@ public class Voucher : BaseEntity
 {
     [JsonPropertyName("bakery_id")]
     [Column("bakery_id")]
-    public Guid BakeryId { get; set; }
+    public Guid? BakeryId { get; set; }
 
     [JsonPropertyName("bakery")]
-    public Bakery Bakery { get; set; } = default!;
+    public Bakery? Bakery { get; set; } = default!;
 
     [JsonPropertyName("code")]
     [Column("code")]

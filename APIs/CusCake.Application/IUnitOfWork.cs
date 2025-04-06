@@ -34,5 +34,6 @@ public interface IUnitOfWork
     IWalletRepository WalletRepository { get; }
     IWalletTransactionRepository WalletTransaction { get; }
     IMongoRepository MongoRepository { get; }
+    IReportRepository ReportRepository { get; }
     Task<bool> SaveChangesAsync();
 }

@@ -79,26 +79,12 @@ namespace CusCake.Domain.Entities
         [JsonPropertyName("confirmed_at")]
         public DateTime ConfirmedAt { get; set; } = default!;
 
+        [Column("banned_at")]
+        [JsonPropertyName("banned_at")]
+        public DateTime? BannedAt { get; set; } = default!;
+
         [Column("shop_image_files")]
         [JsonPropertyName("shop_image_files")]
         public List<Storage>? ShopImageFiles { get; set; }
-
-        // [JsonPropertyName("notifications")]
-        // public ICollection<Notification>? Notifications { get; set; }
-
-        // [JsonPropertyName("available_cakes")]
-        // public ICollection<AvailableCake>? AvailableCakes { get; set; }
-
-        // [JsonPropertyName("orders")]
-        // public ICollection<Order>? Orders { get; set; }
-
-        // [JsonPropertyName("cake_reviews")]
-        // public ICollection<CakeReview>? CakeReviews { get; set; }
-
-        // [JsonPropertyName("order_supports")]
-        // public ICollection<OrderSupport>? OrderSupports { get; set; }
-
-        // [JsonPropertyName("vouchers")]
-        // public ICollection<Voucher>? Vouchers { get; set; }
     }
 }

@@ -39,6 +39,7 @@ namespace CusCake.Infrastructures
         public DbSet<Auth> Auths { get; set; }
         public DbSet<Wallet> Wallets { get; set; }
         public DbSet<WalletTransaction> WalletTransactions { get; set; }
+        public DbSet<Report> Reports { get; set; }
 
         #endregion
 

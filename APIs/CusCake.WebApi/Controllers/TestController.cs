@@ -1,6 +1,4 @@
 using CusCake.Application.Services;
-using CusCake.Application.ViewModels;
-using CusCake.Application.ViewModels.AdminModels;
 using CusCake.Domain.Constants;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -11,17 +9,6 @@ public class TestController(INotificationService notificationService, IOrderServ
 {
     private readonly IOrderService _orderService = orderService;
     private readonly INotificationService _notificationService = notificationService;
-
-    // [HttpPost]
-    // public async Task<IActionResult> CreateAsync([FromBody] AdminCreateModel model)
-    // {
-    //     await _adminService.CreateAsync(model);
-    //     return StatusCode(201, new ResponseModel<object, object> { StatusCode = 201 });
-    // }
-
-    /// <summary>
-    ///Api use to test notification
-    /// </summary>
 
     [HttpGet("test")]
     public async Task<IActionResult> GetAllAsync()

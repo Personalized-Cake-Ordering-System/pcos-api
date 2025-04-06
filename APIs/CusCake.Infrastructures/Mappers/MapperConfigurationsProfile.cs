@@ -12,6 +12,7 @@ using CusCake.Application.ViewModels.CartModels;
 using CusCake.Application.ViewModels.CustomCakeModels;
 using CusCake.Application.ViewModels.CustomerModels;
 using CusCake.Application.ViewModels.OrderModels;
+using CusCake.Application.ViewModels.ReportModels;
 using CusCake.Application.ViewModels.TransactionModels;
 using CusCake.Application.ViewModels.VoucherModels;
 using CusCake.Domain.Entities;
@@ -104,6 +105,13 @@ namespace CusCake.Infrastructures.Mappers
             #region Cart
             CreateMap<CakeReview, CakeReviewCreateModel>().ReverseMap();
             CreateMap<CakeReview, CakeReviewUpdateModel>().ReverseMap();
+            #endregion
+
+            #region Report
+            CreateMap<Report, ReportCreateModel>().ReverseMap();
+            CreateMap<Report, ReportUpdateModel>()
+                .ForMember(x => x.OrderId, option => option.Ignore())
+                .ReverseMap();
             #endregion
         }
     }

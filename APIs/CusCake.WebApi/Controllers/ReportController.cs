@@ -1,50 +1,75 @@
+using System.Linq.Expressions;
 using CusCake.Application.Services;
 using CusCake.Application.ViewModels;
+using CusCake.Application.ViewModels.ReportModels;
 using CusCake.Domain.Constants;
+using CusCake.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CusCake.WebApi.Controllers;
-[ApiController]
-[Route("api/bakeries")]
-public class ReportController(IReportService reportService) : ControllerBase
+
+public class ReportController(IReportService reportService) : BaseController
 {
+
     private readonly IReportService _reportService = reportService;
 
-    [HttpGet("{id}/overview")]
-    [Authorize(Roles = RoleConstants.BAKERY + "," + RoleConstants.ADMIN)]
-    public async Task<IActionResult> GetOverviewAsync(Guid id)
-    {
-        return Ok(ResponseModel<object, object>.Success(await _reportService.GetBakeryOverviewAsync(id)));
-    }
 
-
-    /// <summary>
-    /// Gồm 3 type: REVENUE, ORDERS, CUSTOMERS
-    /// </summary>
-    [HttpGet("{id}/sales_overview")]
-    [Authorize(Roles = RoleConstants.BAKERY + "," + RoleConstants.ADMIN)]
-    public async Task<IActionResult> GetSalesOverviewAsync(Guid id, [FromQuery] string type, [FromQuery] int year)
+    [HttpGet("{id}/approve")]
+    [Authorize(Roles = RoleConstants.ADMIN)]
+    public async Task<IActionResult> ApproveBakery(Guid id, bool isApprove = true)
     {
-        return Ok(ResponseModel<object, List<object>>.Success(await _reportService.GetBakerySalesOverviewAsync(id, type, year)));
+        await _reportService.ApproveAsync(id, isApprove);
+        return StatusCode(200, new ResponseModel<object, object> { StatusCode = 200 });
     }
 
     /// <summary>
-    /// Top 10 bánh bán chạy nhất - Không có returns 
+    /// Tạo report cho order thì orderId - Tạo report cho bakery thì để orderId là null 
     /// </summary>
-
-    [HttpGet("{id}/products_performance")]
-    [Authorize(Roles = RoleConstants.BAKERY + "," + RoleConstants.ADMIN)]
-    public async Task<IActionResult> GetProductPerformanceAsync(Guid id)
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPost]
+    public async Task<IActionResult> CreateAsync([FromBody] ReportCreateModel model)
     {
-        return Ok(ResponseModel<object, object>.Success(await _reportService.GetBakeryProductPerformanceAsync(id)));
+        var report = await _reportService.CreateAsync(model);
+        return StatusCode(201, new ResponseModel<object, object> { StatusCode = 201, Payload = report });
     }
 
-    [HttpGet("{id}/category_distribution")]
-    [Authorize(Roles = RoleConstants.BAKERY + "," + RoleConstants.ADMIN)]
-    public async Task<IActionResult> GetCategoryDistributionAsync(Guid id)
+    /// <summary>
+    /// Example to filter multiple status: PENDING.ACCEPTED.REJECTED
+    /// </summary>
+    [HttpGet]
+    [Authorize(Roles = RoleConstants.ADMIN)]
+    public async Task<IActionResult> GetAllAsync(
+        string? status,
+        int pageIndex = 0,
+        int pageSize = 10
+    )
     {
-        return Ok(ResponseModel<object, object>.Success(await _reportService.GetBakeryCategoryDistributionAsync(id)));
+        List<string> statusList = string.IsNullOrEmpty(status)
+                          ? []
+                          : [.. status.Split(".")];
+        Expression<Func<Report, bool>> filter = x =>
+            (string.IsNullOrEmpty(status) || statusList.Count == 0 || statusList.Contains(x.Status!));
+
+        var result = await _reportService.GetAllAsync(pageIndex, pageSize, filter);
+        return Ok(ResponseModel<object, ICollection<Report>>.Success(result.Item2, result.Item1));
     }
+
+    [HttpPut("{id}")]
+    [Authorize]
+    public async Task<IActionResult> UpdateAsync(Guid id, [FromBody] ReportUpdateModel model)
+    {
+        return Ok(ResponseModel<object, Report>.Success(await _reportService.UpdateAsync(id, model)));
+    }
+
+    [HttpDelete("{id}")]
+    [Authorize(Roles = RoleConstants.CUSTOMER)]
+    public async Task<IActionResult> DeleteAsync(Guid id)
+    {
+        await _reportService.DeleteAsync(id);
+
+        return StatusCode(204, new ResponseModel<object, object> { StatusCode = 204 });
+    }
+
 }
-

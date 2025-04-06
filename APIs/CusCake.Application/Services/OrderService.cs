@@ -176,14 +176,14 @@ public class OrderService(
                         await _notificationService.CreateOrderNotificationAsync(order.Id, status , null ,order.CustomerId);
                         await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, status);
 
-                        var completed_time=  order.ShippingType == ShippingTypeConstants.PICK_UP ? 30 :order.ShippingTime!.Value;
+                        var completed_time=  order.ShippingType == ShippingTypeConstants.PICK_UP ? 5 :order.ShippingTime!.Value;
                         var localExecuteTime = DateTime.Now.AddHours(7).AddMinutes(completed_time + 15);
                         var delay = localExecuteTime - DateTime.UtcNow;
 
                         if( order.ShippingType == ShippingTypeConstants.PICK_UP)
-                            _backgroundJobClient.Schedule(() => AutoShippingCompletedAsync(order!.Id), delay);
-                        else
                             _backgroundJobClient.Schedule(() => AutoCancelAsync(order!.Id), delay);
+                        else
+                            _backgroundJobClient.Schedule(() => AutoShippingCompletedAsync(order!.Id), delay);
 
                         return order!;
                     }
@@ -329,7 +329,7 @@ public class OrderService(
         var voucher = await _voucherService.GetVoucherByCodeAsync(order.VoucherCode!, order.BakeryId)
             ?? throw new BadRequestException("Voucher code is invalid or does not exist.");
 
-        if (voucher.VoucherType == VoucherTypeConstants.PRIVATE)
+        if (voucher.VoucherType == VoucherTypeConstants.PRIVATE || voucher.VoucherType == VoucherTypeConstants.SYSTEM)
             cus_voucher = await _unitOfWork.CustomerVoucherRepository
                 .FirstOrDefaultAsync(x =>
                     x.CustomerId == _claimsService.GetCurrentUser &&

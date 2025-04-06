@@ -77,13 +77,13 @@ public class VoucherService(
 
     public async Task<(Pagination, List<Voucher>)> GetAllAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<Voucher, bool>>? filter = null)
     {
-        return await _unitOfWork.VoucherRepository.ToPagination(pageIndex, pageSize, filter: filter, includes: x => x.Bakery);
+        return await _unitOfWork.VoucherRepository.ToPagination(pageIndex, pageSize, filter: filter, includes: x => x.Bakery!);
 
     }
 
     public async Task<Voucher> GetByIdAsync(Guid id)
     {
-        return await _unitOfWork.VoucherRepository.GetByIdAsync(id, includes: x => x.Bakery) ?? throw new BadRequestException("Voucher not found!");
+        return await _unitOfWork.VoucherRepository.GetByIdAsync(id, includes: x => x.Bakery!) ?? throw new BadRequestException("Voucher not found!");
     }
 
     public async Task<(Pagination, List<CustomerVoucher>)> GetCustomerVouchersAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<CustomerVoucher, bool>>? filter = null)
