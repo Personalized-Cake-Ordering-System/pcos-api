@@ -44,8 +44,8 @@ public class TransactionService(
 
         await CreateNotificationAsync(order!);
 
-        var localExecuteTime = DateTime.Now.AddHours(7).AddMinutes(5);
-        var delay = localExecuteTime - DateTime.UtcNow;
+        var localExecuteTime = DateTime.Now.AddMinutes(5);
+        var delay = localExecuteTime - DateTime.Now;
         _backgroundJobClient.Schedule(() => _orderService.BakeryConfirmAsync(order!.Id), delay);
 
     }

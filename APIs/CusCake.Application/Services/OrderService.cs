@@ -81,8 +81,9 @@ public class OrderService(
                         _unitOfWork.OrderRepository.Update(order!);
                         await _unitOfWork.SaveChangesAsync();
 
-                        var localExecuteTime = DateTime.Now.AddHours(7).AddMinutes(5);
-                        var delay = localExecuteTime - DateTime.UtcNow;
+                        var localExecuteTime = DateTime.Now.AddMinutes(5);
+                        var delay = localExecuteTime - DateTime.Now;
+
                         _backgroundJobClient.Schedule(() => BakeryConfirmAsync(order!.Id), delay);
 
                         return order!;
@@ -173,12 +174,10 @@ public class OrderService(
                         await _notificationService.CreateOrderNotificationAsync(order.Id, status , null ,order.CustomerId);
                         await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, status);
 
-                        var completed_time=  order.ShippingType == ShippingTypeConstants.PICK_UP ? 5 :order.ShippingTime!.Value;
-                        var localExecuteTime = DateTime.Now.AddMinutes(completed_time);
+                        var completed_time=  order.ShippingType == ShippingTypeConstants.PICK_UP ? 30 :order.ShippingTime!.Value;
+                        var localExecuteTime = DateTime.Now.AddMinutes(completed_time + 15);
                         var delay = localExecuteTime - DateTime.Now;
-                        // var completed_time=  order.ShippingType == ShippingTypeConstants.PICK_UP ? 5 :order.ShippingTime!.Value;
-                        // var localExecuteTime = DateTime.Now.AddHours(7).AddMinutes(completed_time + 15);
-                        // var delay = localExecuteTime - DateTime.UtcNow;
+
 
                         if( order.ShippingType == ShippingTypeConstants.PICK_UP)
                             _backgroundJobClient.Schedule(() => AutoCancelAsync(order!.Id), delay);
