@@ -5,7 +5,7 @@ using CusCake.Domain.Entities;
 
 namespace CusCake.Application.Services;
 
-public interface IBakeryReportService
+public interface IBakeryDashboardService
 {
     Task<OverviewModel> GetBakeryOverviewAsync(Guid bakeryId);
     Task<List<object>> GetBakerySalesOverviewAsync(Guid bakeryId, string type, int year);
@@ -21,7 +21,7 @@ public enum SalesOverviewType
 }
 
 
-public class BakerReportService(IUnitOfWork unitOfWork) : IBakeryReportService
+public class BakeryDashboardService(IUnitOfWork unitOfWork) : IBakeryDashboardService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private static readonly DateTime CurrentMonth = new(DateTime.Now.Year, DateTime.Now.Month, 1);

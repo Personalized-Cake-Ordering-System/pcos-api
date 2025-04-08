@@ -7,9 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 namespace CusCake.WebApi.Controllers;
 [ApiController]
 [Route("api/bakeries")]
-public class BakeryReportController(IBakeryReportService reportService) : ControllerBase
+public class BakeryDashboardController(IBakeryDashboardService service) : ControllerBase
 {
-    private readonly IBakeryReportService _reportService = reportService;
+
+    private readonly IBakeryDashboardService _reportService = service;
 
     [HttpGet("{id}/overview")]
     [Authorize(Roles = RoleConstants.BAKERY + "," + RoleConstants.ADMIN)]
