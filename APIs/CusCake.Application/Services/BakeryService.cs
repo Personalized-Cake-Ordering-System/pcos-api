@@ -164,7 +164,7 @@ public class BakeryService(
 
     public async Task<bool> BanedBakeryAsync(Guid id, string action)
     {
-        if (!action.Equals("BAN") || !action.Equals("UN_BAN"))
+        if (!action.Equals("BAN") && !action.Equals("UN_BAN"))
             throw new BadRequestException("Invalid action!");
 
         var bakery = await GetByIdAsync(id);
