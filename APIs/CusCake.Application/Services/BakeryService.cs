@@ -78,8 +78,8 @@ public class BakeryService(
 
         var bakeryJson = JsonConvert.SerializeObject(bakery);
 
-        await _notificationService.CreateAdminNotificationAsync(bakery.Id, NotificationType.NEW_BAKERY_REGISTRATION, admin.Id);
-        await _notificationService.SendNotificationAsync(admin.Id, bakeryJson, NotificationType.NEW_BAKERY_REGISTRATION);
+        await _notificationService.CreateAdminNotificationAsync(bakery.Id, NotificationType.NEW_BAKERY_REGISTRATION, admin.EntityId);
+        await _notificationService.SendNotificationAsync(admin.EntityId, bakeryJson, NotificationType.NEW_BAKERY_REGISTRATION);
 
         return result;
     }

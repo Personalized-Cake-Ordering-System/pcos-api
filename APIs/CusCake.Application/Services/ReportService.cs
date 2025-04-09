@@ -108,8 +108,8 @@ public class ReportService(
 
         var reportJson = JsonConvert.SerializeObject(report);
 
-        await _notificationService.CreateAdminNotificationAsync(report.Id, NotificationType.NEW_REPORT, admin.Id);
-        await _notificationService.SendNotificationAsync(admin.Id, reportJson, NotificationType.NEW_REPORT);
+        await _notificationService.CreateAdminNotificationAsync(report.Id, NotificationType.NEW_REPORT, admin.EntityId);
+        await _notificationService.SendNotificationAsync(admin.EntityId, reportJson, NotificationType.NEW_REPORT);
 
         return report;
     }
