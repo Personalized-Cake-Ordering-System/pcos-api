@@ -599,7 +599,7 @@ public class OrderService(
         }.Contains(order.OrderStatus))
             await RollbackMoneyAsync(order);
 
-        if (!string.IsNullOrEmpty(order.OrderCode))
+        if (!string.IsNullOrEmpty(order.VoucherCode))
             await ResetVoucherAsync(order.VoucherCode!, order.BakeryId);
 
 
