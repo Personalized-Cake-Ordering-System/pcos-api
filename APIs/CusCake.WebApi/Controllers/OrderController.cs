@@ -42,7 +42,7 @@ public class OrderController(IOrderService service) : BaseController
     public async Task<IActionResult> CancelAsync(Guid id)
     {
         await _orderService.CancelAsync(id);
-        return StatusCode(204, new ResponseModel<object, object> { StatusCode = 204 });
+        return NoContent();
 
     }
 

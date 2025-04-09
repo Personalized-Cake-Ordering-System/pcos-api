@@ -491,14 +491,14 @@ public class OrderService(
         _unitOfWork.OrderDetailRepository.SoftRemoveRange(order_details!);
     }
 
-    private async Task ResetVoucherAsync(string voucherCode, Guid bakeryId)
+    public async Task ResetVoucherAsync(string voucherCode, Guid bakeryId)
     {
         var voucher = await _voucherService.GetVoucherByCodeAsync(voucherCode, bakeryId)
          ?? throw new BadRequestException("Voucher code is invalid or does not exist.");
 
         if (voucher.VoucherType == VoucherTypeConstants.GLOBAL)
         {
-            voucher.UsageCount += 1;
+            voucher.UsageCount -= 1;
             _unitOfWork.VoucherRepository.Update(voucher);
             await _unitOfWork.SaveChangesAsync();
             return;
@@ -600,8 +600,7 @@ public class OrderService(
             await RollbackMoneyAsync(order);
 
         if (!string.IsNullOrEmpty(order.VoucherCode))
-            await ResetVoucherAsync(order.VoucherCode!, order.BakeryId);
-
+            _backgroundJobClient.Enqueue(() => ResetVoucherAsync(order.VoucherCode!, order.BakeryId));
 
         var orderJson = JsonConvert.SerializeObject(order);
         await _notificationService.CreateOrderNotificationAsync(order.Id, NotificationType.COMPLETED_ORDER, null, order.CustomerId);
