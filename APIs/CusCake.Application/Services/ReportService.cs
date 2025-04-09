@@ -7,6 +7,7 @@ using CusCake.Application.Utils;
 using CusCake.Application.ViewModels.ReportModels;
 using CusCake.Domain.Constants;
 using CusCake.Domain.Entities;
+using Newtonsoft.Json;
 
 namespace CusCake.Application.Services;
 
@@ -25,7 +26,9 @@ public class ReportService(
     IUnitOfWork unitOfWork,
     IClaimsService claimsService,
     IMapper mapper,
-    IBakeryService bakeryService
+    IBakeryService bakeryService,
+    INotificationService notificationService,
+    IAuthService authService
 ) : IReportService
 {
 
@@ -33,7 +36,8 @@ public class ReportService(
     private readonly IClaimsService _claimsService = claimsService;
     private readonly IMapper _mapper = mapper;
     private readonly IBakeryService _bakeryService = bakeryService;
-
+    private readonly IAuthService _authService = authService;
+    private readonly INotificationService _notificationService = notificationService;
     public async Task<bool> ApproveAsync(Guid id, bool isApproved = true)
     {
         var report = await GetByIdAsync(id);
@@ -89,7 +93,7 @@ public class ReportService(
     public async Task<Report> CreateAsync(ReportCreateModel model)
     {
         var report = _mapper.Map<Report>(model);
-
+        var admin = await _authService.GetAdminAsync();
         var order = model.OrderId != null ? await _unitOfWork.OrderRepository.GetByIdAsync(model.OrderId!.Value) : null;
 
         if (order != null && order.CustomerId != _claimsService.GetCurrentUser)
@@ -101,6 +105,11 @@ public class ReportService(
 
         await _unitOfWork.ReportRepository.AddAsync(report);
         await _unitOfWork.SaveChangesAsync();
+
+        var reportJson = JsonConvert.SerializeObject(report);
+
+        await _notificationService.CreateAdminNotificationAsync(report.Id, NotificationType.NEW_REPORT, admin.Id);
+        await _notificationService.SendNotificationAsync(admin.Id, reportJson, NotificationType.NEW_REPORT);
 
         return report;
     }

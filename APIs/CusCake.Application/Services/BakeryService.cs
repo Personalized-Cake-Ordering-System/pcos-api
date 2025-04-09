@@ -8,6 +8,7 @@ using CusCake.Application.ViewModels.AuthModels;
 using CusCake.Application.ViewModels.BakeryModels;
 using CusCake.Domain.Constants;
 using CusCake.Domain.Entities;
+using Newtonsoft.Json;
 
 namespace CusCake.Application.Services;
 
@@ -28,13 +29,15 @@ public class BakeryService(
     IMapper mapper,
     ICurrentTime currentTime,
     IAuthService authService,
-    IClaimsService claimsService) : IBakeryService
+    IClaimsService claimsService,
+    INotificationService notificationService) : IBakeryService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IMapper _mapper = mapper;
     private readonly IAuthService _authService = authService;
     private readonly IClaimsService _claimsService = claimsService;
     private readonly ICurrentTime _currentTime = currentTime;
+    private readonly INotificationService _notificationService = notificationService;
 
     public async Task<bool> ApproveBakeryAsync(Guid id, bool isApprove = false)
     {
@@ -63,7 +66,7 @@ public class BakeryService(
     public async Task<Bakery> CreateAsync(BakeryCreateModel model)
     {
         await ValidateBakery(model.BakeryName, model.Email, model.Phone, model.TaxCode, model.IdentityCardNumber);
-
+        var admin = await _authService.GetAdminAsync();
         var bakery = _mapper.Map<Bakery>(model);
 
         bakery.Status = BakeryStatusConstants.PENDING;
@@ -72,6 +75,11 @@ public class BakeryService(
 
         var result = await _unitOfWork.BakeryRepository.AddAsync(bakery);
         await _unitOfWork.SaveChangesAsync();
+
+        var bakeryJson = JsonConvert.SerializeObject(bakery);
+
+        await _notificationService.CreateAdminNotificationAsync(bakery.Id, NotificationType.NEW_BAKERY_REGISTRATION, admin.Id);
+        await _notificationService.SendNotificationAsync(admin.Id, bakeryJson, NotificationType.NEW_BAKERY_REGISTRATION);
 
         return result;
     }

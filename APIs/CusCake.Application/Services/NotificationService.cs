@@ -14,6 +14,7 @@ public interface INotificationService
     // Task<Notification> SendAdminNotificationAsync(Notification notification);
     Task SendNotificationAsync(Guid connectionId, string message, string type);
     Task<Notification> CreateOrderNotificationAsync(Guid targetEntityId, string type, Guid? bakeryId, Guid? customerId);
+    Task<Notification> CreateAdminNotificationAsync(Guid targetEntityId, string type, Guid adminId);
     Task<(Pagination, List<Notification>)> GetAllAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<Notification, bool>>? filter = null);
 
 }
@@ -64,6 +65,22 @@ public class NotificationService(
     {
         var includes = QueryHelper.Includes<Notification>(x => x.Customer!, x => x.Bakery!);
         return await _unitOfWork.NotificationRepository.ToPagination(pageIndex, pageSize, filter: filter, includes: includes);
+    }
+
+    public async Task<Notification> CreateAdminNotificationAsync(Guid targetEntityId, string type, Guid adminId)
+    {
+        var notification = new Notification
+        {
+            Title = NotificationType.GetTitleByType(type),
+            Content = NotificationType.GetContentByType(type),
+            Type = type,
+            TargetEntityId = targetEntityId,
+            AdminId = adminId,
+        };
+
+        await _unitOfWork.NotificationRepository.AddAsync(notification);
+        await _unitOfWork.SaveChangesAsync();
+        return notification;
     }
 }
 

@@ -46,5 +46,4 @@ public class AdminService(IUnitOfWork unitOfWork, IMapper mapper, IAuthService a
         return await _unitOfWork.AdminRepository.GetAllAsync();
     }
 
-
 }

@@ -10,6 +10,8 @@ public static class NotificationType
     public const string READY_FOR_PICKUP = "READY_FOR_PICKUP";
     public const string COMPLETED_ORDER = "COMPLETED_ORDER";
     public const string CANCELED_ORDER = "CANCELED_ORDER";
+    public const string NEW_BAKERY_REGISTRATION = "NEW_BAKERY_REGISTRATION";
+    public const string NEW_REPORT = "NEW_REPORT";
 
 
     private static readonly Dictionary<string, (string Title, string Content)> NotificationDetails =
@@ -46,7 +48,15 @@ public static class NotificationType
             {
                 CANCELED_ORDER,
                 ("Đơn hàng đã được hủy!", "Vui lòng kiểm tra lại thông tin!")
-            }
+            },
+            {
+                NEW_BAKERY_REGISTRATION,
+                ("Đăng ký tiệm bánh mới", "Một tiệm bánh mới vừa đăng ký. Hãy kiểm tra và phê duyệt!")
+            },
+            {
+                NEW_REPORT,
+                ("Báo cáo mới", "Bạn vừa nhận được một báo cáo mới. Vui lòng kiểm tra chi tiết!")
+            },
         };
 
 

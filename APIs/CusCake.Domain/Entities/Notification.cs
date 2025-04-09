@@ -32,6 +32,14 @@ public class Notification : BaseEntity
     public Guid TargetEntityId { get; set; } = default!;
 
     // Relation
+    [JsonPropertyName("admin_id")]
+    [Column("admin_id")]
+    public Guid? AdminId { get; set; }
+
+    [JsonPropertyName("admin")]
+    public Admin? Admin { get; set; } = default!;
+
+
     [JsonPropertyName("bakery_id")]
     [Column("bakery_id")]
     public Guid? BakeryId { get; set; }
