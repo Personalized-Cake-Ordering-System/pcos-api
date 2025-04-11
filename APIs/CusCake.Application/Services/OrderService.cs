@@ -174,11 +174,7 @@ public class OrderService(
                         var localExecuteTime = DateTime.Now.AddMinutes(completed_time + 15);
                         var delay = localExecuteTime - DateTime.Now;
 
-
-                        if( order.ShippingType == ShippingTypeConstants.PICK_UP)
-                            _backgroundJobClient.Schedule(() => AutoCancelAsync(order!.Id), delay);
-                        else
-                            _backgroundJobClient.Schedule(() => AutoShippingCompletedAsync(order!.Id), delay);
+                        _backgroundJobClient.Schedule(() => AutoShippingCompletedAsync(order!.Id), delay);
 
                         return order!;
                     }
@@ -249,9 +245,6 @@ public class OrderService(
 
     public async Task AutoShippingCompletedAsync(Guid id)
     {
-        var order = await GetOrderByIdAsync(id);
-        if (order.OrderStatus != OrderStatusConstants.SHIPPING) return;
-
         await MoveToNextAsync<Order>(id);
     }
 
