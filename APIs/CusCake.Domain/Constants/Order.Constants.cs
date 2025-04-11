@@ -3,8 +3,6 @@ namespace CusCake.Domain.Constants;
 public static class OrderStatusConstants
 {
     public const string PENDING = "PENDING";                    // Đơn hàng mới được tạo, chưa xác nhận
-    // public const string PAID = "PAID";                // Đã xác nhận đơn hàng, chờ thanh toán
-    // public const string PAYMENT_PENDING = "PAYMENT_PENDING";    // Đang chờ thanh toán (QR Code hiển thị)
     public const string WAITING_BAKERY = "WAITING_BAKERY_CONFIRM";      // Chờ bakery xác nhận
     public const string PROCESSING = "PROCESSING";              // Bakery đang xử lý đơn hàng
     public const string READY_FOR_PICKUP = "READY_FOR_PICKUP";  // Bakery đã hoàn thành, sẵn sàng giao

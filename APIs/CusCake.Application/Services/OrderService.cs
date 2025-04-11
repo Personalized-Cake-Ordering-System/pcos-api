@@ -64,12 +64,8 @@ public class OrderService(
                     To = OrderStatusConstants.WAITING_BAKERY,
                     Guard = (order) =>
                     {
-                        if(order.ShippingType==ShippingTypeConstants.DELIVERY && order.Transaction!=null)
-                             return true;
-
-                        if(order!.CustomerId != _claimsService.GetCurrentUser ||
-                            _claimsService.GetCurrentUserRole != RoleConstants.CUSTOMER )
-                            throw new UnauthorizedAccessException("Can not access to action!");
+                        if( order.Transaction==null)
+                            throw new BadRequestException("Order must be paid!");
 
                         return true;
                     },
