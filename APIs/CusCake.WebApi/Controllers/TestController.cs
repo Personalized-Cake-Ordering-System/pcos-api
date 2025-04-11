@@ -13,10 +13,10 @@ public class TestController(INotificationService notificationService, IOrderServ
     [HttpGet("test")]
     public async Task<IActionResult> GetAllAsync()
     {
-        var userId = "11f56ffc-6e29-4528-8e05-dadbc618dd5a";
+        var userId = "cd8c2dae-76c3-485b-a674-dcd7e57a1b64";
         var order = await _orderService.GetOrderByIdAsync(Guid.Parse("038564a7-4880-4c80-bff0-c482e30e2dc7"));
         var json = JsonConvert.SerializeObject(order);
-        await _notificationService.SendNotificationAsync(Guid.Parse(userId), json, NotificationType.PAYMENT_SUCCESS);
+        await _notificationService.SendNotificationAsync(Guid.Parse(userId), json, NotificationType.NEW_ORDER);
         return Ok();
     }
 
