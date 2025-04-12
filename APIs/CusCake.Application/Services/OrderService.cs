@@ -567,6 +567,7 @@ public class OrderService(
     public async Task<Order> CancelAsync(Guid id)
     {
         var order = await GetOrderByIdAsync(id);
+        var old_status = order.OrderStatus;
 
         if (new[] {
             OrderStatusConstants.PROCESSING,
@@ -585,7 +586,7 @@ public class OrderService(
 
         if (new[] {
             OrderStatusConstants.WAITING_BAKERY,
-        }.Contains(order.OrderStatus))
+        }.Contains(old_status))
             await RollbackMoneyAsync(order);
 
         if (!string.IsNullOrEmpty(order.VoucherCode))
