@@ -11,7 +11,7 @@ public class AvailableCakeConfiguration : IEntityTypeConfiguration<AvailableCake
     public void Configure(EntityTypeBuilder<AvailableCake> builder)
     {
         builder
-         .Ignore(o => o.CakeReviews);
+         .Ignore(o => o.Reviews);
 
         var storageComparer = new ValueComparer<List<Storage>>(
             (c1, c2) => c1 != null && c2 != null && c1.SequenceEqual(c2), // So sánh 2 danh sách

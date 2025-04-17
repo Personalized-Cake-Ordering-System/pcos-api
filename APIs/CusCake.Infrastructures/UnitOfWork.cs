@@ -28,7 +28,7 @@ namespace CusCake.Infrastructures
         ICakePartSelectionRepository cakePartSelectionRepository,
         // ICakePartTypeRepository cakePartTypeRepository,
 
-        ICakeReviewRepository cakeReviewRepository,
+        IReviewRepository reviewRepository,
         ICustomCakeRepository customCakeRepository,
         ICustomerVoucherRepository customerVoucherRepository,
         INotificationRepository notificationRepository,
@@ -41,7 +41,8 @@ namespace CusCake.Infrastructures
         IWalletRepository walletRepository,
         IWalletTransactionRepository walletTransaction,
         IMongoRepository mongoRepository,
-        IReportRepository reportRepository
+        IReportRepository reportRepository,
+        IBakeryMetricRepository bakeryMetricRepository
         ) : IUnitOfWork
     {
 
@@ -55,7 +56,7 @@ namespace CusCake.Infrastructures
 
         public IAvailableCakeRepository AvailableCakeRepository { get; } = availableCakeRepository;
 
-        public ICakeReviewRepository CakeReviewRepository { get; } = cakeReviewRepository;
+        public IReviewRepository ReviewRepository { get; } = reviewRepository;
 
         public ICustomCakeRepository CustomCakeRepository { get; } = customCakeRepository;
 
@@ -100,6 +101,8 @@ namespace CusCake.Infrastructures
         public IMongoRepository MongoRepository { get; } = mongoRepository;
 
         public IReportRepository ReportRepository { get; } = reportRepository;
+
+        public IBakeryMetricRepository BakeryMetricRepository => bakeryMetricRepository;
 
         // public ICakeExtraTypeRepository CakeExtraTypeRepository { get; }
 

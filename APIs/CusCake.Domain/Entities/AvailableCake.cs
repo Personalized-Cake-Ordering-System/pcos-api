@@ -48,5 +48,5 @@ public class AvailableCake : BaseEntity
     // public ICollection<OrderDetail>? OrderDetails { get; set; }
 
     [JsonPropertyName("cake_reviews")]
-    public ICollection<CakeReview>? CakeReviews { get; set; }
+    public ICollection<Review>? Reviews { get; set; }
 }

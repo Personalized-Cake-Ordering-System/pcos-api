@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace CusCake.Infrastructures.EntityConfigurations;
 
-public class CakeReviewConfiguration : IEntityTypeConfiguration<CakeReview>
+public class CakeReviewConfiguration : IEntityTypeConfiguration<Review>
 {
-    public void Configure(EntityTypeBuilder<CakeReview> builder)
+    public void Configure(EntityTypeBuilder<Review> builder)
     {
         builder.HasOne(x => x.OrderDetail).WithOne().HasForeignKey<OrderDetail>(e => e.CakeReviewId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(x => x.AvailableCake).WithMany().HasForeignKey(x => x.AvailableCakeId).OnDelete(DeleteBehavior.Cascade);

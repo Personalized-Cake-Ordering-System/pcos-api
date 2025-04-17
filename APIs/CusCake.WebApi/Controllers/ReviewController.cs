@@ -1,6 +1,6 @@
 using CusCake.Application.Services;
 using CusCake.Application.ViewModels;
-using CusCake.Application.ViewModels.CakeReviewModels;
+using CusCake.Application.ViewModels.ReviewModels;
 using CusCake.Domain.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,15 +8,15 @@ using Microsoft.AspNetCore.Mvc;
 namespace CusCake.WebApi.Controllers;
 
 [ApiController]
-[Route("api/cake_reviews")]
-public class CakeReviewController(ICakeReviewService reviewService) : ControllerBase
+[Route("api/reviews")]
+public class CakeReviewController(IReviewService reviewService) : ControllerBase
 {
-    private readonly ICakeReviewService _reviewService = reviewService;
+    private readonly IReviewService _reviewService = reviewService;
 
 
     [HttpPut("{id}")]
     [Authorize(Roles = RoleConstants.CUSTOMER)]
-    public async Task<IActionResult> UpdateAsync(Guid id, [FromBody] CakeReviewUpdateModel model)
+    public async Task<IActionResult> UpdateAsync(Guid id, [FromBody] ReviewUpdateModel model)
     {
         return Ok(ResponseModel<object, object>.Success(await _reviewService.UpdateAsync(id, model)));
     }
@@ -31,7 +31,7 @@ public class CakeReviewController(ICakeReviewService reviewService) : Controller
 
     [HttpPost]
     [Authorize(Roles = RoleConstants.CUSTOMER)]
-    public async Task<IActionResult> CreateAsync([FromBody] CakeReviewCreateModel model)
+    public async Task<IActionResult> CreateAsync([FromBody] ReviewCreateModel model)
     {
         return Ok(ResponseModel<object, object>.Success(await _reviewService.CreateAsync(model)));
     }

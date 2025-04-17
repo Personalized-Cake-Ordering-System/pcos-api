@@ -7,7 +7,7 @@ using CusCake.Application.ViewModels.CakeDecorationModels;
 using CusCake.Application.ViewModels.CakeExtraModels;
 using CusCake.Application.ViewModels.CakeMessageModels;
 using CusCake.Application.ViewModels.CakePartModels;
-using CusCake.Application.ViewModels.CakeReviewModels;
+using CusCake.Application.ViewModels.ReviewModels;
 using CusCake.Application.ViewModels.CartModels;
 using CusCake.Application.ViewModels.CustomCakeModels;
 using CusCake.Application.ViewModels.CustomerModels;
@@ -103,8 +103,8 @@ namespace CusCake.Infrastructures.Mappers
             #endregion
 
             #region Cart
-            CreateMap<CakeReview, CakeReviewCreateModel>().ReverseMap();
-            CreateMap<CakeReview, CakeReviewUpdateModel>().ReverseMap();
+            CreateMap<Review, ReviewCreateModel>().ReverseMap();
+            CreateMap<Review, ReviewUpdateModel>().ReverseMap();
             #endregion
 
             #region Report
