@@ -10,7 +10,7 @@ public class WalletTransaction : BaseEntity
     [JsonPropertyName("wallet_id")]
     public Guid WalletId { get; set; }
 
-    [JsonPropertyName("auth")]
+    [JsonPropertyName("wallet")]
     public Wallet Wallet { get; set; } = default!;
 
     [Column("amount")]

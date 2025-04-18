@@ -122,7 +122,7 @@ public class CustomerController(
     {
         Expression<Func<CustomerVoucher, bool>> filter = x =>
             (x.CustomerId == id) &&
-            (isApplied != null || x.IsApplied == isApplied);
+            (isApplied == null || x.IsApplied == isApplied);
         var result = await _voucherService.GetCustomerVouchersAsync(pageIndex, pageSize, filter);
         return Ok(ResponseModel<object, List<CustomerVoucher>>.Success(result.Item2, result.Item1));
     }

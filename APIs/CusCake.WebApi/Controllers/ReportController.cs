@@ -56,6 +56,16 @@ public class ReportController(IReportService reportService) : BaseController
         return Ok(ResponseModel<object, ICollection<Report>>.Success(result.Item2, result.Item1));
     }
 
+
+    [HttpGet("{id}")]
+    [Authorize(Roles = RoleConstants.ADMIN)]
+    public async Task<IActionResult> GetByIdAsync(Guid id
+    )
+    {
+        var result = await _reportService.GetByIdAsync(id);
+        return Ok(ResponseModel<object, Report>.Success(result));
+    }
+
     [HttpPut("{id}")]
     [Authorize]
     public async Task<IActionResult> UpdateAsync(Guid id, [FromBody] ReportUpdateModel model)
