@@ -17,6 +17,10 @@ namespace CusCake.Domain.Entities
         [JsonPropertyName("total_revenue")]
         public double TotalRevenue { get; set; } = default!;
 
+        [Column("app_revenue")]
+        [JsonPropertyName("app_revenue")]
+        public double AppRevenue { get; set; } = default!;
+
         [Column("orders_count")]
         [JsonPropertyName("orders_count")]
         public int OrdersCount { get; set; } = default!;

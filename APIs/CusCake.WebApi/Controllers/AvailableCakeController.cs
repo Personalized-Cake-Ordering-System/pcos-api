@@ -57,10 +57,11 @@ public class AvailableCakeController(IAvailableCakeService availableCakeService)
                                   : [.. type.Split(".")];
 
         Expression<Func<AvailableCake, bool>> filter = x =>
-            ((bakeryId == null || bakeryId == Guid.Empty) || x.BakeryId == bakeryId) &&
+            (bakeryId == null || bakeryId == Guid.Empty || x.BakeryId == bakeryId) &&
             (string.IsNullOrEmpty(name) || x.AvailableCakeName.Contains(name, StringComparison.CurrentCultureIgnoreCase)) &&
-            (string.IsNullOrEmpty(type) || (typeList.Count == 0 || typeList.Contains(x.AvailableCakeType!))) &&
-            (string.IsNullOrEmpty(price) || (x.AvailableCakePrice >= prices.First() && x.AvailableCakePrice <= prices.Last()));
+            (string.IsNullOrEmpty(type) || typeList.Count == 0 || typeList.Contains(x.AvailableCakeType!)) &&
+            (string.IsNullOrEmpty(price) || (x.AvailableCakePrice >= prices.First() && x.AvailableCakePrice <= prices.Last())) &&
+            x.Bakery.IsDeleted == false && x.Bakery.Status == BakeryStatusConstants.CONFIRMED;
 
         var orderByList = SortingHelper.ParseSortingParameters(sort, EntitySortingMappings.AvailableCakeMappings);
 

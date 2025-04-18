@@ -41,6 +41,7 @@ namespace CusCake.Infrastructures
         public DbSet<WalletTransaction> WalletTransactions { get; set; }
         public DbSet<Report> Reports { get; set; }
         public DbSet<BakeryMetric> BakeryMetrics { get; set; }
+        public DbSet<AvailableCakeMetric> AvailableCakeMetrics { get; set; }
 
         #endregion
 

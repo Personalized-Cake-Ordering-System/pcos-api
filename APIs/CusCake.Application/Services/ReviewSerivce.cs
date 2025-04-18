@@ -6,6 +6,7 @@ using CusCake.Application.Services.IServices;
 using CusCake.Application.ViewModels.ReviewModels;
 using CusCake.Domain.Constants;
 using CusCake.Domain.Entities;
+using Hangfire;
 using UnauthorizedAccessException = CusCake.Application.GlobalExceptionHandling.Exceptions.UnauthorizedAccessException;
 
 namespace CusCake.Application.Services;
@@ -21,16 +22,23 @@ public interface IReviewService
 public class ReviewService(
     IUnitOfWork unitOfWork,
     IMapper mapper,
-    IClaimsService claimsService
+    IClaimsService claimsService,
+    IBackgroundJobClient backgroundJobClient,
+    IBakeryMetricService bakeryMetricService,
+    IAvailableCakeMetricService availableCakeMetricService
 ) : IReviewService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IMapper _mapper = mapper;
     private readonly IClaimsService _claimsService = claimsService;
-
+    private readonly IBackgroundJobClient _backgroundJobClient = backgroundJobClient;
+    private readonly IBakeryMetricService _bakeryMetricService = bakeryMetricService;
+    private readonly IAvailableCakeMetricService _availableCakeMetricService = availableCakeMetricService;
     public async Task<Review> CreateAsync(ReviewCreateModel model)
     {
         var cake_review = _mapper.Map<Review>(model);
+
+        cake_review.CustomerId = _claimsService.GetCurrentUser;
 
         if (model.ReviewType == ReviewTypeConstants.AVAILABLE_CAKE_REVIEW)
         {
@@ -39,12 +47,19 @@ public class ReviewService(
             if (order_detail.CakeReviewId != null) throw new BadRequestException("Only one review for it order_detail!");
             order_detail.CakeReviewId = cake_review.Id;
             _unitOfWork.OrderDetailRepository.Update(order_detail);
+            await _unitOfWork.ReviewRepository.AddAsync(cake_review);
+            await _unitOfWork.SaveChangesAsync();
+            _backgroundJobClient.Enqueue(() => _availableCakeMetricService.CalculateAvailableCakeMetricsAsync(order_detail.AvailableCakeId!.Value));
+            return cake_review;
         }
 
-        cake_review.CustomerId = _claimsService.GetCurrentUser;
 
         await _unitOfWork.ReviewRepository.AddAsync(cake_review);
         await _unitOfWork.SaveChangesAsync();
+
+        _backgroundJobClient.Enqueue(() => _bakeryMetricService.ReCalculateBakeryMetricsAsync(cake_review.BakeryId));
+
+
         return cake_review;
     }
 
@@ -55,6 +70,14 @@ public class ReviewService(
 
         _unitOfWork.ReviewRepository.SoftRemove(review);
         await _unitOfWork.SaveChangesAsync();
+        if (review.ReviewType == ReviewTypeConstants.BAKERY_REVIEW)
+        {
+            _backgroundJobClient.Enqueue(() => _bakeryMetricService.ReCalculateBakeryMetricsAsync(review.BakeryId));
+        }
+        else if (review.ReviewType == ReviewTypeConstants.AVAILABLE_CAKE_REVIEW)
+        {
+            _backgroundJobClient.Enqueue(() => _availableCakeMetricService.CalculateAvailableCakeMetricsAsync(review.AvailableCakeId!.Value));
+        }
     }
 
     public async Task<Review> GetByIdAsync(Guid id)
@@ -79,6 +102,15 @@ public class ReviewService(
 
         _unitOfWork.ReviewRepository.Update(review);
         await _unitOfWork.SaveChangesAsync();
+
+        if (review.ReviewType == ReviewTypeConstants.BAKERY_REVIEW)
+        {
+            _backgroundJobClient.Enqueue(() => _bakeryMetricService.ReCalculateBakeryMetricsAsync(review.BakeryId));
+        }
+        else if (review.ReviewType == ReviewTypeConstants.AVAILABLE_CAKE_REVIEW)
+        {
+            _backgroundJobClient.Enqueue(() => _availableCakeMetricService.CalculateAvailableCakeMetricsAsync(review.AvailableCakeId!.Value));
+        }
         return review;
     }
 }

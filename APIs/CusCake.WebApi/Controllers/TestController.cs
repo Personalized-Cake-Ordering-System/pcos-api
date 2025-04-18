@@ -5,8 +5,9 @@ using Newtonsoft.Json;
 
 namespace CusCake.WebApi.Controllers;
 
-public class TestController(INotificationService notificationService, IOrderService orderService) : BaseController
+public class TestController(INotificationService notificationService, IOrderService orderService, IAvailableCakeMetricService availableCakeMetricService) : BaseController
 {
+    private readonly IAvailableCakeMetricService _availableCakeMetricService = availableCakeMetricService;
     private readonly IOrderService _orderService = orderService;
     private readonly INotificationService _notificationService = notificationService;
 
@@ -20,5 +21,11 @@ public class TestController(INotificationService notificationService, IOrderServ
         return Ok();
     }
 
+    [HttpGet("{id}")]
+    public async Task<IActionResult> Review(Guid id)
+    {
+        await _availableCakeMetricService.CalculateAvailableCakeMetricsByOrderIdAsync(id);
+        return Ok();
+    }
 
 }

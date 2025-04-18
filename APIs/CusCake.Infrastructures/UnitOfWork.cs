@@ -42,7 +42,8 @@ namespace CusCake.Infrastructures
         IWalletTransactionRepository walletTransaction,
         IMongoRepository mongoRepository,
         IReportRepository reportRepository,
-        IBakeryMetricRepository bakeryMetricRepository
+        IBakeryMetricRepository bakeryMetricRepository,
+        IAvailableCakeMetricRepository availableCakeMetricRepository
         ) : IUnitOfWork
     {
 
@@ -103,6 +104,8 @@ namespace CusCake.Infrastructures
         public IReportRepository ReportRepository { get; } = reportRepository;
 
         public IBakeryMetricRepository BakeryMetricRepository => bakeryMetricRepository;
+
+        public IAvailableCakeMetricRepository AvailableCakeMetricRepository => availableCakeMetricRepository;
 
         // public ICakeExtraTypeRepository CakeExtraTypeRepository { get; }
 

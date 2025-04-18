@@ -79,7 +79,7 @@ public class BakeryController(
                           : [.. status.Split(".")];
         Expression<Func<Bakery, bool>> filter = x =>
             (string.IsNullOrEmpty(bakeryName) || x.BakeryName.Contains(bakeryName, StringComparison.CurrentCultureIgnoreCase)) &&
-            (string.IsNullOrEmpty(status) || (statusList.Count == 0 || statusList.Contains(x.Status!)));
+            (string.IsNullOrEmpty(status) || statusList.Count == 0 || statusList.Contains(x.Status!));
 
         var result = await _bakeryService.GetAllAsync(pageIndex, pageSize, filter);
         return Ok(ResponseModel<object, ICollection<Bakery>>.Success(result.Item2, result.Item1));
@@ -117,7 +117,7 @@ public class BakeryController(
                   : [.. type.Split(".")];
         Expression<Func<Notification, bool>> filter = x =>
            (x.BakeryId == id) &&
-           (string.IsNullOrEmpty(type) || (typeList.Count == 0 || typeList.Contains(x.Type!)));
+           (string.IsNullOrEmpty(type) || typeList.Count == 0 || typeList.Contains(x.Type!));
 
         var result = await _notificationService.GetAllAsync(pageIndex, pageSize, filter);
         return Ok(ResponseModel<object, List<Notification>>.Success(result.Item2, result.Item1));
@@ -173,7 +173,8 @@ public class BakeryController(
             (x.BakeryId == id) &&
             (string.IsNullOrEmpty(name) || x.AvailableCakeName.Contains(name, StringComparison.CurrentCultureIgnoreCase)) &&
             (string.IsNullOrEmpty(type) || typeList.Count == 0 || typeList.Contains(x.AvailableCakeType!)) &&
-            (string.IsNullOrEmpty(price) || (x.AvailableCakePrice >= prices.First() && x.AvailableCakePrice <= prices.Last()));
+            (string.IsNullOrEmpty(price) || (x.AvailableCakePrice >= prices.First() && x.AvailableCakePrice <= prices.Last()))
+            && x.Bakery.IsDeleted == false && x.Bakery.Status == BakeryStatusConstants.CONFIRMED;
 
         var orderByList = SortingHelper.ParseSortingParameters(sort, EntitySortingMappings.AvailableCakeMappings);
 

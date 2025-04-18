@@ -30,6 +30,18 @@ public class AvailableCakeBaseActionModel
 
     [JsonPropertyName("available_main_image_id")]
     public Guid AvailableCakeMainImageId { get; set; } = default!;
+
+    [JsonPropertyName("available_cake_size")]
+    public string? AvailableCakeSize { get; set; } // VD: "15cm"
+
+    [JsonPropertyName("available_cake_serving_size")]
+    public string? AvailableCakeServingSize { get; set; } // VD: "8-10 người"
+
+    [JsonPropertyName("has_low_shipping_fee")]
+    public bool HasLowShippingFee { get; set; } = false;
+
+    [JsonPropertyName("is_quality_guaranteed")]
+    public bool IsQualityGuaranteed { get; set; } = false;
 }
 
 

@@ -22,5 +22,9 @@ public static class EntitySortingMappings
         ["name"] = x => x.BakeryName, // Alias
         ["created_at"] = x => x.CreatedAt,
     };
+    public static readonly Dictionary<string, Expression<Func<BakeryMetric, object>>> BakeryMetricMappings = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["total_revenue"] = x => x.TotalRevenue// Alias
+    };
 
 }

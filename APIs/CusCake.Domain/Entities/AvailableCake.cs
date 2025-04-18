@@ -6,6 +6,22 @@ namespace CusCake.Domain.Entities;
 [Table("available_cakes")]
 public class AvailableCake : BaseEntity
 {
+    [Column("available_cake_size")]
+    [JsonPropertyName("available_cake_size")]
+    public string? AvailableCakeSize { get; set; } // VD: "15cm"
+
+    [Column("available_cake_serving_size")]
+    [JsonPropertyName("available_cake_serving_size")]
+    public string? AvailableCakeServingSize { get; set; } // VD: "8-10 người"
+
+    [Column("has_low_shipping_fee")]
+    [JsonPropertyName("has_low_shipping_fee")]
+    public bool HasLowShippingFee { get; set; } = false;
+
+    [Column("is_quality_guaranteed")]
+    [JsonPropertyName("is_quality_guaranteed")]
+    public bool IsQualityGuaranteed { get; set; } = false;
+
     [Column("available_cake_price")]
     [JsonPropertyName("available_cake_price")]
     public double AvailableCakePrice { get; set; }
@@ -49,4 +65,7 @@ public class AvailableCake : BaseEntity
 
     [JsonPropertyName("cake_reviews")]
     public ICollection<Review>? Reviews { get; set; }
+
+    [JsonPropertyName("metric")]
+    public AvailableCakeMetric? Metric { get; set; }
 }

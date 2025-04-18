@@ -11,6 +11,7 @@ public class AvailableCakeConfiguration : IEntityTypeConfiguration<AvailableCake
     public void Configure(EntityTypeBuilder<AvailableCake> builder)
     {
         builder
+        //  .Ignore(o => o.Metric)
          .Ignore(o => o.Reviews);
 
         var storageComparer = new ValueComparer<List<Storage>>(
@@ -35,5 +36,12 @@ public class AvailableCakeConfiguration : IEntityTypeConfiguration<AvailableCake
           )
           .HasColumnType("json")
           .Metadata.SetValueComparer(storageComparer);
+    }
+}
+public class AvailableCakeMetricConfiguration : IEntityTypeConfiguration<AvailableCakeMetric>
+{
+    public void Configure(EntityTypeBuilder<AvailableCakeMetric> builder)
+    {
+        builder.HasOne(x => x.AvailableCake).WithOne(x => x.Metric).HasForeignKey<AvailableCakeMetric>(x => x.AvailableCakeId).OnDelete(DeleteBehavior.Cascade);
     }
 }

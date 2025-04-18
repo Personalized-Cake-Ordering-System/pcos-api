@@ -97,13 +97,13 @@ public class BakeryService(
 
     public async Task<(Pagination, List<Bakery>)> GetAllAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<Bakery, bool>>? filter = null)
     {
-        var includes = QueryHelper.Includes<Bakery>(x => x.AvatarFile!, x => x.FrontCardFile!, x => x.BackCardFile);
+        var includes = QueryHelper.Includes<Bakery>(x => x.AvatarFile!, x => x.FrontCardFile!, x => x.BackCardFile, x => x.Metric!);
         return await _unitOfWork.BakeryRepository.ToPagination(pageIndex, pageSize, filter: filter, includes: includes);
     }
 
     public async Task<Bakery> GetByIdAsync(Guid id)
     {
-        var includes = QueryHelper.Includes<Bakery>(x => x.AvatarFile!, x => x.FrontCardFile!, x => x.BackCardFile);
+        var includes = QueryHelper.Includes<Bakery>(x => x.AvatarFile!, x => x.FrontCardFile!, x => x.BackCardFile, x => x.Metric!);
 
         return await _unitOfWork.BakeryRepository.GetByIdAsync(id, includes: includes) ?? throw new BadRequestException("Id is not exist!");
 
@@ -142,8 +142,7 @@ public class BakeryService(
         var bakery = await _unitOfWork.BakeryRepository
             .FirstOrDefaultAsync(x =>
                 x.Status == BakeryStatusConstants.CONFIRMED &&
-                x.Id == id &&
-                x.CreatedBy == _claimsService.GetCurrentUser
+                x.Id == id
                 ) ?? throw new BadRequestException("Id is not found!");
 
         if (bakery.BakeryName != model.BakeryName)

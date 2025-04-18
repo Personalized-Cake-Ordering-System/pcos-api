@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using AutoMapper;
+using CusCake.Application.Extensions;
 using CusCake.Application.GlobalExceptionHandling.Exceptions;
 using CusCake.Application.Services.IServices;
 using CusCake.Application.Utils;
@@ -68,7 +69,11 @@ public class AvailableCakeService(IUnitOfWork unitOfWork, IMapper mapper, IClaim
         Expression<Func<AvailableCake, bool>>? filter = null,
         List<(Expression<Func<AvailableCake, object>> OrderBy, bool IsDescending)>? orderByList = null)
     {
-        return await _unitOfWork.AvailableCakeRepository.ToPagination(pageIndex, pageSize, filter: filter, includes: x => x.Bakery, orderByList: orderByList);
+
+        var includes = QueryHelper.Includes<AvailableCake>(
+          x => x.Metric!,
+          x => x.Bakery!);
+        return await _unitOfWork.AvailableCakeRepository.ToPagination(pageIndex, pageSize, filter: filter, includes: includes, orderByList: orderByList);
 
     }
 
@@ -76,6 +81,7 @@ public class AvailableCakeService(IUnitOfWork unitOfWork, IMapper mapper, IClaim
     {
         var available_cake = await _unitOfWork.AvailableCakeRepository.GetByIdAsync(id) ?? throw new BadRequestException("Cake is not exist!");
         available_cake.Reviews = await _unitOfWork.ReviewRepository.WhereAsync(x => x.AvailableCakeId == id && x.ReviewType == ReviewTypeConstants.AVAILABLE_CAKE_REVIEW);
+        available_cake.Metric = await _unitOfWork.AvailableCakeMetricRepository.FirstOrDefaultAsync(x => x.AvailableCakeId == id);
         return available_cake;
     }
 

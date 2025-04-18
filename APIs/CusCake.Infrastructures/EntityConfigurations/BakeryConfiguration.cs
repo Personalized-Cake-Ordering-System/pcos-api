@@ -56,8 +56,8 @@ public class BakeryMetricConfiguration : IEntityTypeConfiguration<BakeryMetric>
    {
       builder
         .HasOne(c => c.Bakery)
-        .WithMany()
-        .HasForeignKey(c => c.BakeryId)
+        .WithOne(x => x.Metric)
+        .HasForeignKey<BakeryMetric>(c => c.BakeryId)
         .OnDelete(DeleteBehavior.Cascade);
    }
 }

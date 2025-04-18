@@ -24,21 +24,23 @@ public class BakeryMetricService(IUnitOfWork unitOfWork) : IBakeryMetricService
             metric = new BakeryMetric
             {
                 BakeryId = bakeryId,
-                TotalRevenue = order.Sum(o => o.TotalCustomerPaid),
+                TotalRevenue = order.Sum(o => o.ShopRevenue),
                 OrdersCount = order.Count,
                 RatingAverage = review.Count > 0 ? review.Average(r => r.Rating) : 0,
                 CustomersCount = order.Select(o => o.CustomerId).Distinct().Count(),
-                AverageOrderValue = order.Count > 0 ? order.Sum(o => o.TotalCustomerPaid) / order.Count : 0
+                AppRevenue = order.Sum(o => o.AppCommissionFee),
+                AverageOrderValue = order.Count > 0 ? order.Sum(o => o.ShopRevenue) / order.Count : 0
             };
             await _unitOfWork.BakeryMetricRepository.AddAsync(metric);
         }
         else
         {
-            metric.TotalRevenue = order.Sum(o => o.TotalCustomerPaid);
+            metric.TotalRevenue = order.Sum(o => o.ShopRevenue);
             metric.OrdersCount = order.Count;
             metric.RatingAverage = review.Count > 0 ? review.Average(r => r.Rating) : 0;
             metric.CustomersCount = order.Select(o => o.CustomerId).Distinct().Count();
-            metric.AverageOrderValue = order.Count > 0 ? order.Sum(o => o.TotalCustomerPaid) / order.Count : 0;
+            metric.AverageOrderValue = order.Count > 0 ? order.Sum(o => o.ShopRevenue) / order.Count : 0;
+            metric.AppRevenue = order.Sum(o => o.AppCommissionFee);
 
             _unitOfWork.BakeryMetricRepository.Update(metric);
         }

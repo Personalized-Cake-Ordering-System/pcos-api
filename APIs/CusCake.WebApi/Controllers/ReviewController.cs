@@ -9,7 +9,7 @@ namespace CusCake.WebApi.Controllers;
 
 [ApiController]
 [Route("api/reviews")]
-public class CakeReviewController(IReviewService reviewService) : ControllerBase
+public class ReviewController(IReviewService reviewService) : ControllerBase
 {
     private readonly IReviewService _reviewService = reviewService;
 

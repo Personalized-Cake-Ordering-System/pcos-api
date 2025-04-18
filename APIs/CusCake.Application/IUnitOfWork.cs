@@ -36,5 +36,6 @@ public interface IUnitOfWork
     IMongoRepository MongoRepository { get; }
     IReportRepository ReportRepository { get; }
     IBakeryMetricRepository BakeryMetricRepository { get; }
+    IAvailableCakeMetricRepository AvailableCakeMetricRepository { get; }
     Task<bool> SaveChangesAsync();
 }

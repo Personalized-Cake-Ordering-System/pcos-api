@@ -37,7 +37,9 @@ public class OrderService(
     IFileService fileService,
     IAuthService authService,
     IWalletService walletService,
-    IBackgroundJobClient backgroundJobClient
+    IBackgroundJobClient backgroundJobClient,
+    IBakeryMetricService bakeryMetricService,
+    IAvailableCakeMetricService availableCakeMetricService
 ) : IOrderService
 {
     private readonly IVoucherService _voucherService = voucherService;
@@ -51,6 +53,8 @@ public class OrderService(
     private readonly IAuthService _authService = authService;
     private readonly IWalletService _walletService = walletService;
     private readonly IBackgroundJobClient _backgroundJobClient = backgroundJobClient;
+    private readonly IBakeryMetricService _bakeryMetricService = bakeryMetricService;
+    private readonly IAvailableCakeMetricService _availableCakeMetricService = availableCakeMetricService;
 
     public Dictionary<string, object> GetTransitions()
     {
@@ -187,16 +191,19 @@ public class OrderService(
                     To = OrderStatusConstants.COMPLETED,
                     Action=async (order) =>
                     {
+                        if(order.OrderStatus == OrderStatusConstants.COMPLETED) return order!;
+
                         order!.OrderStatus = OrderStatusConstants.COMPLETED;
                         _unitOfWork.OrderRepository.Update(order!);
                         await _unitOfWork.SaveChangesAsync();
 
-                         await MakeFinalPayment(order);
+                        await MakeFinalPayment(order);
 
                         var orderJson = JsonConvert.SerializeObject(order);
                         await _notificationService.CreateOrderNotificationAsync(order.Id,NotificationType.COMPLETED_ORDER, null ,order.CustomerId);
                         await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, NotificationType.COMPLETED_ORDER);
-
+                        _backgroundJobClient.Enqueue(() => _bakeryMetricService.ReCalculateBakeryMetricsAsync(order.BakeryId));
+                        _backgroundJobClient.Enqueue(() => _availableCakeMetricService.CalculateAvailableCakeMetricsByOrderIdAsync(order.Id));
                         return order!;
                     }
                 }
@@ -208,6 +215,8 @@ public class OrderService(
                     To = OrderStatusConstants.COMPLETED,
                     Action=async (order) =>
                     {
+                         if(order.OrderStatus == OrderStatusConstants.COMPLETED) return order!;
+
                         order!.OrderStatus = OrderStatusConstants.COMPLETED;
                         _unitOfWork.OrderRepository.Update(order!);
                         await _unitOfWork.SaveChangesAsync();
@@ -217,7 +226,8 @@ public class OrderService(
                         var orderJson = JsonConvert.SerializeObject(order);
                         await _notificationService.CreateOrderNotificationAsync(order.Id,NotificationType.COMPLETED_ORDER, null ,order.CustomerId);
                         await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, NotificationType.COMPLETED_ORDER);
-
+                        _backgroundJobClient.Enqueue(() => _bakeryMetricService.ReCalculateBakeryMetricsAsync(order.BakeryId));
+                        _backgroundJobClient.Enqueue(() => _availableCakeMetricService.CalculateAvailableCakeMetricsByOrderIdAsync(order.Id));
                         return order!;
                     }
                 }
@@ -626,6 +636,8 @@ public class OrderService(
         var orderJson = JsonConvert.SerializeObject(order);
         await _notificationService.CreateOrderNotificationAsync(order.Id, NotificationType.COMPLETED_ORDER, null, order.CustomerId);
         await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, NotificationType.COMPLETED_ORDER);
+        _backgroundJobClient.Enqueue(() => _bakeryMetricService.ReCalculateBakeryMetricsAsync(order.BakeryId));
+        _backgroundJobClient.Enqueue(() => _availableCakeMetricService.CalculateAvailableCakeMetricsByOrderIdAsync(order.Id));
 
         return order;
     }
