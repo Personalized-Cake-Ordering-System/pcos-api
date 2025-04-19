@@ -20,7 +20,7 @@ public interface IUnitOfWork
     ICakePartSelectionRepository CakePartSelectionRepository { get; }
     // ICakePartTypeRepository CakePartTypeRepository { get; }
     ICakePartOptionRepository CakePartOptionRepository { get; }
-    ICakeReviewRepository CakeReviewRepository { get; }
+    IReviewRepository ReviewRepository { get; }
     ICustomCakeRepository CustomCakeRepository { get; }
     ICustomerRepository CustomerRepository { get; }
     ICustomerVoucherRepository CustomerVoucherRepository { get; }
@@ -35,5 +35,7 @@ public interface IUnitOfWork
     IWalletTransactionRepository WalletTransaction { get; }
     IMongoRepository MongoRepository { get; }
     IReportRepository ReportRepository { get; }
+    IBakeryMetricRepository BakeryMetricRepository { get; }
+    IAvailableCakeMetricRepository AvailableCakeMetricRepository { get; }
     Task<bool> SaveChangesAsync();
 }

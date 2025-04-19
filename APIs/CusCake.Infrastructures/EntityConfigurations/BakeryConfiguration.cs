@@ -49,3 +49,15 @@ public class BakeryConfiguration : IEntityTypeConfiguration<Bakery>
          .OnDelete(DeleteBehavior.Cascade);
    }
 }
+
+public class BakeryMetricConfiguration : IEntityTypeConfiguration<BakeryMetric>
+{
+   public void Configure(EntityTypeBuilder<BakeryMetric> builder)
+   {
+      builder
+        .HasOne(c => c.Bakery)
+        .WithOne(x => x.Metric)
+        .HasForeignKey<BakeryMetric>(c => c.BakeryId)
+        .OnDelete(DeleteBehavior.Cascade);
+   }
+}

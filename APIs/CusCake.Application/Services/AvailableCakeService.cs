@@ -1,9 +1,11 @@
 using System.Linq.Expressions;
 using AutoMapper;
+using CusCake.Application.Extensions;
 using CusCake.Application.GlobalExceptionHandling.Exceptions;
 using CusCake.Application.Services.IServices;
 using CusCake.Application.Utils;
 using CusCake.Application.ViewModels.AvailableCakeModels;
+using CusCake.Domain.Constants;
 using CusCake.Domain.Entities;
 
 namespace CusCake.Application.Services;
@@ -25,13 +27,12 @@ public interface IAvailableCakeService
                List<(Expression<Func<AvailableCake, object>> OrderBy, bool IsDescending)>? orderByList = null);
 }
 
-public class AvailableCakeService(IUnitOfWork unitOfWork, IMapper mapper, IFileService fileService, IClaimsService claimsService) : IAvailableCakeService
+public class AvailableCakeService(IUnitOfWork unitOfWork, IMapper mapper, IClaimsService claimsService) : IAvailableCakeService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     private readonly IMapper _mapper = mapper;
 
-    private readonly IFileService _fileService = fileService;
 
     private readonly IClaimsService _claimsService = claimsService;
 
@@ -68,14 +69,19 @@ public class AvailableCakeService(IUnitOfWork unitOfWork, IMapper mapper, IFileS
         Expression<Func<AvailableCake, bool>>? filter = null,
         List<(Expression<Func<AvailableCake, object>> OrderBy, bool IsDescending)>? orderByList = null)
     {
-        return await _unitOfWork.AvailableCakeRepository.ToPagination(pageIndex, pageSize, filter: filter, includes: x => x.Bakery, orderByList: orderByList);
+
+        var includes = QueryHelper.Includes<AvailableCake>(
+          x => x.Metric!,
+          x => x.Bakery!);
+        return await _unitOfWork.AvailableCakeRepository.ToPagination(pageIndex, pageSize, filter: filter, includes: includes, orderByList: orderByList);
 
     }
 
     public async Task<AvailableCake> GetByIdAsync(Guid id)
     {
         var available_cake = await _unitOfWork.AvailableCakeRepository.GetByIdAsync(id) ?? throw new BadRequestException("Cake is not exist!");
-        available_cake.CakeReviews = await _unitOfWork.CakeReviewRepository.WhereAsync(x => x.AvailableCakeId == id);
+        available_cake.Reviews = await _unitOfWork.ReviewRepository.WhereAsync(x => x.AvailableCakeId == id && x.ReviewType == ReviewTypeConstants.AVAILABLE_CAKE_REVIEW);
+        available_cake.Metric = await _unitOfWork.AvailableCakeMetricRepository.FirstOrDefaultAsync(x => x.AvailableCakeId == id);
         return available_cake;
     }
 

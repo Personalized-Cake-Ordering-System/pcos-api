@@ -1,10 +1,11 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using CusCake.Domain.Constants;
 
 namespace CusCake.Domain.Entities;
 
-[Table("cake_reviews")]
-public class CakeReview : BaseEntity
+[Table("reviews")]
+public class Review : BaseEntity
 {
     [Column("content")]
     [JsonPropertyName("content")]
@@ -20,19 +21,23 @@ public class CakeReview : BaseEntity
     [JsonPropertyName("image")]
     public Storage? Image { get; set; }
 
+    [Column("review_type")]
+    [JsonPropertyName("review_type")]
+    public string ReviewType { get; set; } = ReviewTypeConstants.AVAILABLE_CAKE_REVIEW;
+
     [Column("order_detail_id")]
     [JsonPropertyName("order_detail_id")]
-    public Guid OrderDetailId { get; set; }
+    public Guid? OrderDetailId { get; set; }
 
     [JsonPropertyName("order_detail")]
-    public OrderDetail OrderDetail { get; set; } = default!;
+    public OrderDetail? OrderDetail { get; set; } = default!;
 
     [Column("available_cake_id")]
     [JsonPropertyName("available_cake_id")]
-    public Guid AvailableCakeId { get; set; }
+    public Guid? AvailableCakeId { get; set; }
 
     [JsonPropertyName("available_cake")]
-    public AvailableCake AvailableCake { get; set; } = default!;
+    public AvailableCake? AvailableCake { get; set; } = default!;
 
     [Column("bakery_id")]
     [JsonPropertyName("bakery_id")]

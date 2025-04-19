@@ -10,6 +10,18 @@ namespace CusCake.Domain.Entities
         [JsonPropertyName("bakery_name")]
         public string BakeryName { get; set; } = default!;
 
+        [Column("cake_description")]
+        [JsonPropertyName("cake_description")]
+        public string? CakeDescription { get; set; } = default!;
+
+        [Column("price_description")]
+        [JsonPropertyName("price_description")]
+        public string? PriceDescription { get; set; } = default!;
+
+        [Column("bakery_description")]
+        [JsonPropertyName("bakery_description")]
+        public string? BakeryDescription { get; set; } = default!;
+
         [Column("email")]
         [JsonPropertyName("email")]
         public string Email { get; set; } = default!;
@@ -86,5 +98,8 @@ namespace CusCake.Domain.Entities
         [Column("shop_image_files")]
         [JsonPropertyName("shop_image_files")]
         public List<Storage>? ShopImageFiles { get; set; }
+
+        [JsonPropertyName("metric")]
+        public BakeryMetric? Metric { get; set; } = default!;
     }
 }

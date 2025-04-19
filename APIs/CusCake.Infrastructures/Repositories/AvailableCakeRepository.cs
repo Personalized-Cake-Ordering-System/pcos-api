@@ -11,4 +11,10 @@ namespace CusCake.Infrastructures.Repositories
         {
         }
     }
+    public class AvailableCakeMetricRepository : GenericRepository<AvailableCakeMetric>, IAvailableCakeMetricRepository
+    {
+        public AvailableCakeMetricRepository(AppDbContext context, ICurrentTime currentTime, IClaimsService claimsService) : base(context, currentTime, claimsService)
+        {
+        }
+    }
 }

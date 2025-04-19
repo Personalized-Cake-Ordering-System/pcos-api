@@ -45,6 +45,14 @@ public class BakeryBaseActionModel
     [JsonPropertyName("back_card_file_id")]
     public Guid BackCardFileId { get; set; }
 
+    [JsonPropertyName("cake_description")]
+    public string? CakeDescription { get; set; } = default!;
+
+    [JsonPropertyName("price_description")]
+    public string? PriceDescription { get; set; } = default!;
+
+    [JsonPropertyName("bakery_description")]
+    public string? BakeryDescription { get; set; } = default!;
     // [JsonPropertyName("bank_account")]
     // public string? BankAccount { get; set; } = default!;
 }

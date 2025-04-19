@@ -1,9 +1,10 @@
 using System.Text.Json.Serialization;
+using CusCake.Domain.Constants;
 using FluentValidation;
 
-namespace CusCake.Application.ViewModels.CakeReviewModels;
+namespace CusCake.Application.ViewModels.ReviewModels;
 
-public class CakeReviewCreateModel
+public class ReviewCreateModel
 {
     [JsonPropertyName("content")]
     public string? Content { get; set; }
@@ -14,22 +15,28 @@ public class CakeReviewCreateModel
     public Guid? ImageId { get; set; }
 
     [JsonPropertyName("order_detail_id")]
-    public Guid OrderDetailId { get; set; }
+    public Guid? OrderDetailId { get; set; }
 
     [JsonPropertyName("available_cake_id")]
-    public Guid AvailableCakeId { get; set; }
+    public Guid? AvailableCakeId { get; set; }
 
     [JsonPropertyName("bakery_id")]
     public Guid BakeryId { get; set; }
+
+    [JsonPropertyName("customer_id")]
+    public Guid CustomerId { get; set; }
+
+    [JsonPropertyName("review_type")]
+    public string ReviewType { get; set; } = ReviewTypeConstants.AVAILABLE_CAKE_REVIEW;
 }
 
-public class CakeReviewUpdateModel : CakeReviewCreateModel
+public class ReviewUpdateModel : ReviewCreateModel
 {
 
 }
-public class CakeReviewCreateModelValidator : AbstractValidator<CakeReviewCreateModel>
+public class ReviewCreateModelValidator : AbstractValidator<ReviewCreateModel>
 {
-    public CakeReviewCreateModelValidator()
+    public ReviewCreateModelValidator()
     {
         RuleFor(x => x.Rating)
             .NotEmpty().NotNull().WithMessage("Rating is required!")

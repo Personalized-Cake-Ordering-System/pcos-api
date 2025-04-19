@@ -1,5 +1,4 @@
 using System.Linq.Expressions;
-using System.Threading.Tasks;
 using AutoMapper;
 using CusCake.Application.Extensions;
 using CusCake.Application.GlobalExceptionHandling.Exceptions;
@@ -38,7 +37,9 @@ public class OrderService(
     IFileService fileService,
     IAuthService authService,
     IWalletService walletService,
-    IBackgroundJobClient backgroundJobClient
+    IBackgroundJobClient backgroundJobClient,
+    IBakeryMetricService bakeryMetricService,
+    IAvailableCakeMetricService availableCakeMetricService
 ) : IOrderService
 {
     private readonly IVoucherService _voucherService = voucherService;
@@ -52,6 +53,8 @@ public class OrderService(
     private readonly IAuthService _authService = authService;
     private readonly IWalletService _walletService = walletService;
     private readonly IBackgroundJobClient _backgroundJobClient = backgroundJobClient;
+    private readonly IBakeryMetricService _bakeryMetricService = bakeryMetricService;
+    private readonly IAvailableCakeMetricService _availableCakeMetricService = availableCakeMetricService;
 
     public Dictionary<string, object> GetTransitions()
     {
@@ -80,6 +83,7 @@ public class OrderService(
                         var localExecuteTime = DateTime.Now.AddMinutes(5);
                         var delay = localExecuteTime - DateTime.Now;
 
+                        _backgroundJobClient.Enqueue(() => CalculateAvailableCakeQuantity(order!.Id));
                         _backgroundJobClient.Schedule(() => BakeryConfirmAsync(order!.Id), delay);
 
                         return order!;
@@ -170,7 +174,7 @@ public class OrderService(
                         await _notificationService.CreateOrderNotificationAsync(order.Id, status , null ,order.CustomerId);
                         await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, status);
 
-                        var completed_time=  order.ShippingType == ShippingTypeConstants.PICK_UP ? 30 :order.ShippingTime!.Value;
+                        var completed_time=  order.ShippingType == ShippingTypeConstants.PICK_UP ? 1440 :order.ShippingTime!.Value;
                         var localExecuteTime = DateTime.Now.AddMinutes(completed_time + 15);
                         var delay = localExecuteTime - DateTime.Now;
 
@@ -187,16 +191,19 @@ public class OrderService(
                     To = OrderStatusConstants.COMPLETED,
                     Action=async (order) =>
                     {
+                        if(order.OrderStatus == OrderStatusConstants.COMPLETED) return order!;
+
                         order!.OrderStatus = OrderStatusConstants.COMPLETED;
                         _unitOfWork.OrderRepository.Update(order!);
                         await _unitOfWork.SaveChangesAsync();
 
-                         await MakeFinalPayment(order);
+                        await MakeFinalPayment(order);
 
                         var orderJson = JsonConvert.SerializeObject(order);
                         await _notificationService.CreateOrderNotificationAsync(order.Id,NotificationType.COMPLETED_ORDER, null ,order.CustomerId);
                         await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, NotificationType.COMPLETED_ORDER);
-
+                        _backgroundJobClient.Enqueue(() => _bakeryMetricService.ReCalculateBakeryMetricsAsync(order.BakeryId));
+                        _backgroundJobClient.Enqueue(() => _availableCakeMetricService.CalculateAvailableCakeMetricsByOrderIdAsync(order.Id));
                         return order!;
                     }
                 }
@@ -208,6 +215,8 @@ public class OrderService(
                     To = OrderStatusConstants.COMPLETED,
                     Action=async (order) =>
                     {
+                         if(order.OrderStatus == OrderStatusConstants.COMPLETED) return order!;
+
                         order!.OrderStatus = OrderStatusConstants.COMPLETED;
                         _unitOfWork.OrderRepository.Update(order!);
                         await _unitOfWork.SaveChangesAsync();
@@ -217,12 +226,36 @@ public class OrderService(
                         var orderJson = JsonConvert.SerializeObject(order);
                         await _notificationService.CreateOrderNotificationAsync(order.Id,NotificationType.COMPLETED_ORDER, null ,order.CustomerId);
                         await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, NotificationType.COMPLETED_ORDER);
-
+                        _backgroundJobClient.Enqueue(() => _bakeryMetricService.ReCalculateBakeryMetricsAsync(order.BakeryId));
+                        _backgroundJobClient.Enqueue(() => _availableCakeMetricService.CalculateAvailableCakeMetricsByOrderIdAsync(order.Id));
                         return order!;
                     }
                 }
             }
         };
+    }
+
+
+    public async Task CalculateAvailableCakeQuantity(Guid orderId)
+    {
+        var orderDetails = await _unitOfWork.OrderDetailRepository
+            .WhereAsync(x => x.OrderId == orderId && x.AvailableCakeId != null);
+        var list_availableCakeId = orderDetails.Select(x => x.AvailableCakeId).ToList();
+        var availableCakes = await _unitOfWork.AvailableCakeRepository
+            .WhereAsync(x => list_availableCakeId.Contains(x.Id));
+        foreach (var availableCake in availableCakes)
+        {
+            var orderDetail = orderDetails.FirstOrDefault(x => x.AvailableCakeId == availableCake.Id);
+            if (orderDetail != null)
+            {
+                availableCake.AvailableCakeQuantity -= (int)orderDetail.Quantity!;
+                if (availableCake.AvailableCakeQuantity < 0)
+                    throw new BadRequestException($"Cake-{availableCake.Id} - Not enough quantity!");
+            }
+        }
+
+        _unitOfWork.AvailableCakeRepository.UpdateRange(availableCakes);
+        await _unitOfWork.SaveChangesAsync();
     }
 
     private async Task MakeFinalPayment(Order order)
@@ -251,15 +284,15 @@ public class OrderService(
     public async Task AutoCancelAsync(Guid id)
     {
         var order = await GetOrderByIdAsync(id);
-        if (order.OrderStatus == OrderStatusConstants.COMPLETED) return;
+        if (order.OrderStatus != OrderStatusConstants.PENDING) return;
 
         order!.OrderStatus = OrderStatusConstants.CANCELED;
         _unitOfWork.OrderRepository.Update(order!);
         await _unitOfWork.SaveChangesAsync();
 
         var orderJson = JsonConvert.SerializeObject(order);
-        await _notificationService.CreateOrderNotificationAsync(order.Id, NotificationType.CANCELED_ORDER, order.BakeryId, null);
-        await _notificationService.SendNotificationAsync(order.BakeryId, orderJson, NotificationType.CANCELED_ORDER);
+        await _notificationService.CreateOrderNotificationAsync(order.Id, NotificationType.CANCELED_ORDER, null, order.CustomerId);
+        await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, NotificationType.CANCELED_ORDER);
     }
 
     public async Task<Order> CreateAsync(OrderCreateModel model)
@@ -298,6 +331,10 @@ public class OrderService(
         await _unitOfWork.OrderRepository.AddAsync(order);
         await _unitOfWork.SaveChangesAsync();
 
+        var localExecuteTime = DateTime.Now.AddMinutes(15);
+        var delay = localExecuteTime - DateTime.Now;
+
+        _backgroundJobClient.Schedule(() => AutoCancelAsync(order!.Id), delay);
         return order;
     }
 
@@ -418,7 +455,11 @@ public class OrderService(
             {
                 var availableCake = await _unitOfWork.AvailableCakeRepository.FirstOrDefaultAsync(x =>
                         x.BakeryId == order.BakeryId &&
-                        x.Id == available_cake_id.Value); ;
+                        x.Id == available_cake_id.Value);
+
+                if (availableCake != null && availableCake.AvailableCakeQuantity < orderDetails[i].Quantity)
+                    throw new BadRequestException($"Cake-{available_cake_id} - Not enough quantity!");
+
                 total += (double)(availableCake!.AvailableCakePrice * details[i].Quantity)!;
                 details[i].SubTotalPrice = availableCake.AvailableCakePrice;
             }
@@ -451,7 +492,7 @@ public class OrderService(
             ?? throw new BadRequestException("Order not found!");
         order.Transaction = await _unitOfWork.TransactionRepository.FirstOrDefaultAsync(x => x.OrderId == order.Id);
 
-        order.OrderDetails = await _unitOfWork.OrderDetailRepository.WhereAsync(x => x.OrderId == id, includes: x => x.CakeReview!);
+        order.OrderDetails = await _unitOfWork.OrderDetailRepository.WhereAsync(x => x.OrderId == id, includes: x => x.Review!);
 
         order.OrderSupports = await _unitOfWork.OrderSupportRepository
                             .WhereAsync(x =>
@@ -595,6 +636,8 @@ public class OrderService(
         var orderJson = JsonConvert.SerializeObject(order);
         await _notificationService.CreateOrderNotificationAsync(order.Id, NotificationType.COMPLETED_ORDER, null, order.CustomerId);
         await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, NotificationType.COMPLETED_ORDER);
+        _backgroundJobClient.Enqueue(() => _bakeryMetricService.ReCalculateBakeryMetricsAsync(order.BakeryId));
+        _backgroundJobClient.Enqueue(() => _availableCakeMetricService.CalculateAvailableCakeMetricsByOrderIdAsync(order.Id));
 
         return order;
     }

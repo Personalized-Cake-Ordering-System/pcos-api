@@ -216,6 +216,16 @@ namespace CusCake.Infrastructures.Migrations
                         .HasColumnName("available_cake_quantity")
                         .HasAnnotation("Relational:JsonPropertyName", "available_cake_quantity");
 
+                    b.Property<string>("AvailableCakeServingSize")
+                        .HasColumnType("longtext")
+                        .HasColumnName("available_cake_serving_size")
+                        .HasAnnotation("Relational:JsonPropertyName", "available_cake_serving_size");
+
+                    b.Property<string>("AvailableCakeSize")
+                        .HasColumnType("longtext")
+                        .HasColumnName("available_cake_size")
+                        .HasAnnotation("Relational:JsonPropertyName", "available_cake_size");
+
                     b.Property<string>("AvailableCakeType")
                         .HasColumnType("longtext")
                         .HasColumnName("available_cake_type")
@@ -236,10 +246,20 @@ namespace CusCake.Infrastructures.Migrations
                         .HasColumnName("created_by")
                         .HasAnnotation("Relational:JsonPropertyName", "created_by");
 
+                    b.Property<bool>("HasLowShippingFee")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("has_low_shipping_fee")
+                        .HasAnnotation("Relational:JsonPropertyName", "has_low_shipping_fee");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("is_deleted")
                         .HasAnnotation("Relational:JsonPropertyName", "is_deleted");
+
+                    b.Property<bool>("IsQualityGuaranteed")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("is_quality_guaranteed")
+                        .HasAnnotation("Relational:JsonPropertyName", "is_quality_guaranteed");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime(6)")
@@ -260,6 +280,69 @@ namespace CusCake.Infrastructures.Migrations
                     b.ToTable("available_cakes");
 
                     b.HasAnnotation("Relational:JsonPropertyName", "available_cake");
+                });
+
+            modelBuilder.Entity("CusCake.Domain.Entities.AvailableCakeMetric", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("id")
+                        .HasAnnotation("Relational:JsonPropertyName", "id");
+
+                    b.Property<Guid>("AvailableCakeId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("available_cake_id")
+                        .HasAnnotation("Relational:JsonPropertyName", "available_cake_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_at")
+                        .HasAnnotation("Relational:JsonPropertyName", "created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("created_by")
+                        .HasAnnotation("Relational:JsonPropertyName", "created_by");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("is_deleted")
+                        .HasAnnotation("Relational:JsonPropertyName", "is_deleted");
+
+                    b.Property<int>("QuantitySold")
+                        .HasColumnType("int")
+                        .HasColumnName("quantity_sold")
+                        .HasAnnotation("Relational:JsonPropertyName", "quantity_sold");
+
+                    b.Property<double>("RatingAverage")
+                        .HasColumnType("double")
+                        .HasColumnName("rating_average")
+                        .HasAnnotation("Relational:JsonPropertyName", "rating_average");
+
+                    b.Property<int>("ReviewsCount")
+                        .HasColumnType("int")
+                        .HasColumnName("reviews_count")
+                        .HasAnnotation("Relational:JsonPropertyName", "reviews_count");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("updated_at")
+                        .HasAnnotation("Relational:JsonPropertyName", "updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("updated_by")
+                        .HasAnnotation("Relational:JsonPropertyName", "updated_by");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AvailableCakeId")
+                        .IsUnique();
+
+                    b.ToTable("available_cake_metrics");
+
+                    b.HasAnnotation("Relational:JsonPropertyName", "metric");
                 });
 
             modelBuilder.Entity("CusCake.Domain.Entities.Bakery", b =>
@@ -286,6 +369,11 @@ namespace CusCake.Infrastructures.Migrations
                         .HasColumnName("back_card_file_id")
                         .HasAnnotation("Relational:JsonPropertyName", "back_card_file_id");
 
+                    b.Property<string>("BakeryDescription")
+                        .HasColumnType("longtext")
+                        .HasColumnName("bakery_description")
+                        .HasAnnotation("Relational:JsonPropertyName", "bakery_description");
+
                     b.Property<string>("BakeryName")
                         .IsRequired()
                         .HasColumnType("longtext")
@@ -301,6 +389,11 @@ namespace CusCake.Infrastructures.Migrations
                         .HasColumnType("datetime(6)")
                         .HasColumnName("banned_at")
                         .HasAnnotation("Relational:JsonPropertyName", "banned_at");
+
+                    b.Property<string>("CakeDescription")
+                        .HasColumnType("longtext")
+                        .HasColumnName("cake_description")
+                        .HasAnnotation("Relational:JsonPropertyName", "cake_description");
 
                     b.Property<DateTime>("ConfirmedAt")
                         .HasColumnType("datetime(6)")
@@ -369,6 +462,11 @@ namespace CusCake.Infrastructures.Migrations
                         .HasColumnName("phone")
                         .HasAnnotation("Relational:JsonPropertyName", "phone");
 
+                    b.Property<string>("PriceDescription")
+                        .HasColumnType("longtext")
+                        .HasColumnName("price_description")
+                        .HasAnnotation("Relational:JsonPropertyName", "price_description");
+
                     b.Property<string>("ShopImageFiles")
                         .HasColumnType("json")
                         .HasColumnName("shop_image_files")
@@ -407,6 +505,84 @@ namespace CusCake.Infrastructures.Migrations
                     b.ToTable("bakeries");
 
                     b.HasAnnotation("Relational:JsonPropertyName", "bakery");
+                });
+
+            modelBuilder.Entity("CusCake.Domain.Entities.BakeryMetric", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("id")
+                        .HasAnnotation("Relational:JsonPropertyName", "id");
+
+                    b.Property<double>("AppRevenue")
+                        .HasColumnType("double")
+                        .HasColumnName("app_revenue")
+                        .HasAnnotation("Relational:JsonPropertyName", "app_revenue");
+
+                    b.Property<double>("AverageOrderValue")
+                        .HasColumnType("double")
+                        .HasColumnName("average_order_value")
+                        .HasAnnotation("Relational:JsonPropertyName", "average_order_value");
+
+                    b.Property<Guid>("BakeryId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("bakery_id")
+                        .HasAnnotation("Relational:JsonPropertyName", "bakery_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_at")
+                        .HasAnnotation("Relational:JsonPropertyName", "created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("created_by")
+                        .HasAnnotation("Relational:JsonPropertyName", "created_by");
+
+                    b.Property<int>("CustomersCount")
+                        .HasColumnType("int")
+                        .HasColumnName("customers_count")
+                        .HasAnnotation("Relational:JsonPropertyName", "customers_count");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("is_deleted")
+                        .HasAnnotation("Relational:JsonPropertyName", "is_deleted");
+
+                    b.Property<int>("OrdersCount")
+                        .HasColumnType("int")
+                        .HasColumnName("orders_count")
+                        .HasAnnotation("Relational:JsonPropertyName", "orders_count");
+
+                    b.Property<double>("RatingAverage")
+                        .HasColumnType("double")
+                        .HasColumnName("rating_average")
+                        .HasAnnotation("Relational:JsonPropertyName", "rating_average");
+
+                    b.Property<double>("TotalRevenue")
+                        .HasColumnType("double")
+                        .HasColumnName("total_revenue")
+                        .HasAnnotation("Relational:JsonPropertyName", "total_revenue");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("updated_at")
+                        .HasAnnotation("Relational:JsonPropertyName", "updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("updated_by")
+                        .HasAnnotation("Relational:JsonPropertyName", "updated_by");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BakeryId")
+                        .IsUnique();
+
+                    b.ToTable("bakery_metrics");
+
+                    b.HasAnnotation("Relational:JsonPropertyName", "metric");
                 });
 
             modelBuilder.Entity("CusCake.Domain.Entities.CakeDecorationOption", b =>
@@ -976,89 +1152,6 @@ namespace CusCake.Infrastructures.Migrations
                     b.HasAnnotation("Relational:JsonPropertyName", "part_selections");
                 });
 
-            modelBuilder.Entity("CusCake.Domain.Entities.CakeReview", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)")
-                        .HasColumnName("id")
-                        .HasAnnotation("Relational:JsonPropertyName", "id");
-
-                    b.Property<Guid>("AvailableCakeId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("available_cake_id")
-                        .HasAnnotation("Relational:JsonPropertyName", "available_cake_id");
-
-                    b.Property<Guid>("BakeryId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("bakery_id")
-                        .HasAnnotation("Relational:JsonPropertyName", "bakery_id");
-
-                    b.Property<string>("Content")
-                        .HasColumnType("longtext")
-                        .HasColumnName("content")
-                        .HasAnnotation("Relational:JsonPropertyName", "content");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("created_at")
-                        .HasAnnotation("Relational:JsonPropertyName", "created_at");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("created_by")
-                        .HasAnnotation("Relational:JsonPropertyName", "created_by");
-
-                    b.Property<Guid>("CustomerId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("customer_id")
-                        .HasAnnotation("Relational:JsonPropertyName", "customer_id");
-
-                    b.Property<Guid?>("ImageId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("image_id")
-                        .HasAnnotation("Relational:JsonPropertyName", "image_id");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("is_deleted")
-                        .HasAnnotation("Relational:JsonPropertyName", "is_deleted");
-
-                    b.Property<Guid>("OrderDetailId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("order_detail_id")
-                        .HasAnnotation("Relational:JsonPropertyName", "order_detail_id");
-
-                    b.Property<int>("Rating")
-                        .HasColumnType("int")
-                        .HasColumnName("rating")
-                        .HasAnnotation("Relational:JsonPropertyName", "rating");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("updated_at")
-                        .HasAnnotation("Relational:JsonPropertyName", "updated_at");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("updated_by")
-                        .HasAnnotation("Relational:JsonPropertyName", "updated_by");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AvailableCakeId");
-
-                    b.HasIndex("BakeryId");
-
-                    b.HasIndex("CustomerId");
-
-                    b.HasIndex("ImageId");
-
-                    b.ToTable("cake_reviews");
-
-                    b.HasAnnotation("Relational:JsonPropertyName", "cake_review");
-                });
-
             modelBuilder.Entity("CusCake.Domain.Entities.CustomCake", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1597,8 +1690,8 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.Property<Guid?>("CakeReviewId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("cake_review_id")
-                        .HasAnnotation("Relational:JsonPropertyName", "cake_review_id");
+                        .HasColumnName("review_id")
+                        .HasAnnotation("Relational:JsonPropertyName", "review_id");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)")
@@ -1814,6 +1907,95 @@ namespace CusCake.Infrastructures.Migrations
                     b.HasIndex("OrderId");
 
                     b.ToTable("reports");
+                });
+
+            modelBuilder.Entity("CusCake.Domain.Entities.Review", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("id")
+                        .HasAnnotation("Relational:JsonPropertyName", "id");
+
+                    b.Property<Guid?>("AvailableCakeId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("available_cake_id")
+                        .HasAnnotation("Relational:JsonPropertyName", "available_cake_id");
+
+                    b.Property<Guid>("BakeryId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("bakery_id")
+                        .HasAnnotation("Relational:JsonPropertyName", "bakery_id");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("longtext")
+                        .HasColumnName("content")
+                        .HasAnnotation("Relational:JsonPropertyName", "content");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_at")
+                        .HasAnnotation("Relational:JsonPropertyName", "created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("created_by")
+                        .HasAnnotation("Relational:JsonPropertyName", "created_by");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("customer_id")
+                        .HasAnnotation("Relational:JsonPropertyName", "customer_id");
+
+                    b.Property<Guid?>("ImageId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("image_id")
+                        .HasAnnotation("Relational:JsonPropertyName", "image_id");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("is_deleted")
+                        .HasAnnotation("Relational:JsonPropertyName", "is_deleted");
+
+                    b.Property<Guid?>("OrderDetailId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("order_detail_id")
+                        .HasAnnotation("Relational:JsonPropertyName", "order_detail_id");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int")
+                        .HasColumnName("rating")
+                        .HasAnnotation("Relational:JsonPropertyName", "rating");
+
+                    b.Property<string>("ReviewType")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("review_type")
+                        .HasAnnotation("Relational:JsonPropertyName", "review_type");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("updated_at")
+                        .HasAnnotation("Relational:JsonPropertyName", "updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("updated_by")
+                        .HasAnnotation("Relational:JsonPropertyName", "updated_by");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AvailableCakeId");
+
+                    b.HasIndex("BakeryId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("ImageId");
+
+                    b.ToTable("reviews");
+
+                    b.HasAnnotation("Relational:JsonPropertyName", "review");
                 });
 
             modelBuilder.Entity("CusCake.Domain.Entities.Storage", b =>
@@ -2223,6 +2405,17 @@ namespace CusCake.Infrastructures.Migrations
                     b.Navigation("Bakery");
                 });
 
+            modelBuilder.Entity("CusCake.Domain.Entities.AvailableCakeMetric", b =>
+                {
+                    b.HasOne("CusCake.Domain.Entities.AvailableCake", "AvailableCake")
+                        .WithOne("Metric")
+                        .HasForeignKey("CusCake.Domain.Entities.AvailableCakeMetric", "AvailableCakeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AvailableCake");
+                });
+
             modelBuilder.Entity("CusCake.Domain.Entities.Bakery", b =>
                 {
                     b.HasOne("CusCake.Domain.Entities.Storage", "AvatarFile")
@@ -2247,6 +2440,17 @@ namespace CusCake.Infrastructures.Migrations
                     b.Navigation("BackCardFile");
 
                     b.Navigation("FrontCardFile");
+                });
+
+            modelBuilder.Entity("CusCake.Domain.Entities.BakeryMetric", b =>
+                {
+                    b.HasOne("CusCake.Domain.Entities.Bakery", "Bakery")
+                        .WithOne("Metric")
+                        .HasForeignKey("CusCake.Domain.Entities.BakeryMetric", "BakeryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Bakery");
                 });
 
             modelBuilder.Entity("CusCake.Domain.Entities.CakeDecorationOption", b =>
@@ -2379,40 +2583,6 @@ namespace CusCake.Infrastructures.Migrations
                     b.Navigation("PartOption");
                 });
 
-            modelBuilder.Entity("CusCake.Domain.Entities.CakeReview", b =>
-                {
-                    b.HasOne("CusCake.Domain.Entities.AvailableCake", "AvailableCake")
-                        .WithMany()
-                        .HasForeignKey("AvailableCakeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CusCake.Domain.Entities.Bakery", "Bakery")
-                        .WithMany()
-                        .HasForeignKey("BakeryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CusCake.Domain.Entities.Customer", "Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CusCake.Domain.Entities.Storage", "Image")
-                        .WithMany()
-                        .HasForeignKey("ImageId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("AvailableCake");
-
-                    b.Navigation("Bakery");
-
-                    b.Navigation("Customer");
-
-                    b.Navigation("Image");
-                });
-
             modelBuilder.Entity("CusCake.Domain.Entities.CustomCake", b =>
                 {
                     b.HasOne("CusCake.Domain.Entities.Bakery", "Bakery")
@@ -2523,7 +2693,7 @@ namespace CusCake.Infrastructures.Migrations
                         .HasForeignKey("AvailableCakeId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("CusCake.Domain.Entities.CakeReview", "CakeReview")
+                    b.HasOne("CusCake.Domain.Entities.Review", "Review")
                         .WithOne("OrderDetail")
                         .HasForeignKey("CusCake.Domain.Entities.OrderDetail", "CakeReviewId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -2541,11 +2711,11 @@ namespace CusCake.Infrastructures.Migrations
 
                     b.Navigation("AvailableCake");
 
-                    b.Navigation("CakeReview");
-
                     b.Navigation("CustomCake");
 
                     b.Navigation("Order");
+
+                    b.Navigation("Review");
                 });
 
             modelBuilder.Entity("CusCake.Domain.Entities.OrderSupport", b =>
@@ -2608,6 +2778,39 @@ namespace CusCake.Infrastructures.Migrations
                     b.Navigation("Order");
                 });
 
+            modelBuilder.Entity("CusCake.Domain.Entities.Review", b =>
+                {
+                    b.HasOne("CusCake.Domain.Entities.AvailableCake", "AvailableCake")
+                        .WithMany()
+                        .HasForeignKey("AvailableCakeId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("CusCake.Domain.Entities.Bakery", "Bakery")
+                        .WithMany()
+                        .HasForeignKey("BakeryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CusCake.Domain.Entities.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CusCake.Domain.Entities.Storage", "Image")
+                        .WithMany()
+                        .HasForeignKey("ImageId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("AvailableCake");
+
+                    b.Navigation("Bakery");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Image");
+                });
+
             modelBuilder.Entity("CusCake.Domain.Entities.Transaction", b =>
                 {
                     b.HasOne("CusCake.Domain.Entities.Order", "Order")
@@ -2640,10 +2843,14 @@ namespace CusCake.Infrastructures.Migrations
                     b.Navigation("Wallet");
                 });
 
-            modelBuilder.Entity("CusCake.Domain.Entities.CakeReview", b =>
+            modelBuilder.Entity("CusCake.Domain.Entities.AvailableCake", b =>
                 {
-                    b.Navigation("OrderDetail")
-                        .IsRequired();
+                    b.Navigation("Metric");
+                });
+
+            modelBuilder.Entity("CusCake.Domain.Entities.Bakery", b =>
+                {
+                    b.Navigation("Metric");
                 });
 
             modelBuilder.Entity("CusCake.Domain.Entities.CustomCake", b =>
@@ -2660,6 +2867,11 @@ namespace CusCake.Infrastructures.Migrations
             modelBuilder.Entity("CusCake.Domain.Entities.Order", b =>
                 {
                     b.Navigation("CustomerVoucher");
+                });
+
+            modelBuilder.Entity("CusCake.Domain.Entities.Review", b =>
+                {
+                    b.Navigation("OrderDetail");
                 });
 #pragma warning restore 612, 618
         }

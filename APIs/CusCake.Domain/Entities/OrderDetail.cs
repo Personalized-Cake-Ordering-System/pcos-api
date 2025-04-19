@@ -33,12 +33,12 @@ public class OrderDetail : BaseEntity
     [Column("quantity")]
     public int? Quantity { get; set; }
 
-    [JsonPropertyName("cake_review_id")]
-    [Column("cake_review_id")]
+    [JsonPropertyName("review_id")]
+    [Column("review_id")]
     public Guid? CakeReviewId { get; set; }
 
-    [JsonPropertyName("cake_review")]
-    public CakeReview? CakeReview { get; set; }
+    [JsonPropertyName("review")]
+    public Review? Review { get; set; }
 
     [JsonPropertyName("custom_cake_id")]
     [Column("custom_cake_id")]

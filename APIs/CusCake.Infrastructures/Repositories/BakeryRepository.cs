@@ -5,10 +5,11 @@ using CusCake.Domain.Entities;
 
 namespace CusCake.Infrastructures.Repositories
 {
-    public class BakeryRepository : GenericRepository<Bakery>, IBakeryRepository
+    public class BakeryRepository(AppDbContext context, ICurrentTime currentTime, IClaimsService claimsService) : GenericRepository<Bakery>(context, currentTime, claimsService), IBakeryRepository
     {
-        public BakeryRepository(AppDbContext context, ICurrentTime currentTime, IClaimsService claimsService) : base(context, currentTime, claimsService)
-        {
-        }
+    }
+
+    public class BakeryMetricRepository(AppDbContext context, ICurrentTime currentTime, IClaimsService claimsService) : GenericRepository<BakeryMetric>(context, currentTime, claimsService), IBakeryMetricRepository
+    {
     }
 }
