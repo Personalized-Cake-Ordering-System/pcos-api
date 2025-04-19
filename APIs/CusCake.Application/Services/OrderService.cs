@@ -634,8 +634,8 @@ public class OrderService(
             _backgroundJobClient.Enqueue(() => ResetVoucherAsync(order.VoucherCode!, order.BakeryId));
 
         var orderJson = JsonConvert.SerializeObject(order);
-        await _notificationService.CreateOrderNotificationAsync(order.Id, NotificationType.COMPLETED_ORDER, null, order.CustomerId);
-        await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, NotificationType.COMPLETED_ORDER);
+        await _notificationService.CreateOrderNotificationAsync(order.Id, NotificationType.CANCELED_ORDER, null, order.CustomerId);
+        await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, NotificationType.CANCELED_ORDER);
         _backgroundJobClient.Enqueue(() => _bakeryMetricService.ReCalculateBakeryMetricsAsync(order.BakeryId));
         _backgroundJobClient.Enqueue(() => _availableCakeMetricService.CalculateAvailableCakeMetricsByOrderIdAsync(order.Id));
 
