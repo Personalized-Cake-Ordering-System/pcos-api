@@ -101,5 +101,8 @@ namespace CusCake.Domain.Entities
 
         [JsonPropertyName("metric")]
         public BakeryMetric? Metric { get; set; } = default!;
+
+        [JsonPropertyName("reviews")]
+        public ICollection<Review>? Reviews { get; set; }
     }
 }

@@ -105,8 +105,10 @@ public class BakeryService(
     {
         var includes = QueryHelper.Includes<Bakery>(x => x.AvatarFile!, x => x.FrontCardFile!, x => x.BackCardFile, x => x.Metric!);
 
-        return await _unitOfWork.BakeryRepository.GetByIdAsync(id, includes: includes) ?? throw new BadRequestException("Id is not exist!");
+        var cake = await _unitOfWork.BakeryRepository.GetByIdAsync(id, includes: includes) ?? throw new BadRequestException("Id is not exist!");
+        cake.Reviews = await _unitOfWork.ReviewRepository.WhereAsync(x => x.BakeryId == id & x.ReviewType == ReviewTypeConstants.BAKERY_REVIEW);
 
+        return cake;
     }
 
     private async Task ValidateBakery(string name = "", string email = "", string phone = "", string taxCode = "", string cardNumber = "")
