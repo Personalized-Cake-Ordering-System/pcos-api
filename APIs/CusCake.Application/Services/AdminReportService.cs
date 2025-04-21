@@ -17,7 +17,7 @@ public interface IAdminReportService
         int pageSize = 10,
         List<(Expression<Func<BakeryMetric, object>> OrderBy, bool IsDescending)>? orderByList = null
     );
-
+    Task<List<object>> GetAdminChartAsync(string type, int year);
 }
 
 public class AdminReportService(IUnitOfWork unitOfWork, IMapper mapper) : IAdminReportService
@@ -57,4 +57,46 @@ public class AdminReportService(IUnitOfWork unitOfWork, IMapper mapper) : IAdmin
         return await _unitOfWork.BakeryMetricRepository.ToPagination(pageIndex, pageSize, orderByList: orderByList, includes: x => x.Bakery);
 
     }
+
+
+    public async Task<List<object>> GetAdminChartAsync(string type, int year)
+    {
+
+        var result = new List<object>();
+
+        for (int month = 1; month <= 12; month++)
+        {
+
+            if (type == "REVENUE")
+            {
+                var orders = await _unitOfWork.OrderRepository.WhereAsync(
+                    x => x.CreatedAt.Year == year
+                    && x.OrderStatus == OrderStatusConstants.COMPLETED
+                );
+
+                var monthlyOrders = orders.Where(x => x.CreatedAt.Month == month);
+
+                result.Add(monthlyOrders.Sum(x => x.AppCommissionFee));
+            }
+            else if (type == "BAKERIES")
+            {
+                var bakeries = await _unitOfWork.BakeryRepository.WhereAsync(x => x.Status != BakeryStatusConstants.BANNED);
+                var monthlyBakeries = bakeries.Where(x => x.CreatedAt.Month == month && x.CreatedAt.Year == year);
+                result.Add(monthlyBakeries.Count());
+            }
+            else if (type == "CUSTOMERS")
+            {
+                var orders = await _unitOfWork.OrderRepository.WhereAsync(
+                    x => x.CreatedAt.Year == year
+                    && x.OrderStatus == OrderStatusConstants.COMPLETED
+                );
+                var monthlyOrders = orders.Where(x => x.CreatedAt.Month == month);
+                result.Add(monthlyOrders.Select(x => x.CustomerId).Distinct().Count());
+            }
+        }
+
+        return result;
+    }
+
 }
+

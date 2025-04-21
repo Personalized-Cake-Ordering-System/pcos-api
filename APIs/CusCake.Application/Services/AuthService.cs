@@ -3,6 +3,7 @@ using CusCake.Application.GlobalExceptionHandling.Exceptions;
 using CusCake.Application.ViewModels.AuthModels;
 using CusCake.Domain.Constants;
 using CusCake.Domain.Entities;
+using Firebase.Auth;
 
 namespace CusCake.Application.Services;
 
@@ -16,18 +17,19 @@ public interface IAuthService
     Task<bool> DeleteAsync(Guid entityId);
     Task<Auth> GetAuthByIdAsync(Guid entityId);
     Task<Auth> GetAdminAsync();
-
+    Task<(AuthResponseModel, object)> SignWithGoogle(AuthGoogleRequestModel model);
 }
 
 public class AuthService(
     IUnitOfWork unitOfWork,
     IJWTService jWTService,
-    IMapper mapper
+    IMapper mapper,
+    AppSettings appSettings
 ) : IAuthService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IJWTService _jWTService = jWTService;
-
+    private readonly AppSettings _appSettings = appSettings;
     private readonly IMapper _mapper = mapper;
 
     public async Task<(AuthResponseModel, object)> SignIn(AuthRequestModel model)
@@ -125,7 +127,53 @@ public class AuthService(
         return await _unitOfWork.AuthRepository.FirstOrDefaultAsync(x => x.Email.Equals("admin@gmail.com"), includes: x => x.Wallet)
                   ?? throw new NotFoundException("Admin not found!");
     }
+
+    public async Task<(AuthResponseModel, object)> SignWithGoogle(AuthGoogleRequestModel model)
+    {
+        var authGoogle = new FirebaseAuthProvider(new FirebaseConfig(apiKey: _appSettings.FirebaseSettings.ApiKeY));
+        var userGoogleProfile = await authGoogle.GetUserAsync(model.AccessToken)
+            ?? throw new Exception($"Error at {nameof(AuthService)}: Firebase can not get this user");
+
+        var auth = await _unitOfWork.AuthRepository
+            .FirstOrDefaultAsync(x => x.Email == userGoogleProfile.Email) ?? await CreateCustomerAsync(userGoogleProfile);
+
+        var customer = await _unitOfWork.CustomerRepository
+            .FirstOrDefaultAsync(x => x.Id == auth.EntityId & x.AccountType == CustomerRegisterConstants.GOOGLE) ?? throw new BadRequestException("Account is not exist!");
+
+        var authResponse = new AuthResponseModel
+        {
+            AccessToken = _jWTService.GenerateAccessToken(auth.EntityId, auth.Role),
+            RefreshToken = _jWTService.GenerateRefreshToken(auth.EntityId, auth.Role)
+        };
+
+        var result = _mapper.Map<AuthViewModel>(auth);
+        result.Entity = customer;
+
+        return (authResponse, result);
+    }
+
+    private async Task<Auth> CreateCustomerAsync(User userGoogleProfile)
+    {
+        var wallet = await CreateWalletAsync();
+
+        var result = await _unitOfWork.CustomerRepository.AddAsync(new Customer
+        {
+            Email = userGoogleProfile.Email,
+            Name = userGoogleProfile.DisplayName,
+            AccountType = CustomerRegisterConstants.GOOGLE
+        });
+
+        var auth = await _unitOfWork.AuthRepository.AddAsync(new Auth
+        {
+            Email = userGoogleProfile.Email,
+            Role = RoleConstants.CUSTOMER,
+            EntityId = result.Id,
+            WalletId = wallet.Id,
+        });
+
+        await _unitOfWork.SaveChangesAsync();
+
+        return auth;
+    }
+
 }
-
-
-

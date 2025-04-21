@@ -32,25 +32,11 @@ namespace CusCake.Domain.Entities
 
         [Column("password")]
         [JsonPropertyName("password")]
-        public string Password { get; set; } = default!;
+        public string? Password { get; set; } = default!;
 
         [Column("account_type")]
         [JsonPropertyName("account_type")]
         public string AccountType { get; set; } = default!;
 
-        // [JsonPropertyName("notifications")]
-        // public ICollection<Notification>? Notifications { get; set; }
-
-        // [JsonPropertyName("orders")]
-        // public ICollection<Order>? Orders { get; set; }
-
-        // [JsonPropertyName("cake_reviews")]
-        // public ICollection<CakeReview>? CakeReviews { get; set; }
-
-        // [JsonPropertyName("order_supports")]
-        // public ICollection<OrderSupport>? OrderSupports { get; set; }
-
-        // [JsonPropertyName("customer_vouchers")]
-        // public ICollection<CustomerVoucher>? CustomerVouchers { get; set; }
     }
 }

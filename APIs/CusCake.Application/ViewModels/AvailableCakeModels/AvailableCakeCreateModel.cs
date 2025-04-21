@@ -1,8 +1,5 @@
-using AutoMapper.Configuration.Annotations;
-using CusCake.Application.Validators;
 using CusCake.Domain.Constants;
 using FluentValidation;
-using Microsoft.AspNetCore.Http;
 using System.Text.Json.Serialization;
 
 namespace CusCake.Application.ViewModels.AvailableCakeModels;
@@ -22,9 +19,6 @@ public class AvailableCakeBaseActionModel
     [JsonPropertyName("available_cake_type")]
     public string AvailableCakeType { get; set; } = default!;
 
-    [JsonPropertyName("available_cake_quantity")]
-    public int AvailableCakeQuantity { get; set; } = 0;
-
     [JsonPropertyName("available_cake_image_file_ids")]
     public List<Guid> AvailableCakeImageFileIds { get; set; } = default!;
 
@@ -42,6 +36,9 @@ public class AvailableCakeBaseActionModel
 
     [JsonPropertyName("is_quality_guaranteed")]
     public bool IsQualityGuaranteed { get; set; } = false;
+
+    [JsonPropertyName("quantity_default")]
+    public int QuantityDefault { get; set; }
 }
 
 
@@ -65,7 +62,7 @@ public class AvailableCakeBaseActionModelValidator : AbstractValidator<Available
             .MaximumLength(50).WithMessage("Cake type cannot exceed 50 characters.")
             .Must(BeAValidCakeType).WithMessage("Invalid cake type.");
 
-        RuleFor(x => x.AvailableCakeQuantity)
+        RuleFor(x => x.QuantityDefault)
             .GreaterThanOrEqualTo(0).WithMessage("Quantity must be greater than or equal to 0.");
 
         RuleFor(x => x.AvailableCakeImageFileIds)
@@ -86,6 +83,9 @@ public class AvailableCakeBaseActionModelValidator : AbstractValidator<Available
 public class AvailableCakeCreateModel : AvailableCakeBaseActionModel
 {
 
+    [JsonPropertyName("available_cake_quantity")]
+    public int AvailableCakeQuantity { get; set; } = 0;
+
 }
 
 public class AvailableCakeCreateModelValidator : AbstractValidator<AvailableCakeCreateModel>
@@ -94,6 +94,9 @@ public class AvailableCakeCreateModelValidator : AbstractValidator<AvailableCake
     {
 
         Include(new AvailableCakeBaseActionModelValidator());
+
+        RuleFor(x => x.AvailableCakeQuantity)
+            .GreaterThanOrEqualTo(0).WithMessage("Quantity must be greater than or equal to 0.");
 
     }
 }

@@ -25,6 +25,8 @@ public interface IAvailableCakeService
                int pageSize = 10,
                Expression<Func<AvailableCake, bool>>? filter = null,
                List<(Expression<Func<AvailableCake, object>> OrderBy, bool IsDescending)>? orderByList = null);
+
+    Task ResetQuantityAsync();
 }
 
 public class AvailableCakeService(IUnitOfWork unitOfWork, IMapper mapper, IClaimsService claimsService) : IAvailableCakeService
@@ -41,6 +43,8 @@ public class AvailableCakeService(IUnitOfWork unitOfWork, IMapper mapper, IClaim
         var cake = _mapper.Map<AvailableCake>(model);
 
         cake.BakeryId = _claimsService.GetCurrentUser;
+
+        cake.AvailableCakeQuantity = cake.QuantityDefault;
 
         cake.AvailableCakeImageFiles = await _unitOfWork.StorageRepository.WhereAsync(x => model.AvailableCakeImageFileIds.Contains(x.Id));
 
@@ -83,6 +87,18 @@ public class AvailableCakeService(IUnitOfWork unitOfWork, IMapper mapper, IClaim
         available_cake.Reviews = await _unitOfWork.ReviewRepository.WhereAsync(x => x.AvailableCakeId == id && x.ReviewType == ReviewTypeConstants.AVAILABLE_CAKE_REVIEW);
         available_cake.Metric = await _unitOfWork.AvailableCakeMetricRepository.FirstOrDefaultAsync(x => x.AvailableCakeId == id);
         return available_cake;
+    }
+
+    public async Task ResetQuantityAsync()
+    {
+        var cakes = await _unitOfWork.AvailableCakeRepository.GetAllAsync();
+        foreach (var cake in cakes)
+        {
+            cake.AvailableCakeQuantity = cake.QuantityDefault;
+        }
+
+        _unitOfWork.AvailableCakeRepository.UpdateRange(cakes);
+        await _unitOfWork.SaveChangesAsync();
     }
 
     public async Task<AvailableCake> UpdateAsync(Guid id, AvailableCakeUpdateModel model)

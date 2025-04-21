@@ -77,7 +77,7 @@ public class TransactionService(
     {
         var adminWallet = (await _authService.GetAdminAsync()).Wallet;
 
-        await _walletService.MakeBillingAsync(adminWallet, order.TotalCustomerPaid, WalletTransactionTypeConstants.PENDING_PAYMENT);
+        await _walletService.MakeBillingAsync(adminWallet, order.TotalCustomerPaid, WalletTransactionTypeConstants.ADMIN_HOLD_PAYMENT, order.Id, order.OrderCode);
     }
 
 }

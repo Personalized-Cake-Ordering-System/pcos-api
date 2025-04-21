@@ -4,6 +4,13 @@ using CusCake.Domain.Entities;
 
 namespace CusCake.Application.ViewModels.AuthModels;
 
+
+public class AuthGoogleRequestModel
+{
+    [Required(ErrorMessage = "Access token is required")]
+    public string AccessToken { get; set; } = default!;
+}
+
 public class AuthRequestModel
 {
     [Required(ErrorMessage = "Email is required")]

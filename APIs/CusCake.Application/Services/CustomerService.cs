@@ -85,7 +85,7 @@ public class CustomerService(IUnitOfWork unitOfWork, IMapper mapper, IAuthServic
         await _authService.UpdateAsync(new AuthUpdateModel
         {
             EntityId = customer.Id,
-            Password = customer.Password
+            Password = customer.Password!
         });
 
         return customer;

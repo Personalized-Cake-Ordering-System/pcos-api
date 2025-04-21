@@ -42,6 +42,10 @@ public class AvailableCake : BaseEntity
     [JsonPropertyName("available_cake_quantity")]
     public int AvailableCakeQuantity { get; set; }
 
+    [Column("quantity_default")]
+    [JsonPropertyName("quantity_default")]
+    public int QuantityDefault { get; set; }
+
     [Column("available_main_image_id")]
     [JsonPropertyName("available_main_image_id")]
     public Guid? AvailableCakeMainImageId { get; set; }

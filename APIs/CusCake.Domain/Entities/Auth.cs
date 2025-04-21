@@ -12,7 +12,7 @@ public class Auth : BaseEntity
 
     [Column("password")]
     [JsonPropertyName("password")]
-    public string Password { get; set; } = default!;
+    public string? Password { get; set; } = default!;
 
     [Column("role")]
     [JsonPropertyName("role")]

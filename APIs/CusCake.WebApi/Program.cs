@@ -1,5 +1,6 @@
 using CusCake.Application;
 using CusCake.Application.GlobalExceptionHandling;
+using CusCake.Application.Services;
 using CusCake.Application.SignalR;
 using CusCake.Infrastructures;
 using CusCake.WebApi;
@@ -23,6 +24,16 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseHangfireDashboard("/hangfire");
+
+RecurringJob.AddOrUpdate<IAvailableCakeService>(
+    "reset_available_cake_quantity",
+    x => x.ResetQuantityAsync(),
+    Cron.Daily(0, 0),
+    new RecurringJobOptions
+    {
+        TimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time")
+    });
+
 
 app.UseMiddleware<GlobalErrorHandlingMiddleware>();
 app.UseMiddleware<PerformanceMiddleware>();

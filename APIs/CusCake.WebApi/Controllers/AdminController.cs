@@ -1,9 +1,7 @@
 using System.Linq.Expressions;
 using CusCake.Application.Services;
 using CusCake.Application.ViewModels;
-using CusCake.Application.ViewModels.AdminModels;
 using CusCake.Application.ViewModels.AdminReportModels;
-using CusCake.Application.ViewModels.BakeryModels;
 using CusCake.Domain.Constants;
 using CusCake.Domain.Entities;
 using CusCake.WebApi.Helpers;
@@ -81,5 +79,13 @@ public class AdminController(
         var orderByList = SortingHelper.ParseSortingParameters("total_revenue:desc", EntitySortingMappings.BakeryMetricMappings);
         var result = await _adminReportService.GetTopBakeryMetrics(pageIndex, pageSize, orderByList);
         return Ok(ResponseModel<object, List<BakeryMetric>>.Success(result.Item2, result.Item1));
+    }
+
+    [HttpGet("app-report")]
+    [Authorize(Roles = RoleConstants.ADMIN)]
+    public async Task<IActionResult> GetAppReportAsync(string type, int year)
+    {
+        var result = await _adminReportService.GetAdminChartAsync(type, year);
+        return Ok(ResponseModel<object, List<object>>.Success(result));
     }
 }

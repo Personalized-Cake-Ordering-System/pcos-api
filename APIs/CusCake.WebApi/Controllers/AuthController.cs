@@ -24,4 +24,11 @@ public class AuthController(IAuthService authService) : BaseController
         return Ok(new ResponseModel<object, object> { StatusCode = 200, MetaData = result });
     }
 
+    [HttpPost("google")]
+    public async Task<IActionResult> GoogleLogin([FromBody] AuthGoogleRequestModel model)
+    {
+        var result = await _authService.SignWithGoogle(model);
+        return Ok(ResponseModel<object, object>.Success(result.Item2, result.Item1));
+    }
+
 }

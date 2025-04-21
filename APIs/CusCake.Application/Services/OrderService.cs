@@ -261,10 +261,24 @@ public class OrderService(
     private async Task MakeFinalPayment(Order order)
     {
         var adminWallet = (await _authService.GetAdminAsync()).Wallet;
-        await _walletService.MakeBillingAsync(adminWallet, -order.ShopRevenue, WalletTransactionTypeConstants.ADMIN_TO_BAKERY_TRANSFER);
+        await _walletService.MakeBillingAsync(
+            adminWallet,
+            -order.ShopRevenue,
+            WalletTransactionTypeConstants.ADMIN_TRANSFER_TO_BAKERY,
+            order.Id,
+            order.OrderCode,
+            order.BakeryId,
+            RoleConstants.BAKERY
+        );
 
         var bakeryWallet = (await _authService.GetAuthByIdAsync(order.BakeryId)).Wallet;
-        await _walletService.MakeBillingAsync(bakeryWallet, order.ShopRevenue, WalletTransactionTypeConstants.SHOP_REVENUE_TRANSFER);
+        await _walletService.MakeBillingAsync(
+            bakeryWallet,
+            order.ShopRevenue,
+            WalletTransactionTypeConstants.BAKERY_RECEIVE_PAYMENT,
+            order.Id,
+            order.OrderCode
+        );
 
     }
 
@@ -645,10 +659,18 @@ public class OrderService(
     private async Task RollbackMoneyAsync(Order order)
     {
         var adminWallet = (await _authService.GetAdminAsync()).Wallet;
-        await _walletService.MakeBillingAsync(adminWallet, -order.TotalCustomerPaid, WalletTransactionTypeConstants.ROLL_BACK);
+        await _walletService.MakeBillingAsync(
+            adminWallet,
+            -order.TotalCustomerPaid,
+            WalletTransactionTypeConstants.ADMIN_REFUND_TO_CUSTOMER,
+            order.Id,
+            order.OrderCode,
+            order.CustomerId,
+            RoleConstants.CUSTOMER
+        );
 
         var customerWallet = (await _authService.GetAuthByIdAsync(order.CustomerId)).Wallet;
-        await _walletService.MakeBillingAsync(customerWallet, order.TotalCustomerPaid, WalletTransactionTypeConstants.ROLL_BACK);
+        await _walletService.MakeBillingAsync(customerWallet, order.TotalCustomerPaid, WalletTransactionTypeConstants.CUSTOMER_REFUND, order.Id, order.OrderCode);
 
     }
 
