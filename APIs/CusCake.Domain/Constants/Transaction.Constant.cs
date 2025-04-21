@@ -25,11 +25,11 @@ public static class WalletTransactionTypeConstants
             },
             {
                 ADMIN_TRANSFER_TO_BAKERY,
-                ("Chuyển tiền cho cửa hàng", "Chuyển {Amount}đ đến cửa hàng {BakeryName} cho đơn hàng #{OrderCode}")
+                ("Chuyển tiền cho cửa hàng", "Chuyển {Amount}đ đến cửa hàng cho đơn hàng #{OrderCode}")
             },
             {
                 ADMIN_REFUND_TO_CUSTOMER,
-                ("Hoàn tiền cho khách hàng", "Hoàn {Amount}đ cho khách hàng {CustomerName} từ đơn hàng #{OrderCode}")
+                ("Hoàn tiền cho khách hàng", "Hoàn {Amount}đ cho khách hàng từ đơn hàng #{OrderCode}")
             },
             {
                 BAKERY_RECEIVE_PAYMENT,
