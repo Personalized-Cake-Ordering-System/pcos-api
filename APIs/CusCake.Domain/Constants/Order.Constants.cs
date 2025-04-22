@@ -26,5 +26,6 @@ public static class ShippingTypeConstants
 public static class PaymentTypeConstants
 {
     public const string QR_CODE = "QR_CODE";
+    public const string WALLET = "WALLET";
     public const string CASH = "CASH";
 }

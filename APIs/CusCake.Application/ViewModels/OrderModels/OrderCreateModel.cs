@@ -80,7 +80,7 @@ public class OrderCreateModelValidator : AbstractValidator<OrderCreateModel>
 
         RuleFor(x => x.PaymentType)
                  .NotEmpty().WithMessage("Payment type is required.")
-                 .Must(type => type == PaymentTypeConstants.QR_CODE || type == PaymentTypeConstants.CASH)
+                 .Must(type => type == PaymentTypeConstants.QR_CODE || type == PaymentTypeConstants.CASH || type == PaymentTypeConstants.WALLET)
                  .WithMessage("Invalid payment type.");
 
         RuleFor(x => x.PickUpTime)

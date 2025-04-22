@@ -67,6 +67,9 @@ public class OrderService(
                     To = OrderStatusConstants.WAITING_BAKERY,
                     Guard = (order) =>
                     {
+                        if(order.PaymentType == PaymentTypeConstants.WALLET)
+                            return true;
+
                         if( order.Transaction==null)
                             throw new BadRequestException("Order must be paid!");
 
@@ -74,6 +77,14 @@ public class OrderService(
                     },
                     Action = async (order) =>
                     {
+                        var old_status= order.OrderStatus;
+                        if (order.PaymentType == PaymentTypeConstants.WALLET){
+                            var customerWallet = (await _authService.GetAuthByIdAsync(order.CustomerId)).Wallet;
+                            if(customerWallet.Balance < order.TotalCustomerPaid)
+                            {
+                                throw new BadRequestException("Not enough money in wallet!");
+                            }
+                        }
 
                         order!.OrderStatus = OrderStatusConstants.WAITING_BAKERY;
                         order!.PaidAt=DateTime.Now;
@@ -83,8 +94,10 @@ public class OrderService(
                         var localExecuteTime = DateTime.Now.AddMinutes(5);
                         var delay = localExecuteTime - DateTime.Now;
 
-                        _backgroundJobClient.Enqueue(() => CalculateAvailableCakeQuantity(order!.Id));
                         _backgroundJobClient.Schedule(() => BakeryConfirmAsync(order!.Id), delay);
+
+                        if (order.PaymentType == PaymentTypeConstants.WALLET)
+                            _backgroundJobClient.Enqueue(() => MakeWalletBilling(order!.Id,old_status!));
 
                         return order!;
                     }
@@ -258,6 +271,34 @@ public class OrderService(
         await _unitOfWork.SaveChangesAsync();
     }
 
+
+    public async Task MakeWalletBilling(Guid orderId, string status)
+    {
+        var order = await GetOrderByIdAsync(orderId);
+        if (status != OrderStatusConstants.PENDING) return;
+
+        var customerWallet = (await _authService.GetAuthByIdAsync(order.CustomerId)).Wallet;
+        if (customerWallet.Balance < order.TotalCustomerPaid)
+            return;
+
+        await _walletService.MakeBillingAsync(
+            customerWallet,
+            -order.TotalCustomerPaid,
+            WalletTransactionTypeConstants.CUSTOMER_PAYMENT,
+            order.Id,
+            order.OrderCode
+        );
+
+        var adminWallet = (await _authService.GetAdminAsync()).Wallet;
+        await _walletService.MakeBillingAsync(
+            adminWallet,
+            order.TotalCustomerPaid,
+            WalletTransactionTypeConstants.ADMIN_HOLD_PAYMENT,
+            order.Id,
+            order.OrderCode
+        );
+    }
+
     private async Task MakeFinalPayment(Order order)
     {
         var adminWallet = (await _authService.GetAdminAsync()).Wallet;
@@ -348,6 +389,7 @@ public class OrderService(
         var localExecuteTime = DateTime.Now.AddMinutes(15);
         var delay = localExecuteTime - DateTime.Now;
 
+        _backgroundJobClient.Enqueue(() => CalculateAvailableCakeQuantity(order!.Id));
         _backgroundJobClient.Schedule(() => AutoCancelAsync(order!.Id), delay);
         return order;
     }

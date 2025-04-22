@@ -83,9 +83,6 @@ public class AvailableCakeBaseActionModelValidator : AbstractValidator<Available
 public class AvailableCakeCreateModel : AvailableCakeBaseActionModel
 {
 
-    [JsonPropertyName("available_cake_quantity")]
-    public int AvailableCakeQuantity { get; set; } = 0;
-
 }
 
 public class AvailableCakeCreateModelValidator : AbstractValidator<AvailableCakeCreateModel>
@@ -95,16 +92,14 @@ public class AvailableCakeCreateModelValidator : AbstractValidator<AvailableCake
 
         Include(new AvailableCakeBaseActionModelValidator());
 
-        RuleFor(x => x.AvailableCakeQuantity)
-            .GreaterThanOrEqualTo(0).WithMessage("Quantity must be greater than or equal to 0.");
-
     }
 }
 
 
 public class AvailableCakeUpdateModel : AvailableCakeBaseActionModel
 {
-
+    [JsonPropertyName("available_cake_quantity")]
+    public int AvailableCakeQuantity { get; set; } = 0;
 }
 
 public class AvailableCakeUpdateModelValidator : AbstractValidator<AvailableCakeUpdateModel>
@@ -112,6 +107,9 @@ public class AvailableCakeUpdateModelValidator : AbstractValidator<AvailableCake
     public AvailableCakeUpdateModelValidator()
     {
         Include(new AvailableCakeBaseActionModelValidator());
+
+        RuleFor(x => x.AvailableCakeQuantity)
+                  .GreaterThanOrEqualTo(0).WithMessage("Quantity must be greater than or equal to 0.");
 
     }
 }

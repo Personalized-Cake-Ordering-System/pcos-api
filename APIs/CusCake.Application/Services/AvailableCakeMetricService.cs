@@ -18,10 +18,10 @@ public class AvailableCakeMetricService(
     {
         var order_details = await _unitOfWork.OrderDetailRepository.WhereAsync(x => x.Id == orderId & x.AvailableCakeId != null);
         if (order_details == null || order_details.Count == 0) return;
-
-        foreach (var order_detail in order_details)
+        var cakeIds = order_details.Select(x => x.AvailableCakeId).Distinct().ToList();
+        foreach (var id in cakeIds)
         {
-            await CalculateAvailableCakeMetricsAsync(order_detail.AvailableCakeId!.Value);
+            await CalculateAvailableCakeMetricsAsync(id!.Value);
         }
     }
 
