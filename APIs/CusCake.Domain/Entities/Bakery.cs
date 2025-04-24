@@ -104,5 +104,8 @@ namespace CusCake.Domain.Entities
 
         [JsonPropertyName("reviews")]
         public ICollection<Review>? Reviews { get; set; }
+
+        [JsonPropertyName("distance_to_user")]
+        public double? DistanceToUser { get; set; }
     }
 }

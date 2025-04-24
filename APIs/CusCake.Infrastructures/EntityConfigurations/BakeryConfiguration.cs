@@ -12,6 +12,7 @@ public class BakeryConfiguration : IEntityTypeConfiguration<Bakery>
    {
 
       builder
+         .Ignore(o => o.DistanceToUser)
          .Ignore(o => o.Reviews);
 
       var storageComparer = new ValueComparer<List<Storage>>(

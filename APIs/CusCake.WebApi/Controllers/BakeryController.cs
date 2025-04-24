@@ -71,6 +71,8 @@ public class BakeryController(
         string? status,
         int pageIndex = 0,
         int pageSize = 10,
+        double customerLat = 0,
+        double customerLng = 0,
         [FromQuery] string? bakeryName = null
     )
     {
@@ -81,7 +83,7 @@ public class BakeryController(
             (string.IsNullOrEmpty(bakeryName) || x.BakeryName.Contains(bakeryName, StringComparison.CurrentCultureIgnoreCase)) &&
             (string.IsNullOrEmpty(status) || statusList.Count == 0 || statusList.Contains(x.Status!));
 
-        var result = await _bakeryService.GetAllAsync(pageIndex, pageSize, filter);
+        var result = await _bakeryService.GetAllAsync(pageIndex, pageSize, customerLat, customerLng, filter);
         return Ok(ResponseModel<object, ICollection<Bakery>>.Success(result.Item2, result.Item1));
     }
 

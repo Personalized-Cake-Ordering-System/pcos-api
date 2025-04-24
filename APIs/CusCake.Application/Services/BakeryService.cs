@@ -18,7 +18,12 @@ public interface IBakeryService
     Task<Bakery> CreateAsync(BakeryCreateModel model);
     Task<Bakery> UpdateAsync(Guid id, BakeryUpdateModel model);
     Task<Bakery> GetByIdAsync(Guid id);
-    Task<(Pagination, List<Bakery>)> GetAllAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<Bakery, bool>>? filter = null);
+    Task<(Pagination, List<Bakery>)> GetAllAsync(
+        int pageIndex = 0,
+        int pageSize = 10,
+        double customerLat = 0,
+        double customerLng = 0,
+        Expression<Func<Bakery, bool>>? filter = null);
     Task DeleteAsync(Guid id);
     Task<bool> ApproveBakeryAsync(Guid id, bool isApprove = true);
     Task<bool> BanedBakeryAsync(Guid id, string action);
@@ -95,10 +100,24 @@ public class BakeryService(
         await _authService.DeleteAsync(bakery.Id);
     }
 
-    public async Task<(Pagination, List<Bakery>)> GetAllAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<Bakery, bool>>? filter = null)
+    public async Task<(Pagination, List<Bakery>)> GetAllAsync(
+        int pageIndex = 0,
+        int pageSize = 10,
+        double customerLat = 0,
+        double customerLng = 0,
+        Expression<Func<Bakery, bool>>? filter = null)
     {
         var includes = QueryHelper.Includes<Bakery>(x => x.AvatarFile!, x => x.FrontCardFile!, x => x.BackCardFile, x => x.Metric!);
-        return await _unitOfWork.BakeryRepository.ToPagination(pageIndex, pageSize, filter: filter, includes: includes);
+        var result = await _unitOfWork.BakeryRepository.ToPagination(pageIndex, pageSize, filter: filter, includes: includes);
+        if (customerLat != 0 && customerLng != 0)
+        {
+            foreach (var bakery in result.Item2)
+            {
+                bakery.DistanceToUser = Haversine.CalculateDistance(customerLat, customerLng, Double.Parse(bakery.Latitude), Double.Parse(bakery.Longitude));
+            }
+            result.Item2 = [.. result.Item2.OrderBy(x => x.DistanceToUser)];
+        }
+        return result;
     }
 
     public async Task<Bakery> GetByIdAsync(Guid id)
