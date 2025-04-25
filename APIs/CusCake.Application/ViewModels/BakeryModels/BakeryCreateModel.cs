@@ -45,6 +45,12 @@ public class BakeryBaseActionModel
     [JsonPropertyName("back_card_file_id")]
     public Guid BackCardFileId { get; set; }
 
+    [JsonPropertyName("business_license_file_id")]
+    public Guid BusinessLicenseFileId { get; set; } = default!;
+
+    [JsonPropertyName("food_safety_certificate_file_id")]
+    public Guid FoodSafetyCertificateFileId { get; set; } = default!;
+
     [JsonPropertyName("cake_description")]
     public string? CakeDescription { get; set; } = default!;
 
@@ -129,4 +135,16 @@ public class BakeryCreateModelValidator : AbstractValidator<BakeryCreateModel>
 
 public class BakeryUpdateModel : BakeryBaseActionModel
 {
+}
+
+public class BakeryActionModel
+{
+    [JsonPropertyName("action")]
+    public string Action { get; set; } = default!;
+}
+
+public class BakeryApproveModel
+{
+    [JsonPropertyName("is_approve")]
+    public bool IsApprove { get; set; }
 }
