@@ -22,12 +22,12 @@ public class AdminController(
     public readonly INotificationService _notificationService = notificationService;
 
     public readonly IAdminReportService _adminReportService = adminReportService;
-    [HttpPost]
-    public async Task<IActionResult> CreateAsync([FromBody] AdminCreateModel model)
-    {
-        await _adminService.CreateAsync(model);
-        return StatusCode(201, new ResponseModel<object, object> { StatusCode = 201 });
-    }
+    // [HttpPost]
+    // public async Task<IActionResult> CreateAsync([FromBody] AdminCreateModel model)
+    // {
+    //     await _adminService.CreateAsync(model);
+    //     return StatusCode(201, new ResponseModel<object, object> { StatusCode = 201 });
+    // }
 
     /// <summary>
     /// Just use to view list admins - not use in FE
