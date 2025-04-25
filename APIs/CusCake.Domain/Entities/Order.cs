@@ -35,6 +35,10 @@ public class Order : BaseEntity
     [Column("shipping_type")]
     public string ShippingType { get; set; } = ShippingTypeConstants.PICK_UP;
 
+    [JsonPropertyName("shipping_completed_at")]
+    [Column("shipping_completed_at")]
+    public DateTime? ShippingCompletedAt { get; set; }
+
     [JsonPropertyName("commission_rate")]
     [Column("commission_rate")]
     public double CommissionRate { get; set; } = OrderConstants.COMMISSION_RATE;
@@ -57,7 +61,11 @@ public class Order : BaseEntity
 
     [JsonPropertyName("pickup_time")]
     [Column("pickup_time")]
-    public DateTime? PickUpTime { get; set; } = DateTime.Now;
+    public DateTime? PickUpTime { get; set; }
+
+    [JsonPropertyName("picked_up_at")]
+    [Column("picked_up_at")]
+    public DateTime? PickedUpAt { get; set; }
 
     [JsonPropertyName("payment_type")]
     [Column("payment_type")]
@@ -91,6 +99,10 @@ public class Order : BaseEntity
     [Column("cancel_by")]
     public string? CancelBy { get; set; }
 
+    [JsonPropertyName("canceled_at")]
+    [Column("canceled_at")]
+    public DateTime? CanceledAt { get; set; }
+
     [JsonPropertyName("order_code")]
     [Column("order_code")]
     public string OrderCode { get; set; } = default!;
@@ -120,10 +132,6 @@ public class Order : BaseEntity
 
     [JsonPropertyName("bakery")]
     public Bakery Bakery { get; set; } = default!;
-
-    // [JsonPropertyName("transaction_id")]
-    // [Column("transaction_id")]
-    // public Guid? TransactionId { get; set; }
 
     [JsonPropertyName("transaction")]
     public Transaction? Transaction { get; set; }

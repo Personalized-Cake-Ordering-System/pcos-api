@@ -7,11 +7,14 @@ public static class NotificationType
     public const string NEW_ORDER = "NEW_ORDER";
     public const string PROCESSING_ORDER = "PROCESSING_ORDER";
     public const string SHIPPING_ORDER = "SHIPPING_ORDER";
+    public const string SHIPPING_COMPLETED = "SHIPPING_COMPLETED";
     public const string READY_FOR_PICKUP = "READY_FOR_PICKUP";
     public const string COMPLETED_ORDER = "COMPLETED_ORDER";
     public const string CANCELED_ORDER = "CANCELED_ORDER";
     public const string NEW_BAKERY_REGISTRATION = "NEW_BAKERY_REGISTRATION";
     public const string NEW_REPORT = "NEW_REPORT";
+    public const string APPROVE_REPORT = "APPROVE_REPORT";
+    public const string REJECT_REPORT = "REJECT_REPORT";
 
 
     private static readonly Dictionary<string, (string Title, string Content)> NotificationDetails =
@@ -38,6 +41,10 @@ public static class NotificationType
                 ("Đơn hàng đang vận chuyển", "Đơn hàng đang trên đường đến bạn. Hãy theo dõi tình trạng giao hàng.")
             },
             {
+                SHIPPING_COMPLETED,
+                ("Đơn hàng đã được giao", "Đơn hàng của bạn đã được giao thành công. Cảm ơn bạn đã mua hàng!")
+            },
+            {
                 COMPLETED_ORDER,
                 ("Đơn hàng hoàn tất", "Cảm ơn bạn đã mua hàng! Nếu có bất kỳ vấn đề nào, vui lòng liên hệ hỗ trợ.")
             },
@@ -57,6 +64,14 @@ public static class NotificationType
                 NEW_REPORT,
                 ("Báo cáo mới", "Bạn vừa nhận được một báo cáo mới. Vui lòng kiểm tra chi tiết!")
             },
+            {
+                APPROVE_REPORT,
+                ("Báo cáo được phê duyệt", "Báo cáo của bạn đã được phê duyệt. Cảm ơn bạn đã đóng góp!")
+            },
+            {
+                REJECT_REPORT,
+                ("Báo cáo bị từ chối", "Báo cáo của bạn đã bị từ chối. Vui lòng kiểm tra lại nội dung!")
+            }
         };
 
 

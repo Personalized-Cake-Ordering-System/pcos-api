@@ -8,7 +8,7 @@ namespace CusCake.Application.Services;
 public interface IBakeryDashboardService
 {
     Task<OverviewModel> GetBakeryOverviewAsync(Guid bakeryId);
-    Task<List<object>> GetBakerySalesOverviewAsync(Guid bakeryId, string type, int year);
+    Task<List<object>> GetBakerySalesOverviewAsync(Guid bakeryId, string type, DateTime? dateFrom = null, DateTime? dateTo = null);
     Task<object> GetBakeryProductPerformanceAsync(Guid bakeryId);
     Task<object> GetBakeryCategoryDistributionAsync(Guid bakeryId);
 }
@@ -116,43 +116,162 @@ public class BakeryDashboardService(IUnitOfWork unitOfWork) : IBakeryDashboardSe
         {
             Amount = average_order_current_month,
             Change = average_order_last_month != 0
-                ? ((average_order_current_month - average_order_last_month) / average_order_last_month) * 100
+                ? (average_order_current_month - average_order_last_month) / average_order_last_month * 100
                 : 0
         };
 
         return (total_revenue_metric, orders_metric, customers_metric, average_order_metric);
     }
 
-    public async Task<List<object>> GetBakerySalesOverviewAsync(Guid bakeryId, string type, int year)
+    public async Task<List<object>> GetBakerySalesOverviewAsync(Guid bakeryId, string type, DateTime? dateFrom = null, DateTime? dateTo = null)
     {
+        var result = new List<object>();
+
         var orders = await _unitOfWork.OrderRepository.WhereAsync(
             x => x.BakeryId == bakeryId
-            && x.CreatedAt.Year == year
             && x.OrderStatus == OrderStatusConstants.COMPLETED
         );
 
+        // Kiểm tra nếu có khoảng thời gian dateFrom và dateTo
+        if (dateFrom.HasValue && dateTo.HasValue)
+        {
+            var monthsDifference = ((dateTo.Value.Year - dateFrom.Value.Year) * 12) + dateTo.Value.Month - dateFrom.Value.Month;
+
+            if (monthsDifference > 12)
+            {
+                // Nếu khoảng cách > 12 tháng thì trả về theo năm
+                return GetBakerySalesByYear(orders, type, dateFrom.Value, dateTo.Value);
+            }
+            else
+            {
+                // Nếu khoảng cách <= 12 tháng thì trả về theo tháng
+                return GetBakerySalesByMonth(orders, type, dateFrom.Value, dateTo.Value);
+            }
+        }
+        return result;
+    }
+
+    // Lấy dữ liệu theo năm
+    private static List<object> GetBakerySalesByYear(IEnumerable<Order> orders, string type, DateTime dateFrom, DateTime dateTo)
+    {
         var result = new List<object>();
 
-        for (int month = 1; month <= 12; month++)
+        // Lọc theo năm
+        var filteredOrders = orders.Where(x => x.CreatedAt.Year >= dateFrom.Year && x.CreatedAt.Year <= dateTo.Year);
+
+        for (int year = dateFrom.Year; year <= dateTo.Year; year++)
         {
-            var monthlyOrders = orders.Where(x => x.CreatedAt.Month == month);
+            var yearlyOrders = filteredOrders.Where(x => x.CreatedAt.Year == year);
 
             if (type == "REVENUE")
             {
-                result.Add(monthlyOrders.Sum(x => x.ShopRevenue));
+                result.Add(new { year = year, value = yearlyOrders.Sum(x => x.ShopRevenue) });
             }
             else if (type == "ORDERS")
             {
-                result.Add(monthlyOrders.Count());
+                result.Add(new { year = year, value = yearlyOrders.Count() });
             }
             else if (type == "CUSTOMERS")
             {
-                result.Add(monthlyOrders.Select(x => x.CustomerId).Distinct().Count());
+                result.Add(new { year = year, value = yearlyOrders.Select(x => x.CustomerId).Distinct().Count() });
             }
         }
 
         return result;
     }
+
+    // Lấy dữ liệu theo tháng
+    private static List<object> GetBakerySalesByMonth(List<Order> data, string type, DateTime dateFrom, DateTime dateTo)
+    {
+        var result = new List<object>();
+
+        if (type == "REVENUE")
+        {
+            var orders = data.Where(
+                x =>
+                (x.OrderStatus == OrderStatusConstants.COMPLETED || x.OrderStatus == OrderStatusConstants.FAULTY)
+                && x.CreatedAt >= dateFrom && x.CreatedAt <= dateTo
+            );
+
+            if ((dateTo - dateFrom).TotalDays <= 31)
+            {
+                var days = Enumerable.Range(0, (dateTo - dateFrom).Days + 1)
+                                     .Select(d => dateFrom.AddDays(d).Date);
+
+                foreach (var day in days)
+                {
+                    var dailyOrders = orders.Where(x => x.CreatedAt.Date == day.Date);
+                    result.Add(new { date = day.ToString("yyyy-MM-dd"), value = dailyOrders.Sum(x => x.AppCommissionFee) });
+                }
+            }
+            else
+            {
+
+                for (var date = new DateTime(dateFrom.Year, dateFrom.Month, 1); date <= dateTo; date = date.AddMonths(1))
+                {
+                    var monthlyOrders = orders.Where(x => x.CreatedAt.Year == date.Year && x.CreatedAt.Month == date.Month);
+                    result.Add(new { month = date.ToString("yyyy-MM"), value = monthlyOrders.Sum(x => x.AppCommissionFee) });
+                }
+            }
+        }
+        else if (type == "ORDERS")
+        {
+            var orders = data.Where(
+                x => x.CreatedAt >= dateFrom && x.CreatedAt <= dateTo
+            );
+
+            if ((dateTo - dateFrom).TotalDays <= 31)
+            {
+                var days = Enumerable.Range(0, (dateTo - dateFrom).Days + 1)
+                                     .Select(d => dateFrom.AddDays(d).Date);
+
+                foreach (var day in days)
+                {
+                    var dailyOrders = orders.Where(x => x.CreatedAt.Date == day.Date);
+                    result.Add(new { date = day.ToString("yyyy-MM-dd"), value = dailyOrders.Count() });
+                }
+            }
+            else
+            {
+
+                for (var date = new DateTime(dateFrom.Year, dateFrom.Month, 1); date <= dateTo; date = date.AddMonths(1))
+                {
+                    var monthlyOrders = orders.Where(x => x.CreatedAt.Year == date.Year && x.CreatedAt.Month == date.Month);
+                    result.Add(new { month = date.ToString("yyyy-MM"), value = monthlyOrders.Count() });
+                }
+            }
+        }
+        else if (type == "CUSTOMERS")
+        {
+            var orders = data.Where(
+                x => x.CreatedAt >= dateFrom && x.CreatedAt <= dateTo
+            );
+
+            if ((dateTo - dateFrom).TotalDays <= 31)
+            {
+                var days = Enumerable.Range(0, (dateTo - dateFrom).Days + 1)
+                                     .Select(d => dateFrom.AddDays(d).Date);
+
+                foreach (var day in days)
+                {
+                    var dailyOrders = orders.Where(x => x.CreatedAt.Date == day.Date);
+                    result.Add(new { date = day.ToString("yyyy-MM-dd"), value = dailyOrders.Select(x => x.CustomerId).Distinct().Count() });
+                }
+            }
+            else
+            {
+
+                for (var date = new DateTime(dateFrom.Year, dateFrom.Month, 1); date <= dateTo; date = date.AddMonths(1))
+                {
+                    var monthlyOrders = orders.Where(x => x.CreatedAt.Year == date.Year && x.CreatedAt.Month == date.Month);
+                    result.Add(new { month = date.ToString("yyyy-MM"), value = monthlyOrders.Select(x => x.CustomerId).Distinct().Count() });
+                }
+            }
+        }
+
+        return result;
+    }
+
 
     public async Task<object> GetBakeryProductPerformanceAsync(Guid bakeryId)
     {

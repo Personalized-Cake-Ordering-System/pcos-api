@@ -7,6 +7,7 @@ using CusCake.Application.Utils;
 using CusCake.Application.ViewModels.ReportModels;
 using CusCake.Domain.Constants;
 using CusCake.Domain.Entities;
+using Hangfire;
 using Newtonsoft.Json;
 
 namespace CusCake.Application.Services;
@@ -18,9 +19,9 @@ public interface IReportService
     Task<Report> GetByIdAsync(Guid id);
     Task<bool> DeleteAsync(Guid id);
     Task<Report> UpdateAsync(Guid id, ReportUpdateModel model);
-    Task<bool> ApproveAsync(Guid id, bool isApproved = true);
-
+    Task ApproveAsync(Guid id, ReportActionModel model);
 }
+
 
 public class ReportService(
     IUnitOfWork unitOfWork,
@@ -28,7 +29,8 @@ public class ReportService(
     IMapper mapper,
     IBakeryService bakeryService,
     INotificationService notificationService,
-    IAuthService authService
+    IAuthService authService,
+    IBackgroundJobClient backgroundJobClient
 ) : IReportService
 {
 
@@ -38,20 +40,54 @@ public class ReportService(
     private readonly IBakeryService _bakeryService = bakeryService;
     private readonly IAuthService _authService = authService;
     private readonly INotificationService _notificationService = notificationService;
-    public async Task<bool> ApproveAsync(Guid id, bool isApproved = true)
+    private readonly IBackgroundJobClient _backgroundJobClient = backgroundJobClient;
+    public async Task ApproveAsync(Guid id, ReportActionModel model)
     {
         var report = await GetByIdAsync(id);
         if (report.Status != ReportStatusConstants.PENDING)
             throw new BadRequestException("Report has been checked!");
-        if (isApproved)
+        if (model.IsApproved)
         {
             await HandleApproveAsync(report);
         }
-        report.Status = isApproved ? ReportStatusConstants.ACCEPTED : ReportStatusConstants.REJECTED;
+        report.Status = model.IsApproved ? ReportStatusConstants.ACCEPTED : ReportStatusConstants.REJECTED;
+        report.RejectReason = model.IsApproved ? null : model.RejectReason;
         _unitOfWork.ReportRepository.Update(report);
-        return await _unitOfWork.SaveChangesAsync();
+
+        await _unitOfWork.SaveChangesAsync();
+
+        var reportJson = JsonConvert.SerializeObject(report);
+
+        _backgroundJobClient.Enqueue(() => UpdateOrder(report.OrderId!.Value, model.IsApproved, reportJson));
+
+
     }
 
+    public async Task UpdateOrder(Guid orderId, bool isApproved, string reportJson)
+    {
+        var order = await _unitOfWork.OrderRepository.GetByIdAsync(orderId) ?? throw new BadRequestException("Order not found!");
+
+        order.OrderStatus = isApproved ? OrderStatusConstants.FAULTY : OrderStatusConstants.COMPLETED;
+        _unitOfWork.OrderRepository.Update(order);
+
+        await _unitOfWork.SaveChangesAsync();
+
+        if (isApproved)
+        {
+            await _notificationService.CreateOrderNotificationAsync(order.Id, NotificationType.APPROVE_REPORT, order.BakeryId, null);
+            await _notificationService.SendNotificationAsync(order.BakeryId, reportJson, NotificationType.APPROVE_REPORT);
+            await _notificationService.CreateOrderNotificationAsync(order.Id, NotificationType.APPROVE_REPORT, null, order.CustomerId);
+            await _notificationService.SendNotificationAsync(order.CustomerId, reportJson, NotificationType.APPROVE_REPORT);
+        }
+        else
+        {
+            await _notificationService.CreateOrderNotificationAsync(order.Id, NotificationType.REJECT_REPORT, order.BakeryId, null);
+            await _notificationService.SendNotificationAsync(order.BakeryId, reportJson, NotificationType.REJECT_REPORT);
+            await _notificationService.CreateOrderNotificationAsync(order.Id, NotificationType.REJECT_REPORT, null, order.CustomerId);
+            await _notificationService.SendNotificationAsync(order.CustomerId, reportJson, NotificationType.REJECT_REPORT);
+        }
+
+    }
 
     private async Task<CustomerVoucher> AssignVoucherToCustomer(double discountPercentage, Guid customer_id)
     {
@@ -67,6 +103,7 @@ public class ReportService(
         return cus_voucher;
 
     }
+
     private async Task HandleApproveAsync(Report report)
     {
         var approved_reports = await _unitOfWork.ReportRepository.WhereAsync(x => x.BakeryId == report.BakeryId && x.Status == ReportStatusConstants.ACCEPTED);
@@ -96,8 +133,9 @@ public class ReportService(
         var admin = await _authService.GetAdminAsync();
         var order = model.OrderId != null ? await _unitOfWork.OrderRepository.GetByIdAsync(model.OrderId!.Value) : null;
 
-        if (order != null && order.CustomerId != _claimsService.GetCurrentUser)
-            throw new BadRequestException("No permission to access order!");
+        if (order != null)
+            HandleReportOrderAsync(order);
+
 
         report.CustomerId = _claimsService.GetCurrentUser;
         report.Type = model.OrderId != null ? ReportTypeConstants.ORDER_REPORT : ReportTypeConstants.BAKERY_REPORT;
@@ -111,7 +149,31 @@ public class ReportService(
         await _notificationService.CreateAdminNotificationAsync(report.Id, NotificationType.NEW_REPORT, admin.EntityId);
         await _notificationService.SendNotificationAsync(admin.EntityId, reportJson, NotificationType.NEW_REPORT);
 
+        if (order != null)
+        {
+            await _notificationService.CreateOrderNotificationAsync(report.Id, NotificationType.NEW_REPORT, order?.BakeryId, null);
+            await _notificationService.SendNotificationAsync(order!.BakeryId, reportJson, NotificationType.NEW_REPORT);
+        }
+
         return report;
+    }
+
+    private void HandleReportOrderAsync(Order order)
+    {
+        if (order.CustomerId != _claimsService.GetCurrentUser)
+            throw new BadRequestException("No permission to access order!");
+
+        if (order.OrderStatus != OrderStatusConstants.SHIPPING_COMPLETED)
+            throw new BadRequestException("Only report after shipping completed!");
+
+        var timeSpan = DateTime.Now - order.ShippingCompletedAt!.Value;
+
+        if (timeSpan.TotalMinutes > 60)
+            throw new BadRequestException("Cannot report after 60 minutes of shipping completion!");
+
+        order.OrderStatus = OrderStatusConstants.REPORT_PENDING;
+
+        _unitOfWork.OrderRepository.Update(order);
     }
 
     public async Task<bool> DeleteAsync(Guid id)

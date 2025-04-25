@@ -12,6 +12,7 @@ public class BakeryConfiguration : IEntityTypeConfiguration<Bakery>
    {
 
       builder
+         .Ignore(o => o.DistanceToUser)
          .Ignore(o => o.Reviews);
 
       var storageComparer = new ValueComparer<List<Storage>>(
@@ -26,13 +27,6 @@ public class BakeryConfiguration : IEntityTypeConfiguration<Bakery>
               )
               .HasColumnType("json")
               .Metadata.SetValueComparer(storageComparer);
-
-      // builder.HasMany(x => x.Notifications).WithOne(x => x.Bakery).HasForeignKey(x => x.BakeryId).OnDelete(DeleteBehavior.Cascade);
-      // builder.HasMany(x => x.AvailableCakes).WithOne(x => x.Bakery).HasForeignKey(x => x.BakeryId).OnDelete(DeleteBehavior.Cascade);
-      // builder.HasMany(x => x.Orders).WithOne(x => x.Bakery).HasForeignKey(x => x.BakeryId).OnDelete(DeleteBehavior.Cascade);
-      // builder.HasMany(x => x.CakeReviews).WithOne(x => x.Bakery).HasForeignKey(x => x.BakeryId).OnDelete(DeleteBehavior.Cascade);
-      // builder.HasMany(x => x.OrderSupports).WithOne(x => x.Bakery).HasForeignKey(x => x.BakeryId).OnDelete(DeleteBehavior.Cascade);
-      // builder.HasMany(x => x.Vouchers).WithOne(x => x.Bakery).HasForeignKey(x => x.BakeryId).OnDelete(DeleteBehavior.Cascade);
 
       builder
          .HasOne(c => c.AvatarFile)
@@ -51,6 +45,19 @@ public class BakeryConfiguration : IEntityTypeConfiguration<Bakery>
          .WithMany()
          .HasForeignKey(c => c.FrontCardFileId)
          .OnDelete(DeleteBehavior.Cascade);
+
+      builder
+         .HasOne(c => c.BusinessLicenseFile)
+         .WithMany()
+         .HasForeignKey(c => c.BusinessLicenseFileId)
+         .OnDelete(DeleteBehavior.Cascade);
+
+      builder
+         .HasOne(c => c.FoodSafetyCertificateFile)
+         .WithMany()
+         .HasForeignKey(c => c.FoodSafetyCertificateFileId)
+         .OnDelete(DeleteBehavior.Cascade);
+
    }
 }
 

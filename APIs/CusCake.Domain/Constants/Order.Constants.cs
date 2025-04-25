@@ -7,8 +7,11 @@ public static class OrderStatusConstants
     public const string PROCESSING = "PROCESSING";              // Bakery đang xử lý đơn hàng
     public const string READY_FOR_PICKUP = "READY_FOR_PICKUP";  // Bakery đã hoàn thành, sẵn sàng giao
     public const string SHIPPING = "SHIPPING";                  // Đang giao hàng
+    public const string SHIPPING_COMPLETED = "SHIPPING_COMPLETED";                  // Đang giao hàng
     public const string COMPLETED = "COMPLETED";                // Khách hàng đã xác nhận DONE
     public const string CANCELED = "CANCELED";                  // Hủy đơn
+    public const string REPORT_PENDING = "REPORT_PENDING";
+    public const string FAULTY = "FAULTY";
 }
 
 public static class OrderConstants

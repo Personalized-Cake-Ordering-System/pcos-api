@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using CusCake.Application.Services;
 using CusCake.Application.ViewModels;
+using CusCake.Application.ViewModels.AdminModels;
 using CusCake.Application.ViewModels.AdminReportModels;
 using CusCake.Domain.Constants;
 using CusCake.Domain.Entities;
@@ -21,12 +22,12 @@ public class AdminController(
     public readonly INotificationService _notificationService = notificationService;
 
     public readonly IAdminReportService _adminReportService = adminReportService;
-    // [HttpPost]
-    // public async Task<IActionResult> CreateAsync([FromBody] AdminCreateModel model)
-    // {
-    //     await _adminService.CreateAsync(model);
-    //     return StatusCode(201, new ResponseModel<object, object> { StatusCode = 201 });
-    // }
+    [HttpPost]
+    public async Task<IActionResult> CreateAsync([FromBody] AdminCreateModel model)
+    {
+        await _adminService.CreateAsync(model);
+        return StatusCode(201, new ResponseModel<object, object> { StatusCode = 201 });
+    }
 
     /// <summary>
     /// Just use to view list admins - not use in FE
@@ -81,11 +82,24 @@ public class AdminController(
         return Ok(ResponseModel<object, List<BakeryMetric>>.Success(result.Item2, result.Item1));
     }
 
-    [HttpGet("app-report")]
+
+    /// <summary>
+    /// api/admins/chart?type=REVENUE&dateFrom=2024-05-25&dateTo=2025-04-28
+    /// api/admins/chart?type=CUSTOMERS&dateFrom=2024-01-25&dateTo=2025-04-28
+    /// api/admins/chart?type=BAKERIES&dateFrom=2025-04-25&dateTo=2025-04-28
+    /// Thử để thấy cách truyền tham số dateFrom, dateTo
+    /// </summary>
+    /// <param name="type">REVENUE, CUSTOMERS, BAKERIES`</param>
+    /// <param name="dateFrom">2025-04-25</param>
+    /// <param name="dateTo">2025-04-28</param>
+    /// <returns></returns>
+    [HttpGet("chart")]
     [Authorize(Roles = RoleConstants.ADMIN)]
-    public async Task<IActionResult> GetAppReportAsync(string type, int year)
+    public async Task<IActionResult> GetAppReportAsync(string type,
+        DateTime? dateFrom = null,
+        DateTime? dateTo = null)
     {
-        var result = await _adminReportService.GetAdminChartAsync(type, year);
+        var result = await _adminReportService.GetAdminChartAsync(type, dateFrom, dateTo);
         return Ok(ResponseModel<object, List<object>>.Success(result));
     }
 }

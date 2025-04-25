@@ -91,10 +91,10 @@ public class OrderService(
                         _unitOfWork.OrderRepository.Update(order!);
                         await _unitOfWork.SaveChangesAsync();
 
-                        var localExecuteTime = DateTime.Now.AddMinutes(5);
-                        var delay = localExecuteTime - DateTime.Now;
+                        // var localExecuteTime = DateTime.Now.AddMinutes(5);
+                        // var delay = localExecuteTime - DateTime.Now;
 
-                        _backgroundJobClient.Schedule(() => BakeryConfirmAsync(order!.Id), delay);
+                        // _backgroundJobClient.Schedule(() => BakeryConfirmAsync(order!.Id), delay);
 
                         if (order.PaymentType == PaymentTypeConstants.WALLET)
                             _backgroundJobClient.Enqueue(() => MakeWalletBilling(order!.Id,old_status!));
@@ -153,23 +153,23 @@ public class OrderService(
 
                         if(order.ShippingType == ShippingTypeConstants.PICK_UP) return true;
 
-                        if (files==null || files.Count == 0)
-                             throw new BadRequestException("Should provide image or video about order!");
-
-                        var ordersSupport= new List<OrderSupport>();
-
-                        foreach (var file in files)
+                        if(files.Count > 0)
                         {
-                            var upload= await _fileService.UploadFileAsync(file);
-                            ordersSupport.Add(new OrderSupport{
-                                FileId=upload.Id,
-                                CustomerId=order.CustomerId,
-                                BakeryId=order.BakeryId,
-                                OrderId=order.Id
-                            });
+                            var ordersSupport= new List<OrderSupport>();
+
+                            foreach (var file in files)
+                            {
+                                var upload= await _fileService.UploadFileAsync(file);
+                                ordersSupport.Add(new OrderSupport{
+                                    FileId=upload.Id,
+                                    CustomerId=order.CustomerId,
+                                    BakeryId=order.BakeryId,
+                                    OrderId=order.Id
+                                });
+                            }
+                            await _unitOfWork.OrderSupportRepository.AddRangeAsync(ordersSupport);
+                            await _unitOfWork.SaveChangesAsync();
                         }
-                        await _unitOfWork.OrderSupportRepository.AddRangeAsync(ordersSupport);
-                        await _unitOfWork.SaveChangesAsync();
 
                         return true;
                     },
@@ -184,14 +184,16 @@ public class OrderService(
                         await _unitOfWork.SaveChangesAsync();
 
                         var orderJson = JsonConvert.SerializeObject(order);
-                        await _notificationService.CreateOrderNotificationAsync(order.Id, status , null ,order.CustomerId);
-                        await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, status);
+                        await _notificationService.CreateOrderNotificationAsync(order.Id, NotificationType.SHIPPING_ORDER , null ,order.CustomerId);
+                        await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, NotificationType.SHIPPING_ORDER);
 
-                        var completed_time=  order.ShippingType == ShippingTypeConstants.PICK_UP ? 1440 :order.ShippingTime!.Value;
-                        var localExecuteTime = DateTime.Now.AddMinutes(completed_time + 15);
-                        var delay = localExecuteTime - DateTime.Now;
+                        if(order.ShippingType == ShippingTypeConstants.PICK_UP)
+                        {
+                            var localExecuteTime = DateTime.Now.AddMinutes(1440);
+                            var delay = localExecuteTime - DateTime.Now;
 
-                        _backgroundJobClient.Schedule(() => AutoShippingCompletedAsync(order!.Id), delay);
+                            _backgroundJobClient.Schedule(() => AutoCompletedAsync(order!.Id), delay);
+                        }
 
                         return order!;
                     }
@@ -201,22 +203,27 @@ public class OrderService(
                 "SHIPPING", new OrderStateTransition<Order>
                 {
                     From = [OrderStatusConstants.SHIPPING],
-                    To = OrderStatusConstants.COMPLETED,
+                    To = OrderStatusConstants.SHIPPING_COMPLETED,
                     Action=async (order) =>
                     {
                         if(order.OrderStatus == OrderStatusConstants.COMPLETED) return order!;
 
-                        order!.OrderStatus = OrderStatusConstants.COMPLETED;
+                        order!.OrderStatus = OrderStatusConstants.SHIPPING_COMPLETED;
+                        order.ShippingCompletedAt=DateTime.Now;
+
                         _unitOfWork.OrderRepository.Update(order!);
                         await _unitOfWork.SaveChangesAsync();
 
                         await MakeFinalPayment(order);
 
+                        var localExecuteTime = DateTime.Now.AddMinutes(60);
+                        var delay = localExecuteTime - DateTime.Now;
+                        _backgroundJobClient.Schedule(() => AutoShippingCompletedToDoneAsync(order!.Id), delay);
+
                         var orderJson = JsonConvert.SerializeObject(order);
-                        await _notificationService.CreateOrderNotificationAsync(order.Id,NotificationType.COMPLETED_ORDER, null ,order.CustomerId);
-                        await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, NotificationType.COMPLETED_ORDER);
-                        _backgroundJobClient.Enqueue(() => _bakeryMetricService.ReCalculateBakeryMetricsAsync(order.BakeryId));
-                        _backgroundJobClient.Enqueue(() => _availableCakeMetricService.CalculateAvailableCakeMetricsByOrderIdAsync(order.Id));
+                        await _notificationService.CreateOrderNotificationAsync(order.Id,NotificationType.SHIPPING_COMPLETED, null ,order.CustomerId);
+                        await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, NotificationType.SHIPPING_COMPLETED);
+
                         return order!;
                     }
                 }
@@ -231,6 +238,8 @@ public class OrderService(
                          if(order.OrderStatus == OrderStatusConstants.COMPLETED) return order!;
 
                         order!.OrderStatus = OrderStatusConstants.COMPLETED;
+                        order.PickedUpAt=DateTime.Now;
+
                         _unitOfWork.OrderRepository.Update(order!);
                         await _unitOfWork.SaveChangesAsync();
 
@@ -331,7 +340,29 @@ public class OrderService(
         await MoveToNextAsync<Order>(id);
     }
 
-    public async Task AutoShippingCompletedAsync(Guid id)
+    public async Task AutoShippingCompletedToDoneAsync(Guid id)
+    {
+        var order = await GetOrderByIdAsync(id);
+        if (order.OrderStatus != OrderStatusConstants.SHIPPING_COMPLETED) return;
+
+        var report = await _unitOfWork.OrderSupportRepository
+            .FirstOrDefaultAsync(x => x.OrderId == order.Id && x.BakeryId == order.BakeryId && x.CustomerId == order.CustomerId);
+
+        if (report != null) return;
+
+        order!.OrderStatus = OrderStatusConstants.COMPLETED;
+
+        _unitOfWork.OrderRepository.Update(order!);
+        await _unitOfWork.SaveChangesAsync();
+
+        var orderJson = JsonConvert.SerializeObject(order);
+        await _notificationService.CreateOrderNotificationAsync(order.Id, NotificationType.COMPLETED_ORDER, null, order.CustomerId);
+        await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, NotificationType.COMPLETED_ORDER);
+        _backgroundJobClient.Enqueue(() => _bakeryMetricService.ReCalculateBakeryMetricsAsync(order.BakeryId));
+        _backgroundJobClient.Enqueue(() => _availableCakeMetricService.CalculateAvailableCakeMetricsByOrderIdAsync(order.Id));
+    }
+
+    public async Task AutoCompletedAsync(Guid id)
     {
         await MoveToNextAsync<Order>(id);
     }
@@ -677,6 +708,7 @@ public class OrderService(
 
         order.OrderStatus = OrderStatusConstants.CANCELED;
         order.CancelBy = _claimsService.GetCurrentUserRole;
+        order.CanceledAt = DateTime.Now;
 
         _unitOfWork.OrderRepository.Update(order);
         await _unitOfWork.SaveChangesAsync();

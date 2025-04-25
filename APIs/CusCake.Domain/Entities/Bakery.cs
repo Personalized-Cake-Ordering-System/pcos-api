@@ -74,10 +74,24 @@ namespace CusCake.Domain.Entities
 
         [Column("back_card_file_id")]
         [JsonPropertyName("back_card_file_id")]
-        public Guid BackCardFileId { get; set; } = default!;
+        public Guid? BackCardFileId { get; set; } = default!;
 
         [JsonPropertyName("back_card_file")]
-        public Storage BackCardFile { get; set; } = default!;
+        public Storage? BackCardFile { get; set; } = default!;
+
+        [Column("food_safety_certificate_file_id")]
+        [JsonPropertyName("food_safety_certificate_file_id")]
+        public Guid? FoodSafetyCertificateFileId { get; set; }
+
+        [JsonPropertyName("food_safety_certificate_file")]
+        public Storage? FoodSafetyCertificateFile { get; set; }
+
+        [Column("business_license_file_id")]
+        [JsonPropertyName("business_license_file_id")]
+        public Guid? BusinessLicenseFileId { get; set; }
+
+        [JsonPropertyName("business_license_file")]
+        public Storage? BusinessLicenseFile { get; set; }
 
         [Column("tax_code")]
         [JsonPropertyName("tax_code")]
@@ -104,5 +118,8 @@ namespace CusCake.Domain.Entities
 
         [JsonPropertyName("reviews")]
         public ICollection<Review>? Reviews { get; set; }
+
+        [JsonPropertyName("distance_to_user")]
+        public double? DistanceToUser { get; set; }
     }
 }

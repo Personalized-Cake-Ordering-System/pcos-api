@@ -14,12 +14,14 @@ public class ReportController(IReportService reportService) : BaseController
 
     private readonly IReportService _reportService = reportService;
 
-
-    [HttpGet("{id}/approve")]
+    /// <summary>
+    /// Approves or rejects a report
+    /// </summary>
+    [HttpPut("{id}/action")]
     [Authorize(Roles = RoleConstants.ADMIN)]
-    public async Task<IActionResult> ApproveBakery(Guid id, bool isApprove = true)
+    public async Task<IActionResult> ApproveBakery(Guid id, ReportActionModel model)
     {
-        await _reportService.ApproveAsync(id, isApprove);
+        await _reportService.ApproveAsync(id, model);
         return StatusCode(200, new ResponseModel<object, object> { StatusCode = 200 });
     }
 

@@ -12,6 +12,10 @@ public class Report : BaseEntity
     [Column("content")]
     public string Content { get; set; } = default!;
 
+    [JsonPropertyName("reject_reason")]
+    [Column("reject_reason")]
+    public string? RejectReason { get; set; }
+
     [JsonPropertyName("type")]
     [Column("type")]
     public string Type { get; set; } = default!;

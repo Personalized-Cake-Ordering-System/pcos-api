@@ -33,25 +33,26 @@ public class BakeryController(
     }
 
 
-    [HttpGet("{id}/approve")]
+    [HttpPut("{id}/approve")]
     [Authorize(Roles = RoleConstants.ADMIN)]
-    public async Task<IActionResult> ApproveBakery(Guid id, bool isApprove = true)
+    public async Task<IActionResult> ApproveBakery(Guid id, BakeryApproveModel model)
     {
-        await _bakeryService.ApproveBakeryAsync(id, isApprove);
+        await _bakeryService.ApproveBakeryAsync(id, model.IsApprove);
         return StatusCode(200, new ResponseModel<object, object> { StatusCode = 200 });
     }
 
 
     /// <summary>
-    /// Action are BAN or UN_BAN
+    ///     /// Action are BAN or UN_BAN
     /// </summary>
     /// <param name="id"></param>
-    /// <param name="action">BAN or UN_BAN</param>
-    [HttpGet("{id}/ban_action")]
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPut("{id}/ban_action")]
     [Authorize(Roles = RoleConstants.ADMIN)]
-    public async Task<IActionResult> BanBakery(Guid id, string action)
+    public async Task<IActionResult> BanBakery(Guid id, BakeryActionModel model)
     {
-        await _bakeryService.BanedBakeryAsync(id, action);
+        await _bakeryService.BanedBakeryAsync(id, model.Action);
         return StatusCode(200, new ResponseModel<object, object> { StatusCode = 200 });
     }
 
@@ -71,6 +72,8 @@ public class BakeryController(
         string? status,
         int pageIndex = 0,
         int pageSize = 10,
+        double customerLat = 0,
+        double customerLng = 0,
         [FromQuery] string? bakeryName = null
     )
     {
@@ -81,7 +84,7 @@ public class BakeryController(
             (string.IsNullOrEmpty(bakeryName) || x.BakeryName.Contains(bakeryName, StringComparison.CurrentCultureIgnoreCase)) &&
             (string.IsNullOrEmpty(status) || statusList.Count == 0 || statusList.Contains(x.Status!));
 
-        var result = await _bakeryService.GetAllAsync(pageIndex, pageSize, filter);
+        var result = await _bakeryService.GetAllAsync(pageIndex, pageSize, customerLat, customerLng, filter);
         return Ok(ResponseModel<object, ICollection<Bakery>>.Success(result.Item2, result.Item1));
     }
 
@@ -140,7 +143,7 @@ public class BakeryController(
                     : [.. status.Split(".")];
         Expression<Func<Order, bool>> filter = x =>
             x.BakeryId == id &&
-            (string.IsNullOrEmpty(status) || (statusList.Count == 0 || statusList.Contains(x.OrderStatus!)));
+            (string.IsNullOrEmpty(status) || statusList.Count == 0 || statusList.Contains(x.OrderStatus!));
 
         var result = await _orderService.GetAllAsync(pageIndex, pageSize, filter);
         return Ok(ResponseModel<object, List<Order>>.Success(result.Item2, result.Item1));

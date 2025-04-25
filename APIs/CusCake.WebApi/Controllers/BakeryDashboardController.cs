@@ -25,9 +25,9 @@ public class BakeryDashboardController(IBakeryDashboardService service) : Contro
     /// </summary>
     [HttpGet("{id}/sales_overview")]
     [Authorize(Roles = RoleConstants.BAKERY + "," + RoleConstants.ADMIN)]
-    public async Task<IActionResult> GetSalesOverviewAsync(Guid id, [FromQuery] string type, [FromQuery] int year)
+    public async Task<IActionResult> GetSalesOverviewAsync(Guid id, [FromQuery] string type, DateTime? dateFrom = null, DateTime? dateTo = null)
     {
-        return Ok(ResponseModel<object, List<object>>.Success(await _reportService.GetBakerySalesOverviewAsync(id, type, year)));
+        return Ok(ResponseModel<object, object>.Success(await _reportService.GetBakerySalesOverviewAsync(id, type, dateFrom, dateTo)));
     }
 
     /// <summary>

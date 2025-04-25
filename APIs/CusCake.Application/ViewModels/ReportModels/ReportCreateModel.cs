@@ -36,3 +36,13 @@ public class ReportCreateModelValidator : AbstractValidator<ReportCreateModel>
 
     }
 }
+
+
+public class ReportActionModel
+{
+    [JsonPropertyName("is_approved")]
+    public bool IsApproved { get; set; }
+
+    [JsonPropertyName("reject_reason")]
+    public string? RejectReason { get; set; }
+}
