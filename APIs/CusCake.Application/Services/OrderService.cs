@@ -391,6 +391,9 @@ public class OrderService(
                 x.Status == BakeryStatusConstants.CONFIRMED
             ) ?? throw new BadRequestException("Bakery not found");
 
+        if (bakery.OpenTime > DateTime.Now.TimeOfDay || bakery.CloseTime < DateTime.Now.TimeOfDay)
+            throw new BadRequestException("Bakery is closed!");
+
         var customer = await _customerService.GetByIdAsync(_claimsService.GetCurrentUser);
 
         if (string.IsNullOrEmpty(model.ShippingAddress) && string.IsNullOrEmpty(customer.Address))

@@ -59,8 +59,12 @@ public class BakeryBaseActionModel
 
     [JsonPropertyName("bakery_description")]
     public string? BakeryDescription { get; set; } = default!;
-    // [JsonPropertyName("bank_account")]
-    // public string? BankAccount { get; set; } = default!;
+
+    [JsonPropertyName("open_time")]
+    public string OpenTime { get; set; } = default!;
+
+    [JsonPropertyName("close_time")]
+    public string CloseTime { get; set; } = default!;
 }
 
 
@@ -109,6 +113,27 @@ public class BakeryBaseActionModelValidator : AbstractValidator<BakeryBaseAction
             .Must(files => files!.All(file => file != Guid.Empty)).WithMessage("ShopImageFiles contains an invalid GUID.")
             .Must(files => files.Distinct().Count() == files.Count).WithMessage("ShopImageFileIds must be unique.");
 
+        RuleFor(x => x.OpenTime)
+            .NotNull().WithMessage("OpenTime must not be null.")
+            .Matches(@"^\d{2}:\d{2}$")
+            .WithMessage("OpenTime must be a valid time of day. Ex:(23:59)");
+
+        RuleFor(x => x.CloseTime)
+            .NotNull().WithMessage("CloseTime must not be null.")
+            .Matches(@"^\d{2}:\d{2}$")
+            .WithMessage("CloseTime must be a valid time of day. Ex:(23:59)");
+
+        RuleFor(x => x)
+            .Must(model =>
+            {
+                if (TimeSpan.TryParse(model.OpenTime, out var openTime) &&
+                    TimeSpan.TryParse(model.CloseTime, out var closeTime))
+                {
+                    return openTime < closeTime;
+                }
+                return false;
+            })
+            .WithMessage("OpenTime must be earlier than CloseTime.");
     }
 }
 

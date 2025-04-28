@@ -109,6 +109,14 @@ namespace CusCake.Domain.Entities
         [JsonPropertyName("banned_at")]
         public DateTime? BannedAt { get; set; } = default!;
 
+        [JsonPropertyName("open_time")]
+        [Column("open_time")]
+        public TimeSpan? OpenTime { get; set; } = default!;
+
+        [JsonPropertyName("close_time")]
+        [Column("close_time")]
+        public TimeSpan? CloseTime { get; set; } = default!;
+
         [Column("shop_image_files")]
         [JsonPropertyName("shop_image_files")]
         public List<Storage>? ShopImageFiles { get; set; }
