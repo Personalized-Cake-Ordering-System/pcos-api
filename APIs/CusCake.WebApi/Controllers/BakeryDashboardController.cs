@@ -14,9 +14,9 @@ public class BakeryDashboardController(IBakeryDashboardService service) : Contro
 
     [HttpGet("{id}/overview")]
     [Authorize(Roles = RoleConstants.BAKERY + "," + RoleConstants.ADMIN)]
-    public async Task<IActionResult> GetOverviewAsync(Guid id)
+    public async Task<IActionResult> GetOverviewAsync(Guid id, DateTime? dateFrom = null, DateTime? dateTo = null)
     {
-        return Ok(ResponseModel<object, object>.Success(await _reportService.GetBakeryOverviewAsync(id)));
+        return Ok(ResponseModel<object, object>.Success(await _reportService.GetBakeryOverviewAsync(id, dateFrom, dateTo)));
     }
 
 
@@ -36,16 +36,16 @@ public class BakeryDashboardController(IBakeryDashboardService service) : Contro
 
     [HttpGet("{id}/products_performance")]
     [Authorize(Roles = RoleConstants.BAKERY + "," + RoleConstants.ADMIN)]
-    public async Task<IActionResult> GetProductPerformanceAsync(Guid id)
+    public async Task<IActionResult> GetProductPerformanceAsync(Guid id, DateTime? dateFrom = null, DateTime? dateTo = null)
     {
-        return Ok(ResponseModel<object, object>.Success(await _reportService.GetBakeryProductPerformanceAsync(id)));
+        return Ok(ResponseModel<object, object>.Success(await _reportService.GetBakeryProductPerformanceAsync(id, dateFrom, dateTo)));
     }
 
     [HttpGet("{id}/category_distribution")]
     [Authorize(Roles = RoleConstants.BAKERY + "," + RoleConstants.ADMIN)]
-    public async Task<IActionResult> GetCategoryDistributionAsync(Guid id)
+    public async Task<IActionResult> GetCategoryDistributionAsync(Guid id, DateTime? dateFrom = null, DateTime? dateTo = null)
     {
-        return Ok(ResponseModel<object, object>.Success(await _reportService.GetBakeryCategoryDistributionAsync(id)));
+        return Ok(ResponseModel<object, object>.Success(await _reportService.GetBakeryCategoryDistributionAsync(id, dateFrom, dateTo)));
     }
 }
 

@@ -11,31 +11,46 @@ namespace CusCake.Application.Services;
 
 public interface IAdminReportService
 {
-    Task<AdminOverviewModel> GetAdminOverviewModel();
+    Task<AdminOverviewModel> GetAdminOverviewModel(DateTime? dateFrom = null, DateTime? dateTo = null);
     Task<(Pagination, List<BakeryMetric>)> GetTopBakeryMetrics(
         int pageIndex = 0,
         int pageSize = 10,
+        DateTime? dateFrom = null,
+        DateTime? dateTo = null,
         List<(Expression<Func<BakeryMetric, object>> OrderBy, bool IsDescending)>? orderByList = null
     );
 
     Task<List<object>> GetAdminChartAsync(string type, DateTime? dateFrom = null, DateTime? dateTo = null);
 }
 
-public class AdminReportService(IUnitOfWork unitOfWork, IMapper mapper) : IAdminReportService
+public class AdminReportService(IUnitOfWork unitOfWork) : IAdminReportService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
-    private readonly IMapper _mapper = mapper;
 
 
-    public async Task<AdminOverviewModel> GetAdminOverviewModel()
+    public async Task<AdminOverviewModel> GetAdminOverviewModel(DateTime? dateFrom = null, DateTime? dateTo = null)
     {
-        var order_completed = await _unitOfWork.OrderRepository.WhereAsync(o => o.OrderStatus == OrderStatusConstants.COMPLETED);
+        var order_completed = await _unitOfWork.OrderRepository.WhereAsync(o =>
+            o.OrderStatus == OrderStatusConstants.COMPLETED &&
+            o.CreatedAt.Date >= (dateFrom ?? DateTime.MinValue).Date &&
+            o.CreatedAt.Date <= (dateTo ?? DateTime.MaxValue).Date
+        );
 
-        var bakeries = await _unitOfWork.BakeryRepository.WhereAsync(x => x.Status == BakeryStatusConstants.CONFIRMED);
+        var bakeries = await _unitOfWork.BakeryRepository.WhereAsync(x =>
+            x.Status == BakeryStatusConstants.CONFIRMED &&
+            x.CreatedAt.Date >= (dateFrom ?? DateTime.MinValue).Date &&
+            x.CreatedAt.Date <= (dateTo ?? DateTime.MaxValue).Date
+        );
 
-        var available_cakes = await _unitOfWork.AvailableCakeRepository.GetAllAsync();
+        var available_cakes = await _unitOfWork.AvailableCakeRepository.WhereAsync(x =>
+            x.CreatedAt.Date >= (dateFrom ?? DateTime.MinValue).Date &&
+            x.CreatedAt.Date <= (dateTo ?? DateTime.MaxValue).Date
+        );
 
-        var reports = await _unitOfWork.ReportRepository.GetAllAsync();
+        var reports = await _unitOfWork.ReportRepository.WhereAsync(x =>
+            x.CreatedAt.Date >= (dateFrom ?? DateTime.MinValue).Date &&
+            x.CreatedAt.Date <= (dateTo ?? DateTime.MaxValue).Date);
+
         var model = new AdminOverviewModel
         {
             TotalBakeries = bakeries.Count,
@@ -51,10 +66,47 @@ public class AdminReportService(IUnitOfWork unitOfWork, IMapper mapper) : IAdmin
     public async Task<(Pagination, List<BakeryMetric>)> GetTopBakeryMetrics(
         int pageIndex = 0,
         int pageSize = 10,
+        DateTime? dateFrom = null,
+        DateTime? dateTo = null,
         List<(Expression<Func<BakeryMetric, object>> OrderBy, bool IsDescending)>? orderByList = null
     )
     {
+        if (dateFrom.HasValue && dateTo.HasValue)
+        {
+            var orders = await _unitOfWork.OrderRepository.WhereAsync(
+                    x =>
+                    (x.OrderStatus == OrderStatusConstants.COMPLETED || x.OrderStatus == OrderStatusConstants.FAULTY) &&
+                    x.CreatedAt.Date >= dateFrom.Value.Date && x.CreatedAt.Date <= dateTo.Value.Date,
+                    includes: x => x.Bakery
+                );
+            var filterByDate = orders.GroupBy(x => x.BakeryId).Select(async g => new BakeryMetric
+            {
+                BakeryId = g.Key,
+                Bakery = g.FirstOrDefault()!.Bakery,
+                TotalRevenue = g.Sum(x => x.ShopRevenue),
+                AppRevenue = g.Sum(x => x.AppCommissionFee),
+                RatingAverage = await _unitOfWork.ReviewRepository
+                                .WhereAsync(x => x.BakeryId == g.Key && x.ReviewType == ReviewTypeConstants.BAKERY_REVIEW)
+                                .ContinueWith(task =>
+                                {
+                                    var reviews = task.Result;
+                                    return reviews.Count != 0 ? reviews.Average(r => r.Rating) : 0;
+                                }),
+                AverageOrderValue = g.Average(x => x.ShopRevenue),
+                OrdersCount = g.Count(),
+                CustomersCount = g.Select(x => x.CustomerId).Distinct().Count()
+            });
 
+            var result = (await Task.WhenAll(filterByDate))
+                        .OrderByDescending(x => x.TotalRevenue)
+                        .ToList();
+            return (new Pagination
+            {
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                TotalItemsCount = result.Count,
+            }, result.Skip(pageIndex * pageSize).Take(pageSize).ToList());
+        }
         return await _unitOfWork.BakeryMetricRepository.ToPagination(pageIndex, pageSize, orderByList: orderByList, includes: x => x.Bakery);
 
     }
@@ -138,7 +190,7 @@ public class AdminReportService(IUnitOfWork unitOfWork, IMapper mapper) : IAdmin
             var orders = await _unitOfWork.OrderRepository.WhereAsync(
                 x =>
                 (x.OrderStatus == OrderStatusConstants.COMPLETED || x.OrderStatus == OrderStatusConstants.FAULTY)
-                && x.CreatedAt >= dateFrom && x.CreatedAt <= dateTo
+                && x.CreatedAt.Date >= dateFrom.Date && x.CreatedAt.Date <= dateTo.Date
             );
 
             // Lấy dữ liệu theo ngày (nếu khoảng cách <= 12 tháng)
@@ -167,7 +219,7 @@ public class AdminReportService(IUnitOfWork unitOfWork, IMapper mapper) : IAdmin
         else if (type == "BAKERIES")
         {
             var bakeries = await _unitOfWork.BakeryRepository.WhereAsync(x => x.Status != BakeryStatusConstants.BANNED);
-            var monthlyBakeries = bakeries.Where(x => x.CreatedAt >= dateFrom && x.CreatedAt <= dateTo);
+            var monthlyBakeries = bakeries.Where(x => x.CreatedAt.Date >= dateFrom.Date && x.CreatedAt.Date <= dateTo.Date);
 
             // Lấy dữ liệu theo ngày (nếu khoảng cách <= 12 tháng)
             if ((dateTo - dateFrom).TotalDays <= 31) // Nếu khoảng cách giữa 2 ngày nhỏ hơn hoặc bằng 31 ngày (tương ứng với một tháng)
@@ -195,7 +247,7 @@ public class AdminReportService(IUnitOfWork unitOfWork, IMapper mapper) : IAdmin
         {
             var orders = await _unitOfWork.OrderRepository.WhereAsync(
                 x => x.OrderStatus == OrderStatusConstants.COMPLETED
-                && x.CreatedAt >= dateFrom && x.CreatedAt <= dateTo
+                && x.CreatedAt.Date >= dateFrom.Date && x.CreatedAt.Date <= dateTo.Date
             );
 
             // Lấy dữ liệu theo ngày (nếu khoảng cách <= 12 tháng)
@@ -206,7 +258,7 @@ public class AdminReportService(IUnitOfWork unitOfWork, IMapper mapper) : IAdmin
 
                 foreach (var day in days)
                 {
-                    var dailyOrders = orders.Where(x => x.CreatedAt.Date == day);
+                    var dailyOrders = orders.Where(x => x.CreatedAt.Date == day.Date);
                     result.Add(new { date = day.ToString("yyyy-MM-dd"), value = dailyOrders.Select(x => x.CustomerId).Distinct().Count() });
                 }
             }

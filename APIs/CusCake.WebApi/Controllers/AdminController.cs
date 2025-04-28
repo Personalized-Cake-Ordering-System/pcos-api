@@ -63,11 +63,12 @@ public class AdminController(
 
     [HttpGet("sales-overview")]
     [Authorize(Roles = RoleConstants.ADMIN)]
-    public async Task<IActionResult> GetSalesOverviewAsync()
+    public async Task<IActionResult> GetSalesOverviewAsync(
+        DateTime? dateFrom = null,
+        DateTime? dateTo = null
+    )
     {
-        // var orderByList = SortingHelper.ParseSortingParameters("total_revenue:desc", EntitySortingMappings.AvailableCakeMappings);
-
-        var result = await _adminReportService.GetAdminOverviewModel();
+        var result = await _adminReportService.GetAdminOverviewModel(dateFrom, dateTo);
         return Ok(ResponseModel<object, AdminOverviewModel>.Success(result));
     }
 
@@ -75,24 +76,19 @@ public class AdminController(
     [Authorize(Roles = RoleConstants.ADMIN)]
     public async Task<IActionResult> GetTopBakeryMetricsAsync(
         int pageIndex = 0,
-        int pageSize = 10)
+        int pageSize = 10,
+        DateTime? dateFrom = null,
+        DateTime? dateTo = null)
     {
         var orderByList = SortingHelper.ParseSortingParameters("total_revenue:desc", EntitySortingMappings.BakeryMetricMappings);
-        var result = await _adminReportService.GetTopBakeryMetrics(pageIndex, pageSize, orderByList);
+        var result = await _adminReportService.GetTopBakeryMetrics(pageIndex, pageSize, dateFrom, dateTo, orderByList);
         return Ok(ResponseModel<object, List<BakeryMetric>>.Success(result.Item2, result.Item1));
     }
 
 
     /// <summary>
-    /// api/admins/chart?type=REVENUE&dateFrom=2024-05-25&dateTo=2025-04-28
-    /// api/admins/chart?type=CUSTOMERS&dateFrom=2024-01-25&dateTo=2025-04-28
-    /// api/admins/chart?type=BAKERIES&dateFrom=2025-04-25&dateTo=2025-04-28
-    /// Thử để thấy cách truyền tham số dateFrom, dateTo
+    /// REVENUE, CUSTOMERS, BAKERIES
     /// </summary>
-    /// <param name="type">REVENUE, CUSTOMERS, BAKERIES`</param>
-    /// <param name="dateFrom">2025-04-25</param>
-    /// <param name="dateTo">2025-04-28</param>
-    /// <returns></returns>
     [HttpGet("chart")]
     [Authorize(Roles = RoleConstants.ADMIN)]
     public async Task<IActionResult> GetAppReportAsync(string type,

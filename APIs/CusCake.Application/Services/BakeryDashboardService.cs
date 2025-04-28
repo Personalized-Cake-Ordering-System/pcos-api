@@ -7,10 +7,10 @@ namespace CusCake.Application.Services;
 
 public interface IBakeryDashboardService
 {
-    Task<OverviewModel> GetBakeryOverviewAsync(Guid bakeryId);
+    Task<OverviewModel> GetBakeryOverviewAsync(Guid bakeryId, DateTime? dateFrom = null, DateTime? dateTo = null);
     Task<List<object>> GetBakerySalesOverviewAsync(Guid bakeryId, string type, DateTime? dateFrom = null, DateTime? dateTo = null);
-    Task<object> GetBakeryProductPerformanceAsync(Guid bakeryId);
-    Task<object> GetBakeryCategoryDistributionAsync(Guid bakeryId);
+    Task<object> GetBakeryProductPerformanceAsync(Guid bakeryId, DateTime? dateFrom = null, DateTime? dateTo = null);
+    Task<object> GetBakeryCategoryDistributionAsync(Guid bakeryId, DateTime? dateFrom = null, DateTime? dateTo = null);
 }
 
 public enum SalesOverviewType
@@ -27,20 +27,30 @@ public class BakeryDashboardService(IUnitOfWork unitOfWork) : IBakeryDashboardSe
     private static readonly DateTime CurrentMonth = new(DateTime.Now.Year, DateTime.Now.Month, 1);
     private static readonly DateTime LastMonth = CurrentMonth.AddMonths(-1);
 
-    public async Task<OverviewModel> GetBakeryOverviewAsync(Guid bakeryId)
+    public async Task<OverviewModel> GetBakeryOverviewAsync(Guid bakeryId, DateTime? dateFrom = null, DateTime? dateTo = null)
     {
+        var timePeriod = dateFrom.HasValue && dateTo.HasValue
+            ? dateFrom.Value.AddDays((dateTo - dateFrom).Value.TotalDays)
+            : LastMonth;
+
         var orders_last_month = await _unitOfWork.OrderRepository.WhereAsync(
             x => x.BakeryId == bakeryId
-            && x.CreatedAt < CurrentMonth
-            && x.CreatedAt >= LastMonth
+            && x.CreatedAt.Date < (dateFrom ?? CurrentMonth).Date
+            && x.CreatedAt.Date >= timePeriod.Date
         );
 
         var orders_current_month = await _unitOfWork.OrderRepository.WhereAsync(
-            x => x.BakeryId == bakeryId
-            && x.CreatedAt >= CurrentMonth
+            x => x.BakeryId == bakeryId &&
+                x.CreatedAt >= (dateFrom ?? CurrentMonth).Date &&
+                x.CreatedAt < (dateTo ?? DateTime.MaxValue).Date
         );
 
         var (total_revenue_metric, orders_metric, customers_metric, average_order_metric) = GetTotalRevenueMetric(orders_last_month, orders_current_month);
+
+        total_revenue_metric.ComparisonPeriod = dateFrom.HasValue && dateTo.HasValue ? "last period time" : "last month";
+        orders_metric.ComparisonPeriod = dateFrom.HasValue && dateTo.HasValue ? "last period time" : "last month";
+        customers_metric.ComparisonPeriod = dateFrom.HasValue && dateTo.HasValue ? "last period time" : "last month";
+        average_order_metric.ComparisonPeriod = dateFrom.HasValue && dateTo.HasValue ? "last period time" : "last month";
 
         return new OverviewModel
         {
@@ -89,7 +99,7 @@ public class BakeryDashboardService(IUnitOfWork unitOfWork) : IBakeryDashboardSe
         {
             Amount = total_revenue_current_month,
             Change = total_revenue_last_month != 0
-                ? ((total_revenue_current_month - total_revenue_last_month) / total_revenue_last_month) * 100
+                ? (total_revenue_current_month - total_revenue_last_month) / total_revenue_last_month * 100
                 : 0
         };
 
@@ -97,7 +107,7 @@ public class BakeryDashboardService(IUnitOfWork unitOfWork) : IBakeryDashboardSe
         {
             Amount = count_current_month,
             Change = count_last_month != 0
-                ? ((count_current_month - count_last_month) / (double)count_last_month) * 100
+                ? (count_current_month - count_last_month) / (double)count_last_month * 100
                 : 0
         };
 
@@ -105,7 +115,7 @@ public class BakeryDashboardService(IUnitOfWork unitOfWork) : IBakeryDashboardSe
         {
             Amount = total_customers_current_month,
             Change = total_customers_last_month != 0
-                ? ((total_customers_current_month - total_customers_last_month) / (double)total_customers_last_month) * 100
+                ? (total_customers_current_month - total_customers_last_month) / (double)total_customers_last_month * 100
                 : 0
         };
 
@@ -190,7 +200,7 @@ public class BakeryDashboardService(IUnitOfWork unitOfWork) : IBakeryDashboardSe
             var orders = data.Where(
                 x =>
                 (x.OrderStatus == OrderStatusConstants.COMPLETED || x.OrderStatus == OrderStatusConstants.FAULTY)
-                && x.CreatedAt >= dateFrom && x.CreatedAt <= dateTo
+                && x.CreatedAt.Date >= dateFrom.Date && x.CreatedAt.Date <= dateTo.Date
             );
 
             if ((dateTo - dateFrom).TotalDays <= 31)
@@ -217,7 +227,7 @@ public class BakeryDashboardService(IUnitOfWork unitOfWork) : IBakeryDashboardSe
         else if (type == "ORDERS")
         {
             var orders = data.Where(
-                x => x.CreatedAt >= dateFrom && x.CreatedAt <= dateTo
+                x => x.CreatedAt.Date >= dateFrom.Date && x.CreatedAt.Date <= dateTo.Date
             );
 
             if ((dateTo - dateFrom).TotalDays <= 31)
@@ -244,7 +254,7 @@ public class BakeryDashboardService(IUnitOfWork unitOfWork) : IBakeryDashboardSe
         else if (type == "CUSTOMERS")
         {
             var orders = data.Where(
-                x => x.CreatedAt >= dateFrom && x.CreatedAt <= dateTo
+                x => x.CreatedAt.Date >= dateFrom.Date && x.CreatedAt.Date <= dateTo.Date
             );
 
             if ((dateTo - dateFrom).TotalDays <= 31)
@@ -273,13 +283,15 @@ public class BakeryDashboardService(IUnitOfWork unitOfWork) : IBakeryDashboardSe
     }
 
 
-    public async Task<object> GetBakeryProductPerformanceAsync(Guid bakeryId)
+    public async Task<object> GetBakeryProductPerformanceAsync(Guid bakeryId, DateTime? dateFrom = null, DateTime? dateTo = null)
     {
         var includes = QueryHelper.Includes<OrderDetail>(x => x.Order, x => x.AvailableCake!);
         var order_details = await _unitOfWork.OrderDetailRepository.WhereAsync(
             x => x.Order.BakeryId == bakeryId
             && x.AvailableCakeId != null
-            && x.Order.OrderStatus == OrderStatusConstants.COMPLETED,
+            && (x.Order.OrderStatus == OrderStatusConstants.COMPLETED || x.Order.OrderStatus == OrderStatusConstants.FAULTY)
+            && x.Order.CreatedAt.Date >= (dateFrom ?? DateTime.MinValue).Date
+            && x.Order.CreatedAt.Date <= (dateTo ?? DateTime.MaxValue).Date,
             includes: includes
         );
 
@@ -300,10 +312,21 @@ public class BakeryDashboardService(IUnitOfWork unitOfWork) : IBakeryDashboardSe
         };
     }
 
-    public async Task<object> GetBakeryCategoryDistributionAsync(Guid bakeryId)
+    public async Task<object> GetBakeryCategoryDistributionAsync(Guid bakeryId, DateTime? dateFrom = null, DateTime? dateTo = null)
     {
-        var available_cakes = await _unitOfWork.AvailableCakeRepository.WhereAsync(x => x.BakeryId == bakeryId);
-        var custom_cakes = await _unitOfWork.CustomCakeRepository.WhereAsync(x => x.BakeryId == bakeryId);
+        var available_cakes = await _unitOfWork.AvailableCakeRepository.WhereAsync(x =>
+            x.BakeryId == bakeryId &&
+            x.CreatedAt.Date >= (dateFrom ?? DateTime.MinValue).Date &&
+            x.CreatedAt.Date <= (dateTo ?? DateTime.MaxValue).Date
+        );
+
+        var custom_cakes = await _unitOfWork.CustomCakeRepository.WhereAsync(x =>
+            x.BakeryId == bakeryId &&
+            x.CreatedAt.Date >= (dateFrom ?? DateTime.MinValue).Date &&
+            x.CreatedAt.Date <= (dateTo ?? DateTime.MaxValue).Date
+        );
+
+
         var grouped = available_cakes.GroupBy(x => x.AvailableCakeType);
         var names = grouped.Select(x => x.First().AvailableCakeType).Cast<object>().ToList();
         var quantities = grouped.Select(x => x.Count()).Cast<object>().ToList();

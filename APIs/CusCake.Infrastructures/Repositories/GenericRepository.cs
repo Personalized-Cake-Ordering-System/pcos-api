@@ -163,8 +163,8 @@ public class GenericRepository<TEntity>(AppDbContext context, ICurrentTime curre
     {
         foreach (var entity in entities)
         {
-            entity.CreatedAt = _timeService.GetCurrentTime();
-            entity.CreatedBy = _claimsService.GetCurrentUser;
+            entity.UpdatedAt = _timeService.GetCurrentTime();
+            entity.UpdatedBy = _claimsService.GetCurrentUser;
         }
         _dbSet.UpdateRange(entities);
     }

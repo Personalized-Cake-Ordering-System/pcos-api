@@ -107,7 +107,13 @@ public class BakeryService(
         double customerLng = 0,
         Expression<Func<Bakery, bool>>? filter = null)
     {
-        var includes = QueryHelper.Includes<Bakery>(x => x.AvatarFile!, x => x.FrontCardFile!, x => x.BackCardFile, x => x.Metric!);
+        var includes = QueryHelper.Includes<Bakery>(
+            x => x.AvatarFile!,
+            x => x.FrontCardFile!,
+            x => x.FoodSafetyCertificateFile!,
+            x => x.BusinessLicenseFile!,
+            x => x.BackCardFile!,
+            x => x.Metric!);
         var result = await _unitOfWork.BakeryRepository.ToPagination(pageIndex, pageSize, filter: filter, includes: includes);
         if (customerLat != 0 && customerLng != 0)
         {
@@ -122,7 +128,14 @@ public class BakeryService(
 
     public async Task<Bakery> GetByIdAsync(Guid id)
     {
-        var includes = QueryHelper.Includes<Bakery>(x => x.AvatarFile!, x => x.FrontCardFile!, x => x.BackCardFile, x => x.Metric!);
+        var includes = QueryHelper.Includes<Bakery>(
+            x => x.AvatarFile!,
+            x => x.FrontCardFile!,
+            x => x.FoodSafetyCertificateFile!,
+            x => x.BusinessLicenseFile!,
+            x => x.BackCardFile!,
+            x => x.Metric!
+        );
 
         var cake = await _unitOfWork.BakeryRepository.GetByIdAsync(id, includes: includes) ?? throw new BadRequestException("Id is not exist!");
         cake.Reviews = await _unitOfWork.ReviewRepository.WhereAsync(x => x.BakeryId == id & x.ReviewType == ReviewTypeConstants.BAKERY_REVIEW);
@@ -145,8 +158,8 @@ public class BakeryService(
 
         if (existBakeries.Count > 0)
         {
-            if (!string.IsNullOrEmpty(name) && existBakeries.Any(x => x.BakeryName == name))
-                throw new BadRequestException($"Name '{name}' already exists.");
+            // if (!string.IsNullOrEmpty(name) && existBakeries.Any(x => x.BakeryName == name))
+            //     throw new BadRequestException($"Name '{name}' already exists.");
             if (!string.IsNullOrEmpty(email) && existBakeries.Any(x => x.Email == email))
                 throw new BadRequestException($"Email '{email}' already exists.");
             if (!string.IsNullOrEmpty(taxCode) && existBakeries.Any(x => x.TaxCode == taxCode))
