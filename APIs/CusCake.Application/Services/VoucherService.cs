@@ -5,6 +5,7 @@ using CusCake.Application.GlobalExceptionHandling.Exceptions;
 using CusCake.Application.Services.IServices;
 using CusCake.Application.Utils;
 using CusCake.Application.ViewModels.VoucherModels;
+using CusCake.Domain.Constants;
 using CusCake.Domain.Entities;
 
 namespace CusCake.Application.Services;
@@ -48,6 +49,9 @@ public class VoucherService(
 
     public async Task<Voucher> CreateAsync(VoucherCreateModel model)
     {
+        if (model.VoucherType == VoucherTypeConstants.SYSTEM && _claimsService.GetCurrentUserRole != RoleConstants.ADMIN)
+            throw new BadRequestException("Cannot create system voucher");
+
         string code;
         do
         {
@@ -57,7 +61,7 @@ public class VoucherService(
 
         var voucher = _mapper.Map<Voucher>(model);
         voucher.Code = code;
-        voucher.BakeryId = _claimsService.GetCurrentUser;
+        voucher.BakeryId = model.VoucherType == VoucherTypeConstants.SYSTEM ? null : _claimsService.GetCurrentUser;
 
         await _unitOfWork.VoucherRepository.AddAsync(voucher);
 
@@ -71,6 +75,10 @@ public class VoucherService(
     public async Task DeleteAsync(Guid id)
     {
         var voucher = await GetByIdAsync(id);
+
+        if (voucher.VoucherType == VoucherTypeConstants.SYSTEM && _claimsService.GetCurrentUserRole != RoleConstants.ADMIN)
+            throw new BadRequestException("Cannot delete system voucher");
+
         _unitOfWork.VoucherRepository.SoftRemove(voucher);
         await _unitOfWork.SaveChangesAsync();
     }
@@ -103,8 +111,13 @@ public class VoucherService(
     public async Task<Voucher> UpdateAsync(Guid id, VoucherUpdateModel model)
     {
         var voucher = await GetByIdAsync(id);
-        if (voucher.BakeryId != _claimsService.GetCurrentUser)
+
+        if (voucher.VoucherType == VoucherTypeConstants.SYSTEM && _claimsService.GetCurrentUserRole != RoleConstants.ADMIN)
+            throw new BadRequestException("Cannot update system voucher");
+
+        if (voucher.VoucherType != VoucherTypeConstants.SYSTEM && voucher.BakeryId != _claimsService.GetCurrentUser)
             throw new BadRequestException("No permission");
+
         _mapper.Map(model, voucher);
 
         _unitOfWork.VoucherRepository.Update(voucher);

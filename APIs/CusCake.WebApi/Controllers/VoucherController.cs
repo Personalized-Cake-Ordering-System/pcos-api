@@ -21,7 +21,7 @@ public class VoucherController(IVoucherService voucherService) : BaseController
 
 
     [HttpPost]
-    [Authorize(Roles = RoleConstants.BAKERY)]
+    [Authorize(Roles = RoleConstants.BAKERY + "," + RoleConstants.ADMIN)]
     public async Task<IActionResult> CreateAsync([FromBody] VoucherCreateModel models)
     {
         var voucher = await _voucherService.CreateAsync(models);
@@ -48,6 +48,7 @@ public class VoucherController(IVoucherService voucherService) : BaseController
 
         // Build the filter expression
         Expression<Func<Voucher, bool>> filter = x =>
+            x.VoucherType != VoucherTypeConstants.SYSTEM &&
             (bakeryId == null || x.BakeryId == bakeryId) &&
             (string.IsNullOrEmpty(type) || ((type != VoucherTypeConstants.GLOBAL) && (type != VoucherTypeConstants.PRIVATE)) || x.VoucherType == type);
 
@@ -57,7 +58,7 @@ public class VoucherController(IVoucherService voucherService) : BaseController
     }
 
     [HttpPut("{id}")]
-    [Authorize(Roles = RoleConstants.BAKERY)]
+    [Authorize(Roles = RoleConstants.BAKERY + "," + RoleConstants.ADMIN)]
     public async Task<IActionResult> UpdateAsync(Guid id, [FromBody] VoucherUpdateModel model)
     {
         return Ok(ResponseModel<object, object>.Success(await _voucherService.UpdateAsync(id, model)));

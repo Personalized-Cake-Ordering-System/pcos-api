@@ -69,7 +69,7 @@ public class VoucherCreateModelValidator : AbstractValidator<VoucherCreateModel>
             .NotEmpty().WithMessage("Description is required.");
 
         RuleFor(x => x.VoucherType)
-            .Must(v => v == VoucherTypeConstants.GLOBAL || v == VoucherTypeConstants.PRIVATE)
-            .WithMessage("Voucher type must be either GLOBAL or PRIVATE.");
+            .Must(v => v == VoucherTypeConstants.GLOBAL || v == VoucherTypeConstants.PRIVATE || v == VoucherTypeConstants.SYSTEM)
+            .WithMessage("Voucher type must be either SYSTEM, GLOBAL or PRIVATE.");
     }
 }
