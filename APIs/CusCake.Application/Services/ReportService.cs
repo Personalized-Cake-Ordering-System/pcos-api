@@ -109,15 +109,15 @@ public class ReportService(
         var approved_reports = await _unitOfWork.ReportRepository.WhereAsync(x => x.BakeryId == report.BakeryId && x.Status == ReportStatusConstants.ACCEPTED);
         if (approved_reports.Count == 0)
         {
-            await AssignVoucherToCustomer(0.1, report.CustomerId);
+            await AssignVoucherToCustomer(10, report.CustomerId);
             return;
         }
         if (approved_reports.Count == 1)
         {
-            await AssignVoucherToCustomer(0.4, report.CustomerId);
+            await AssignVoucherToCustomer(40, report.CustomerId);
             return;
         }
-        await AssignVoucherToCustomer(0.7, report.CustomerId);
+        await AssignVoucherToCustomer(70, report.CustomerId);
 
         var bakery = await _bakeryService.GetByIdAsync(report.BakeryId);
         bakery.Status = BakeryStatusConstants.BANNED;

@@ -35,6 +35,10 @@ public class VoucherService(
 
     public async Task<CustomerVoucher> AssignVoucherToCustomer(Guid id, AssignVoucherModel model)
     {
+        var voucher = await GetByIdAsync(id);
+        if (voucher.VoucherType == VoucherTypeConstants.SYSTEM)
+            throw new BadRequestException("Cannot assign system voucher");
+
         var cus_voucher = new CustomerVoucher
         {
             VoucherId = id,
