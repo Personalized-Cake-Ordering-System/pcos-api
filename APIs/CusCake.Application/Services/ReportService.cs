@@ -43,7 +43,7 @@ public class ReportService(
     private readonly IBackgroundJobClient _backgroundJobClient = backgroundJobClient;
     public async Task ApproveAsync(Guid id, ReportActionModel model)
     {
-        var report = await GetByIdAsync(id);
+        var report = await _unitOfWork.ReportRepository.GetByIdAsync(id) ?? throw new BadRequestException("Report not found!");
         if (report.Status != ReportStatusConstants.PENDING)
             throw new BadRequestException("Report has been checked!");
         if (model.IsApproved)
@@ -56,7 +56,10 @@ public class ReportService(
 
         await _unitOfWork.SaveChangesAsync();
 
-        var reportJson = JsonConvert.SerializeObject(report);
+        var reportJson = JsonConvert.SerializeObject(report, new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+        });
 
         _backgroundJobClient.Enqueue(() => UpdateOrder(report.OrderId!.Value, model.IsApproved, reportJson));
 
