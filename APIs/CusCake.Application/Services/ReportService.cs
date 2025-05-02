@@ -50,6 +50,7 @@ public class ReportService(
         {
             await HandleApproveAsync(report);
         }
+
         report.Status = model.IsApproved ? ReportStatusConstants.ACCEPTED : ReportStatusConstants.REJECTED;
         report.RejectReason = model.IsApproved ? null : model.RejectReason;
         _unitOfWork.ReportRepository.Update(report);
@@ -61,8 +62,8 @@ public class ReportService(
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore
         });
 
-        _backgroundJobClient.Enqueue(() => UpdateOrder(report.OrderId!.Value, model.IsApproved, reportJson));
-
+        if (report.Type == ReportTypeConstants.ORDER_REPORT)
+            _backgroundJobClient.Enqueue(() => UpdateOrder(report.OrderId!.Value, model.IsApproved, reportJson));
 
     }
 
@@ -110,6 +111,7 @@ public class ReportService(
     private async Task HandleApproveAsync(Report report)
     {
         var approved_reports = await _unitOfWork.ReportRepository.WhereAsync(x => x.BakeryId == report.BakeryId && x.Status == ReportStatusConstants.ACCEPTED);
+
         if (approved_reports.Count == 0)
         {
             await AssignVoucherToCustomer(10, report.CustomerId);
@@ -120,13 +122,16 @@ public class ReportService(
             await AssignVoucherToCustomer(40, report.CustomerId);
             return;
         }
-        await AssignVoucherToCustomer(70, report.CustomerId);
+        if (approved_reports.Count >= 2)
+        {
+            await AssignVoucherToCustomer(70, report.CustomerId);
+            var bakery = await _bakeryService.GetByIdAsync(report.BakeryId);
+            bakery.Status = approved_reports.Count > 3 ? BakeryStatusConstants.BANNED : bakery.Status;
+            bakery.BannedAt = approved_reports.Count > 3 ? DateTime.Now : null;
 
-        var bakery = await _bakeryService.GetByIdAsync(report.BakeryId);
-        bakery.Status = BakeryStatusConstants.BANNED;
-        bakery.BannedAt = DateTime.Now;
+            _unitOfWork.BakeryRepository.Update(bakery);
 
-        _unitOfWork.BakeryRepository.Update(bakery);
+        }
 
     }
 
