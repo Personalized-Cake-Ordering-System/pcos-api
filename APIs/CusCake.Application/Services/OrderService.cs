@@ -391,7 +391,9 @@ public class OrderService(
                 x.Status == BakeryStatusConstants.CONFIRMED
             ) ?? throw new BadRequestException("Bakery not found");
 
-        if (bakery.OpenTime > DateTime.Now.TimeOfDay || bakery.CloseTime < DateTime.Now.TimeOfDay)
+        var currentTimeInUtc7 = DateTime.UtcNow.AddHours(7).TimeOfDay;
+
+        if (bakery.OpenTime > currentTimeInUtc7 || bakery.CloseTime < currentTimeInUtc7)
             throw new BadRequestException("Bakery is closed!");
 
         var customer = await _customerService.GetByIdAsync(_claimsService.GetCurrentUser);
