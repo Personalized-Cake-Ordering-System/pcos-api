@@ -109,7 +109,16 @@ public class VoucherService(
 
     public async Task<Voucher?> GetVoucherByCodeAsync(string code, Guid bakeryId)
     {
-        return await _unitOfWork.VoucherRepository.FirstOrDefaultAsync(x => x.Code == code && x.BakeryId == bakeryId);
+        var voucher = await _unitOfWork.VoucherRepository.FirstOrDefaultAsync(x => x.Code == code)
+                ?? throw new BadRequestException("Voucher code is invalid or does not exist.");
+
+        if (voucher.VoucherType == VoucherTypeConstants.SYSTEM)
+            return voucher;
+
+        if (voucher.BakeryId != bakeryId)
+            throw new BadRequestException("Cannot use this voucher.");
+
+        return voucher;
     }
 
     public async Task<Voucher> UpdateAsync(Guid id, VoucherUpdateModel model)
