@@ -35,7 +35,10 @@ public class NotificationService(
             Message = message
         };
 
-        var json = JsonConvert.SerializeObject(notification);
+        var json = JsonConvert.SerializeObject(notification, new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+        });
 
         await _hubContext.Clients
             .All

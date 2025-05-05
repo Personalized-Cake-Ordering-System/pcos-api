@@ -152,7 +152,10 @@ public class ReportService(
         await _unitOfWork.ReportRepository.AddAsync(report);
         await _unitOfWork.SaveChangesAsync();
 
-        var reportJson = JsonConvert.SerializeObject(report);
+        var reportJson = JsonConvert.SerializeObject(report, new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+        });
 
         await _notificationService.CreateAdminNotificationAsync(report.Id, NotificationType.NEW_REPORT, admin.EntityId);
         await _notificationService.SendNotificationAsync(admin.EntityId, reportJson, NotificationType.NEW_REPORT);

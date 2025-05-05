@@ -16,7 +16,10 @@ public class TestController(INotificationService notificationService, IOrderServ
     {
         var userId = "cd8c2dae-76c3-485b-a674-dcd7e57a1b64";
         var order = await _orderService.GetOrderByIdAsync(Guid.Parse("038564a7-4880-4c80-bff0-c482e30e2dc7"));
-        var json = JsonConvert.SerializeObject(order);
+        var json = JsonConvert.SerializeObject(order, new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+        });
         await _notificationService.SendNotificationAsync(Guid.Parse(userId), json, NotificationType.NEW_ORDER);
         return Ok();
     }

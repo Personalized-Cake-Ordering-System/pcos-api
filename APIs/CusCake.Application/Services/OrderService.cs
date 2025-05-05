@@ -128,7 +128,10 @@ public class OrderService(
                             TargetEntityId = order.Id
                         };
 
-                        var orderJson = JsonConvert.SerializeObject(order);
+                        var orderJson = JsonConvert.SerializeObject(order, new JsonSerializerSettings
+                                        {
+                                            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                                        });
                         await _notificationService.CreateOrderNotificationAsync(order.Id,NotificationType.PROCESSING_ORDER, null ,order.CustomerId);
                         await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, NotificationType.PROCESSING_ORDER);
 
@@ -183,7 +186,10 @@ public class OrderService(
                         _unitOfWork.OrderRepository.Update(order!);
                         await _unitOfWork.SaveChangesAsync();
 
-                        var orderJson = JsonConvert.SerializeObject(order);
+                        var orderJson = JsonConvert.SerializeObject(order, new JsonSerializerSettings
+                                        {
+                                            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                                        });
                         await _notificationService.CreateOrderNotificationAsync(order.Id, NotificationType.SHIPPING_ORDER , null ,order.CustomerId);
                         await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, NotificationType.SHIPPING_ORDER);
 
@@ -220,7 +226,10 @@ public class OrderService(
                         var delay = localExecuteTime - DateTime.Now;
                         _backgroundJobClient.Schedule(() => AutoShippingCompletedToDoneAsync(order!.Id), delay);
 
-                        var orderJson = JsonConvert.SerializeObject(order);
+                        var orderJson = JsonConvert.SerializeObject(order, new JsonSerializerSettings
+                                        {
+                                            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                                        });
                         await _notificationService.CreateOrderNotificationAsync(order.Id,NotificationType.SHIPPING_COMPLETED, null ,order.CustomerId);
                         await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, NotificationType.SHIPPING_COMPLETED);
 
@@ -245,7 +254,10 @@ public class OrderService(
 
                         await MakeFinalPayment(order);
 
-                        var orderJson = JsonConvert.SerializeObject(order);
+                        var orderJson = JsonConvert.SerializeObject(order, new JsonSerializerSettings
+                        {
+                            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                        });
                         await _notificationService.CreateOrderNotificationAsync(order.Id,NotificationType.COMPLETED_ORDER, null ,order.CustomerId);
                         await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, NotificationType.COMPLETED_ORDER);
                         _backgroundJobClient.Enqueue(() => _bakeryMetricService.ReCalculateBakeryMetricsAsync(order.BakeryId));
@@ -355,7 +367,10 @@ public class OrderService(
         _unitOfWork.OrderRepository.Update(order!);
         await _unitOfWork.SaveChangesAsync();
 
-        var orderJson = JsonConvert.SerializeObject(order);
+        var orderJson = JsonConvert.SerializeObject(order, new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+        });
         await _notificationService.CreateOrderNotificationAsync(order.Id, NotificationType.COMPLETED_ORDER, null, order.CustomerId);
         await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, NotificationType.COMPLETED_ORDER);
         _backgroundJobClient.Enqueue(() => _bakeryMetricService.ReCalculateBakeryMetricsAsync(order.BakeryId));
@@ -376,7 +391,10 @@ public class OrderService(
         _unitOfWork.OrderRepository.Update(order!);
         await _unitOfWork.SaveChangesAsync();
 
-        var orderJson = JsonConvert.SerializeObject(order);
+        var orderJson = JsonConvert.SerializeObject(order, new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+        });
         await _notificationService.CreateOrderNotificationAsync(order.Id, NotificationType.CANCELED_ORDER, null, order.CustomerId);
         await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, NotificationType.CANCELED_ORDER);
     }
@@ -726,7 +744,10 @@ public class OrderService(
         if (!string.IsNullOrEmpty(order.VoucherCode))
             _backgroundJobClient.Enqueue(() => ResetVoucherAsync(order.VoucherCode!, order.BakeryId));
 
-        var orderJson = JsonConvert.SerializeObject(order);
+        var orderJson = JsonConvert.SerializeObject(order, new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+        });
         await _notificationService.CreateOrderNotificationAsync(order.Id, NotificationType.CANCELED_ORDER, null, order.CustomerId);
         await _notificationService.SendNotificationAsync(order.CustomerId, orderJson, NotificationType.CANCELED_ORDER);
         _backgroundJobClient.Enqueue(() => _bakeryMetricService.ReCalculateBakeryMetricsAsync(order.BakeryId));

@@ -81,7 +81,10 @@ public class BakeryService(
         var result = await _unitOfWork.BakeryRepository.AddAsync(bakery);
         await _unitOfWork.SaveChangesAsync();
 
-        var bakeryJson = JsonConvert.SerializeObject(bakery);
+        var bakeryJson = JsonConvert.SerializeObject(bakery, new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+        });
 
         await _notificationService.CreateAdminNotificationAsync(bakery.Id, NotificationType.NEW_BAKERY_REGISTRATION, admin.EntityId);
         await _notificationService.SendNotificationAsync(admin.EntityId, bakeryJson, NotificationType.NEW_BAKERY_REGISTRATION);
