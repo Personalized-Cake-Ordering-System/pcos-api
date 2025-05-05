@@ -63,7 +63,10 @@ public class TransactionService(
 
     private async Task CreateNotificationAsync(Order order)
     {
-        var orderJson = JsonConvert.SerializeObject(order);
+        var orderJson = JsonConvert.SerializeObject(order, new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+        });
 
         await _notificationService.CreateOrderNotificationAsync(order.Id, NotificationType.PAYMENT_SUCCESS, null, order.CustomerId);
         await _notificationService.CreateOrderNotificationAsync(order.Id, NotificationType.NEW_ORDER, order.BakeryId, null);
