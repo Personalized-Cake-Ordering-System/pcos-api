@@ -5,6 +5,7 @@ using CusCake.Application.GlobalExceptionHandling.Exceptions;
 using CusCake.Application.Services.IServices;
 using CusCake.Application.Utils;
 using CusCake.Application.ViewModels.OrderModels;
+using CusCake.Application.ViewModels.ShippingModels;
 using CusCake.Domain.Constants;
 using CusCake.Domain.Entities;
 using Hangfire;
@@ -24,6 +25,7 @@ public interface IOrderService
     Task<Order?> MoveToNextAsync<Order>(Guid id, List<IFormFile>? files = null);
     Task<(Pagination, List<Order>)> GetAllAsync(int pageIndex = 0, int pageSize = 10, Expression<Func<Order, bool>>? filter = null);
     Task<Order> GetOrderDetailAsync(Guid id);
+    Task<ShippingFeeModel> CalculateShippingFee(string orgLat, string orgLng, string destLat, string destLng);
 }
 
 public class OrderService(
@@ -505,6 +507,23 @@ public class OrderService(
         cus_voucher.AppliedAt = DateTime.Now;
         _unitOfWork.CustomerVoucherRepository.Update(cus_voucher);
 
+    }
+
+    public async Task<ShippingFeeModel> CalculateShippingFee(string orgLat, string orgLng, string destLat, string destLng)
+    {
+        var (distanceKm, shippingTimeH) = await _goongService.GetShippingInfoAsync(
+            orgLat, orgLng,
+            destLat, destLng
+        );
+
+        double shipping_fee = DeliveryFeeCalculator.CalculateFee(distanceKm);
+
+        return new ShippingFeeModel
+        {
+            ShippingDistance = distanceKm,
+            ShippingTime = shippingTimeH,
+            ShippingFee = shipping_fee
+        };
     }
 
     private async Task<Order> CalculateShipping(Bakery bakery, Order order)
