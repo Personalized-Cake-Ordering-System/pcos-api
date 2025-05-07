@@ -27,7 +27,7 @@ public class CustomerController(
     private readonly IReportService _reportService = reportService;
 
     [HttpGet("{id}")]
-    [Authorize]
+    // [Authorize]
     public async Task<IActionResult> GetByIdAsync(Guid id)
     {
         return Ok(ResponseModel<object, Customer>.Success(await _customerService.GetByIdAsync(id)));
@@ -42,7 +42,7 @@ public class CustomerController(
     }
 
     [HttpGet]
-    [Authorize(Roles = RoleConstants.ADMIN)]
+    // [Authorize(Roles = RoleConstants.ADMIN)]
     public async Task<IActionResult> GetAllAsync(int pageIndex = 0, int pageSize = 10)
     {
         var result = await _customerService.GetAllAsync(pageIndex, pageSize);

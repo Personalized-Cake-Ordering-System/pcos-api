@@ -155,7 +155,7 @@ public class AdminReportService(IUnitOfWork unitOfWork) : IAdminReportService
         }
         else if (type == "BAKERIES")
         {
-            var bakeries = await _unitOfWork.BakeryRepository.WhereAsync(x => x.Status != BakeryStatusConstants.BANNED);
+            var bakeries = await _unitOfWork.BakeryRepository.WhereAsync(x => x.Status == BakeryStatusConstants.CONFIRMED);
             var yearlyBakeries = bakeries.Where(x => x.CreatedAt.Year >= dateFrom.Year && x.CreatedAt.Year <= dateTo.Year);
 
             for (int year = dateFrom.Year; year <= dateTo.Year; year++)
@@ -218,7 +218,7 @@ public class AdminReportService(IUnitOfWork unitOfWork) : IAdminReportService
         }
         else if (type == "BAKERIES")
         {
-            var bakeries = await _unitOfWork.BakeryRepository.WhereAsync(x => x.Status != BakeryStatusConstants.BANNED);
+            var bakeries = await _unitOfWork.BakeryRepository.WhereAsync(x => x.Status == BakeryStatusConstants.CONFIRMED);
             var monthlyBakeries = bakeries.Where(x => x.CreatedAt.Date >= dateFrom.Date && x.CreatedAt.Date <= dateTo.Date);
 
             // Lấy dữ liệu theo ngày (nếu khoảng cách <= 12 tháng)
