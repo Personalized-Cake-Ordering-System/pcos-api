@@ -95,20 +95,20 @@ public class CustomCakeService(IUnitOfWork unitOfWork, IMapper mapper, IClaimsSe
             return await HandleDefaultPartSelection(cusCakeId, bakeryId, requiredTypes);
         }
 
-        // Lấy danh sách các loại đã được chọn trong PartSelections
-        var selectedTypes = selections
-            .Select(ps => Enum.TryParse(ps.Type, out CakePartTypeEnum type) ? type : (CakePartTypeEnum?)null)
-            .Where(type => type.HasValue)
-            .Select(type => type!.Value.ToString())
-            .ToHashSet();
+        // // Lấy danh sách các loại đã được chọn trong PartSelections
+        // var selectedTypes = selections
+        //     .Select(ps => Enum.TryParse(ps.Type, out CakePartTypeEnum type) ? type : (CakePartTypeEnum?)null)
+        //     .Where(type => type.HasValue)
+        //     .Select(type => type!.Value.ToString())
+        //     .ToHashSet();
 
-        // Lọc ra các loại required chưa có trong PartSelections
-        var missingRequiredTypes = requiredTypes
-            .Where(type => !selectedTypes.Contains(type))
-            .ToList();
+        // // Lọc ra các loại required chưa có trong PartSelections
+        // var missingRequiredTypes = requiredTypes
+        //     .Where(type => !selectedTypes.Contains(type))
+        //     .ToList();
 
-        total_price += missingRequiredTypes.Count > 0 ?
-                        await HandleDefaultPartSelection(cusCakeId, bakeryId, missingRequiredTypes) : 0;
+        // total_price += missingRequiredTypes.Count > 0 ?
+        //                 await HandleDefaultPartSelection(cusCakeId, bakeryId, missingRequiredTypes) : 0;
 
         total_price += await HandleSelectedPartSelection(cusCakeId, bakeryId, selections);
 
@@ -183,10 +183,10 @@ public class CustomCakeService(IUnitOfWork unitOfWork, IMapper mapper, IClaimsSe
             return await HandleDefaultExtraSelection(cusCakeId, bakeryId, extraTypes);
         }
 
-        List<string> missingTypes = [.. extraTypes.Except(selections.Select(s => s.Type))];
+        // List<string> missingTypes = [.. extraTypes.Except(selections.Select(s => s.Type))];
 
-        total_price += missingTypes.Count > 0 ?
-                                      await HandleDefaultExtraSelection(cusCakeId, bakeryId, missingTypes) : 0;
+        // total_price += missingTypes.Count > 0 ?
+        //                               await HandleDefaultExtraSelection(cusCakeId, bakeryId, missingTypes) : 0;
 
         var optionIds = selections.Select(x => x.OptionId).ToList();
 
@@ -251,10 +251,10 @@ public class CustomCakeService(IUnitOfWork unitOfWork, IMapper mapper, IClaimsSe
             return await HandleDefaultDecorationSelection(cusCakeId, bakeryId, decorationTypes);
         }
 
-        List<string> missingTypes = [.. decorationTypes.Except(selections.Select(s => s.Type))];
+        // List<string> missingTypes = [.. decorationTypes.Except(selections.Select(s => s.Type))];
 
-        total_price += missingTypes.Count > 0 ?
-                               await HandleDefaultDecorationSelection(cusCakeId, bakeryId, missingTypes) : 0;
+        // total_price += missingTypes.Count > 0 ?
+        //                        await HandleDefaultDecorationSelection(cusCakeId, bakeryId, missingTypes) : 0;
 
         var optionIds = selections.Select(x => x.OptionId).ToList();
 
