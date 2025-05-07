@@ -31,7 +31,7 @@ public class AdminReportService(IUnitOfWork unitOfWork) : IAdminReportService
     public async Task<AdminOverviewModel> GetAdminOverviewModel(DateTime? dateFrom = null, DateTime? dateTo = null)
     {
         var order_completed = await _unitOfWork.OrderRepository.WhereAsync(o =>
-            o.OrderStatus == OrderStatusConstants.COMPLETED &&
+           (o.OrderStatus == OrderStatusConstants.COMPLETED || o.OrderStatus == OrderStatusConstants.FAULTY) &&
             o.CreatedAt.Date >= (dateFrom ?? DateTime.MinValue).Date &&
             o.CreatedAt.Date <= (dateTo ?? DateTime.MaxValue).Date
         );
@@ -143,7 +143,7 @@ public class AdminReportService(IUnitOfWork unitOfWork) : IAdminReportService
         if (type == "REVENUE")
         {
             var orders = await _unitOfWork.OrderRepository.WhereAsync(
-                x => x.OrderStatus == OrderStatusConstants.COMPLETED
+                x => (x.OrderStatus == OrderStatusConstants.COMPLETED || x.OrderStatus == OrderStatusConstants.FAULTY)
                 && x.CreatedAt.Year >= dateFrom.Year && x.CreatedAt.Year <= dateTo.Year
             );
 
