@@ -61,7 +61,7 @@ public class VoucherService(
         {
             code = GenerateVoucherCode.GenerateCode();
         }
-        while (await GetVoucherByCodeAsync(code, _claimsService.GetCurrentUser) != null); // Dừng khi code chưa tồn tại
+        while (await IsVoucherExist(code, _claimsService.GetCurrentUser)); // Dừng khi code chưa tồn tại
 
         var voucher = _mapper.Map<Voucher>(model);
         voucher.Code = code;
@@ -74,6 +74,15 @@ public class VoucherService(
         return voucher;
     }
 
+    private async Task<bool> IsVoucherExist(string code, Guid bakeryId)
+    {
+        var voucher = await _unitOfWork.VoucherRepository
+            .FirstOrDefaultAsync(x => x.Code == code && x.BakeryId == bakeryId);
+
+        if (voucher != null) return true;
+
+        return false;
+    }
 
 
     public async Task DeleteAsync(Guid id)
