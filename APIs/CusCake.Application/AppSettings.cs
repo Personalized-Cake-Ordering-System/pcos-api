@@ -13,7 +13,6 @@ public class AppSettings
 public class ConnectionStrings
 {
     public string MySqlString { get; set; } = default!;
-    public string MySqlStringBackUp { get; set; } = default!;
     public string MongoDbConnection { get; set; } = default!;
 }
 
