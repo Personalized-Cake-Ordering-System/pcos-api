@@ -211,7 +211,7 @@ public class BakeryDashboardService(IUnitOfWork unitOfWork) : IBakeryDashboardSe
                 foreach (var day in days)
                 {
                     var dailyOrders = orders.Where(x => x.CreatedAt.Date == day.Date);
-                    result.Add(new { date = day.ToString("yyyy-MM-dd"), value = dailyOrders.Sum(x => x.AppCommissionFee) });
+                    result.Add(new { date = day.ToString("yyyy-MM-dd"), value = dailyOrders.Sum(x => x.ShopRevenue) });
                 }
             }
             else
@@ -220,7 +220,7 @@ public class BakeryDashboardService(IUnitOfWork unitOfWork) : IBakeryDashboardSe
                 for (var date = new DateTime(dateFrom.Year, dateFrom.Month, 1); date <= dateTo; date = date.AddMonths(1))
                 {
                     var monthlyOrders = orders.Where(x => x.CreatedAt.Year == date.Year && x.CreatedAt.Month == date.Month);
-                    result.Add(new { month = date.ToString("yyyy-MM"), value = monthlyOrders.Sum(x => x.AppCommissionFee) });
+                    result.Add(new { month = date.ToString("yyyy-MM"), value = monthlyOrders.Sum(x => x.ShopRevenue) });
                 }
             }
         }
